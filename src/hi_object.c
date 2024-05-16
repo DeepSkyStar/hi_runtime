@@ -19,6 +19,7 @@
  *  limitations under the License.
  */
 
+#include "hi_defines.h"
 #include "hi_object.h"
 #include "hi_memory.h"
 
@@ -64,7 +65,7 @@ inline void* hi_object_retain(hi_object *object)
 inline void* hi_object_release(hi_object *object)
 {
     if (hi_object_ref(object)->ref_cnt <= 0) {
-        HI_LOGE("release <%lx> error, ref_cnt is 0.\n", (hi_size_t)object);
+        HI_LOGE("release <%zx> error, ref_cnt is 0.\n", (hi_size_t)object);
         return NULL;
     }
     if (--(hi_object_ref(object)->ref_cnt) <= 0) {

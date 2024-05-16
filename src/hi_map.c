@@ -19,6 +19,7 @@
  *  limitations under the License.
  */
 
+#include "hi_defines.h"
 #include "hi_map.h"
 
 HI_CLASS_IMP(hi_map, hi_object)

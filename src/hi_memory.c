@@ -19,6 +19,7 @@
  *  limitations under the License.
  */
 
+#include "hi_defines.h"
 #include "hi_memory.h"
 
 inline void* hi_memset(void* src, int value, hi_size_t size)

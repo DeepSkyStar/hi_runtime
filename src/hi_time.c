@@ -19,17 +19,11 @@
  *  limitations under the License.
  */
 
-#if _HI_FOR_FREERTOS
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "freertos/queue.h"
-#endif
-
 #include "hi_time.h"
 
 inline hi_ticks_t hi_get_ticks(void)
 {
-#if _HI_FOR_FREERTOS
+#if _HI_FREERTOS
     return xTaskGetTickCount();
 #else
     return 0;

@@ -19,6 +19,7 @@
  *  limitations under the License.
  */
 
+#include "hi_defines.h"
 #include "hi_method_map.h"
 
 #define HI_METHOD_MAX_INDEX (0xffff)

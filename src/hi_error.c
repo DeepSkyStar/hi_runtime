@@ -19,6 +19,7 @@
  *  limitations under the License.
  */
 
+#include "hi_defines.h"
 #include "hi_error.h"
 
 const hi_err_t HI_ERR_OK_CONST = {HI_ERR_OK, HI_ERR_DOMAIN_RUNTIME, 0};

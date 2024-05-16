@@ -19,6 +19,7 @@
  *  limitations under the License.
  */
 
+#include "hi_defines.h"
 #include "hi_algorithm.h"
 
 /****************************** Vector *********************************/

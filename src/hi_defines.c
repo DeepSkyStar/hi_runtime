@@ -20,3 +20,28 @@
  */
 
 #include "hi_defines.h"
+
+inline hi_os_t hi_get_os(void)
+{
+#if _HI_NON_SYS
+    return HI_OS_NON_SYS;
+#elif _HI_FREERTOS
+    return HI_OS_FREERTOR;
+#elif _HI_WIN
+    return HI_OS_WIN;
+#elif _HI_LINUX
+    return HI_OS_LINUX;
+#elif _HI_ANDROID
+    return HI_OS_ANDROID;
+#elif _HI_MACOS
+    return HI_OS_MACOS;
+#elif _HI_IOS
+    return HI_OS_IOS;
+#elif _HI_TVOS
+    return HI_OS_TVOS;
+#elif _HI_WATCHOS
+    return HI_OS_WATCHOS;
+#else
+    return HI_OS_NON_SYS;
+#endif
+}

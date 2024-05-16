@@ -45,7 +45,7 @@ typedef enum hi_log_level_enum{
 
 #ifndef BOOTLOADER_BUILD
 
-#if HI_IS_ESP32
+#if _HI_ESP32
 
 #if defined(__cplusplus) && (__cplusplus >  201703L)
 #define HI_LOGE( format, ... ) ESP_LOG_LEVEL_LOCAL(ESP_LOG_ERROR,   __FILE__, format __VA_OPT__(,) __VA_ARGS__)
@@ -63,11 +63,11 @@ typedef enum hi_log_level_enum{
 
 #else
 
-#define HI_LOGE( format, ... ) printf( "<lv.%d>%s: " format, HI_LOG_ERROR, __FILE__, ##__VA_ARGS__)
-#define HI_LOGW( format, ... ) printf( "<lv.%d>%s: " format, HI_LOG_WARN, __FILE__, ##__VA_ARGS__)
-#define HI_LOGI( format, ... ) printf( "<lv.%d>%s: " format, HI_LOG_INFO, __FILE__, ##__VA_ARGS__)
-#define HI_LOGD( format, ... ) printf( "<lv.%d>%s: " format, HI_LOG_DEBUG, __FILE__, ##__VA_ARGS__)
-#define HI_LOGV( format, ... ) printf( "<lv.%d>%s: " format, HI_LOG_VERBOSE, __FILE__, ##__VA_ARGS__)
+#define HI_LOGE( format, ... ) printf( "<ERROR>%s: " format, __FILE__, ##__VA_ARGS__)
+#define HI_LOGW( format, ... ) printf( "<WARNING>%s: " format, __FILE__, ##__VA_ARGS__)
+#define HI_LOGI( format, ... ) printf( "<INFO>%s: " format, __FILE__, ##__VA_ARGS__)
+#define HI_LOGD( format, ... ) printf( "<DEBUG>%s: " format, __FILE__, ##__VA_ARGS__)
+#define HI_LOGV( format, ... ) printf( "<VERBOSE>%s: " format, __FILE__, ##__VA_ARGS__)
 
 #endif  /* HI_IS_ESP32 */
 

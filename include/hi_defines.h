@@ -22,9 +22,6 @@
 #ifndef HI_DEFINES_H_
 #define HI_DEFINES_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #include <stdio.h>
 #include <stdint.h>
@@ -33,25 +30,51 @@ extern "C" {
 #include <math.h>
 #include <assert.h>
 
+//Chips & Systems Define Here.
+//System and chip's define provide by hi_system.h.in, it will automatic generate the hi_system.h
+// #define _HI_NON_SYS (1)
+// #define _HI_FREERTOS (1)
+// #define _HI_WIN (1)
+// #define _HI_LINUX (1)
+// #define _HI_ANDROID (1)
+// #define _HI_MACOS (1)
+// #define _HI_IOS (1)
+// #define _HI_TVOS (1)
+// #define _HI_WATCHOS (1)
+
+// #define _HI_ESP32 (1)
+
+#if _HI_FREERTOS
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/queue.h"
+#endif
+
+#if _HI_ESP32
+#include "esp_log.h"
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef enum{
+    HI_OS_NON_SYS = 0,      //_HI_NON_SYS
+    HI_OS_FREERTOR = 1,     //_HI_FREERTOR
+    HI_OS_WIN = 2,          //_HI_WIN
+    HI_OS_LINUX = 3,        //_HI_LINUX
+    HI_OS_ANDROID = 4,      //_HI_LINUX
+    HI_OS_MACOS = 5,        //_HI_MACOS
+    HI_OS_IOS = 6,          //_HI_IOS
+    HI_OS_WATCHOS = 7,      //_HI_WATCHOS
+    HI_OS_TVOS = 8,         //_HI_TVOS
+}hi_os_t;
+extern hi_os_t hi_get_os(void);
+
 #define HI_MAX_SIZE ((hi_size_t)-1)
 typedef size_t hi_size_t;
 typedef char* hi_str_t;
 typedef void* hi_ptr_t;
-
-//Chips & Systems Define Here.
-//System and chip's define provide by hi_system.h.in, it will automatic generate the hi_system.h
-// #define _HI_FOR_NON_SYS (0)
-// #define _HI_FOR_FREERTOS (0)
-// #define _HI_FOR_WIN64 (0)
-// #define _HI_FOR_WIN32 (0)
-// #define _HI_FOR_MACOS (0)
-// #define _HI_FOR_IOS (0)
-// #define _HI_FOR_ANDROID (0)
-// #define _HI_FOR_LINUX (0)
-
-#if HI_IS_ESP32
-#include "esp_log.h"
-#endif
 
 #ifdef __cplusplus
 }

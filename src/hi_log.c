@@ -19,4 +19,5 @@
  *  limitations under the License.
  */
 
+#include "hi_defines.h"
 #include "hi_log.h"

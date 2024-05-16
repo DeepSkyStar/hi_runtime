@@ -19,12 +19,6 @@
  *  limitations under the License.
  */
 
-#if _HI_FOR_FREERTOS
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "freertos/queue.h"
-#endif
-
 #include "hi_runloop.h"
 #include "hi_time.h"
 
@@ -95,7 +89,7 @@ void hi_runloop_run(hi_runloop_t *runloop)
 
         runloop->periods++;
 //TODO: add more system support.
-#if _HI_FOR_FREERTOS
+#if _HI_FREERTOS
         if (runloop->frequency == 0 || runloop->frequency >= configTICK_RATE_HZ) {
             continue;
         }
@@ -116,7 +110,7 @@ void hi_runloop_run(hi_runloop_t *runloop)
 
         //if cur_time > expect time, pass
 //TODO: add more system support.
-#if _HI_FOR_FREERTOS
+#if _HI_FREERTOS
         if (runloop->periods * configTICK_RATE_HZ <= runloop->ticks * runloop->frequency)
         {
             continue;
@@ -131,7 +125,7 @@ END:
     }
     hi_interrupt_queue_deinit(&runloop->events);
 //TODO: add more system support.
-#if _HI_FOR_FREERTOS
+#if _HI_FREERTOS
     vTaskDelete(NULL);
 #endif
 }
@@ -141,7 +135,7 @@ inline void hi_runloop_start(hi_runloop_t *runloop)
     if (runloop->state.is_running) return;
     runloop->state.is_running = 1;
 //TODO: add more system support.
-#if _HI_FOR_FREERTOS
+#if _HI_FREERTOS
     xTaskCreate((TaskFunction_t)hi_runloop_run, runloop->name, runloop->stack_depth, runloop, runloop->priority, NULL);
 #endif
 }

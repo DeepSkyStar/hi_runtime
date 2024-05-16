@@ -19,11 +19,7 @@
  *  limitations under the License.
  */
 
-#if _HI_FOR_FREERTOS
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "freertos/queue.h"
-#endif
+#include "hi_defines.h"
 #include "hi_interrupt_queue.h"
 
 void hi_interrupt_queue_init(hi_interrupt_queue_t *queue)

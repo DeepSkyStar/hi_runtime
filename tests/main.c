@@ -72,29 +72,32 @@ int main(int argc, char *argv[])
     
 //    printf("%u\n", (size_t)-1);
 
-    hi_loop_pool_t* pool = hi_loop_pool_new(sizeof(test_t), TEST_CNT);
+//Loop Pool
+    // hi_loop_pool_t* pool = hi_loop_pool_new(sizeof(test_t), TEST_CNT);
     
-    for (int i = 0; i < TEST_CNT; i++)
-    {
-        test_index[i] = hi_loop_pool_take_unit(pool);
-        test_t* ptr = (test_t*)(pool->vector + test_index[i]);
-        ptr->a = i;
-        ptr->b = i;
-        printf("<%d> First Get Unit: %d \n",i , test_index[i]);
-    }
+    // for (int i = 0; i < TEST_CNT; i++)
+    // {
+    //     test_index[i] = hi_loop_pool_take_unit(pool);
+    //     test_t* ptr = (test_t*)(pool->vector + test_index[i]);
+    //     ptr->a = i;
+    //     ptr->b = i;
+    //     printf("<%d> First Get Unit: %d \n",i , test_index[i]);
+    // }
     
-    for (int i = 0; i< TEST_CNT; i++)
-    {
-        hi_loop_pool_bring_unit(pool, test_index[i]);
-    }
+    // for (int i = 0; i< TEST_CNT; i++)
+    // {
+    //     hi_loop_pool_bring_unit(pool, test_index[i]);
+    // }
     
-    for (int i = 0; i < TEST_CNT; i++)
-    {
-        test_index[i] = hi_loop_pool_take_unit(pool);
-        test_t* ptr = (test_t*)(pool->vector + test_index[i]);
-        ptr->a = i;
-        ptr->b = i;
-        printf("<%d> Second Get Unit: %d \n",i , test_index[i]);
-    }
+    // for (int i = 0; i < TEST_CNT; i++)
+    // {
+    //     test_index[i] = hi_loop_pool_take_unit(pool);
+    //     test_t* ptr = (test_t*)(pool->vector + test_index[i]);
+    //     ptr->a = i;
+    //     ptr->b = i;
+    //     printf("<%d> Second Get Unit: %d \n",i , test_index[i]);
+    // }
+
+    printf("This system: %d\n", hi_get_os());
     return 0;
 }

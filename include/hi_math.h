@@ -46,10 +46,10 @@ extern "C" {
 
 /******************************** Range for Calc ****************************************/
 
-typedef struct halo_range16_s{
+typedef struct hi_range16_s{
     uint16_t index;
     uint16_t length;
-} halo_range16_t;
+} hi_range16_t;
 
 #define HALO_RANGE_END(range) ((range).index + (range).length)
 #define IN_HALO_RANGE(range, i) ((i) >= (range).index && (i) < HALO_RANGE_END(range))
