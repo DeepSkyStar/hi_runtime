@@ -63,11 +63,11 @@ typedef enum hi_log_level_enum{
 
 #else
 
-#define HI_LOGE( format, ... ) printf( "<ERROR>%s: " format, __FILE__, ##__VA_ARGS__)
-#define HI_LOGW( format, ... ) printf( "<WARNING>%s: " format, __FILE__, ##__VA_ARGS__)
-#define HI_LOGI( format, ... ) printf( "<INFO>%s: " format, __FILE__, ##__VA_ARGS__)
-#define HI_LOGD( format, ... ) printf( "<DEBUG>%s: " format, __FILE__, ##__VA_ARGS__)
-#define HI_LOGV( format, ... ) printf( "<VERBOSE>%s: " format, __FILE__, ##__VA_ARGS__)
+#define HI_LOGE( format, ... ) printf( "<ERROR>%s:%d: " format "\n", __FILE__, __LINE__, ##__VA_ARGS__)
+#define HI_LOGW( format, ... ) printf( "<WARNING>%s:%d: " format "\n", __FILE__, __LINE__, ##__VA_ARGS__)
+#define HI_LOGI( format, ... ) printf( "<INFO>%s:%d: " format "\n", __FILE__, __LINE__, ##__VA_ARGS__)
+#define HI_LOGD( format, ... ) printf( "<DEBUG>%s:%d: " format "\n", __FILE__, __LINE__, ##__VA_ARGS__)
+#define HI_LOGV( format, ... ) printf( "<VERBOSE>%s:%d: " format "\n", __FILE__, __LINE__, ##__VA_ARGS__)
 
 #endif  /* HI_IS_ESP32 */
 

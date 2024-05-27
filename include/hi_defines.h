@@ -31,18 +31,26 @@
 #include <assert.h>
 
 //Chips & Systems Define Here.
-//System and chip's define provide by hi_system.h.in, it will automatic generate the hi_system.h
+
 // #define _HI_NON_SYS (1)
 // #define _HI_FREERTOS (1)
 // #define _HI_WIN (1)
 // #define _HI_LINUX (1)
 // #define _HI_ANDROID (1)
+// #ifndef _HI_MACOS
 // #define _HI_MACOS (1)
+// #endif
 // #define _HI_IOS (1)
 // #define _HI_TVOS (1)
 // #define _HI_WATCHOS (1)
 
 // #define _HI_ESP32 (1)
+
+#if _HI_LINUX || _HI_MACOS || _HI_IOS || _HI_ANDROID
+#ifndef _HI_PTHREAD
+#define _HI_PTHREAD (1)
+#endif
+#endif
 
 #if _HI_FREERTOS
 #include "freertos/FreeRTOS.h"
@@ -74,7 +82,6 @@ extern hi_os_t hi_get_os(void);
 #define HI_MAX_SIZE ((hi_size_t)-1)
 typedef size_t hi_size_t;
 typedef char* hi_str_t;
-typedef void* hi_ptr_t;
 
 #ifdef __cplusplus
 }

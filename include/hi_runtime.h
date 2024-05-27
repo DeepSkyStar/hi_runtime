@@ -29,6 +29,7 @@
 #include "hi_math.h"
 #include "hi_method_map.h"
 #include "hi_memory.h"
+#include "hi_algorithm.h"
 #include "hi_color.h"
-#include "hi_interrupt_queue.h"
+#include "hi_async_queue.h"
 #include "hi_runloop.h"

@@ -22,82 +22,80 @@
 #include <stdio.h>
 #include "hi_runtime.h"
 
-#define TEST_CNT (32)
-hi_size_t test_index[TEST_CNT] = {0};
-
-typedef struct
-{
+HI_CLASS_DEF(sample_obj, hi_object)
     uint8_t start[0];
     uint8_t a;
     uint32_t b;
     uint8_t end[0];
-}test_t;
+HI_CLASS_END
+
+HI_CLASS_IMP(sample_obj, hi_object)
+
+HI_CLASS_INIT_IMP_EMPTY(sample_obj);
+
+HI_CLASS_DEINIT_IMP_EMPTY(sample_obj);
+
+void test_obj()
+{
+    sample_obj *a = HI_NEW(sample_obj);
+    a->a = 10;
+
+    sample_obj *b = HI_RETAIN(a);
+
+    HI_RELEASE(a);
+    b = NULL;
+
+    HI_RELEASE(a);
+
+    HI_RELEASE(a);
+    HI_RELEASE(a);
+
+    hi_pair_t pair = {
+        .key = {.str_val = "123"},
+        .value = {.str_val = "sdfdsf"}
+    };
+
+   printf("%s: %s\n", pair.key.str_val, (char*)pair.value.str_val);
+   printf("%zu\n", (size_t)-1);
+}
+
+void test_mem()
+{   
+    int max_pool_capa = 32;
+    hi_size_t test_index[32] = {0};
+    hi_loop_pool_t* pool = hi_loop_pool_new(sizeof(sample_obj), max_pool_capa);
+    
+    for (int i = 0; i < max_pool_capa; i++)
+    {
+        test_index[i] = hi_loop_pool_take_unit(pool);
+        sample_obj* ptr = (sample_obj*)(pool->vector + test_index[i]);
+        ptr->a = i;
+        ptr->b = i;
+        printf("<%d> First Get Unit: %zu \n",i , test_index[i]);
+    }
+    
+    for (int i = 0; i< max_pool_capa; i++)
+    {
+        hi_loop_pool_bring_unit(pool, test_index[i]);
+    }
+    
+    for (int i = 0; i < max_pool_capa; i++)
+    {
+        test_index[i] = hi_loop_pool_take_unit(pool);
+        sample_obj* ptr = (sample_obj*)(pool->vector + test_index[i]);
+        ptr->a = i;
+        ptr->b = i;
+        printf("<%d> Second Get Unit: %zu \n",i , test_index[i]);
+    }
+}
 
 int main(int argc, char *argv[])
 {
-    // printf("Program name: %s\n", argv[0]);
-    // if (argc > 1)
-    // {
-    //     for (int i = 1; i < argc; i++)
-    //     {
-    //         printf("Argument %d: %s\n", i, argv[i]);
-    //     }
-    // }
-    // else
-    // {
-    //     printf("No arguments were provided.\n");
-    // }
-//    test_a *a = HI_NEW(test_a);
-//
-//    a->a = 10;
-//
-//    test_a *b = HI_RETAIN(a);
-//
-//    HI_RELEASE(a);
-//    b = NULL;
-//
-//    HI_RELEASE(a);
-//
-//    HI_RELEASE(a);
-//    HI_RELEASE(a);
-//
-//    hi_pair_t pair = {
-//        .str = {s
-//            .key = "123",
-//            .value = "sdfdsf",
-//        },
-//    };
 
-//    printf("%s: %s\n", pair.str.key, (char*)pair.str.value);
-    
-//    printf("%u\n", (size_t)-1);
+    printf("This system is: %d\n", hi_get_os());
 
-//Loop Pool
-    // hi_loop_pool_t* pool = hi_loop_pool_new(sizeof(test_t), TEST_CNT);
-    
-    // for (int i = 0; i < TEST_CNT; i++)
-    // {
-    //     test_index[i] = hi_loop_pool_take_unit(pool);
-    //     test_t* ptr = (test_t*)(pool->vector + test_index[i]);
-    //     ptr->a = i;
-    //     ptr->b = i;
-    //     printf("<%d> First Get Unit: %d \n",i , test_index[i]);
-    // }
-    
-    // for (int i = 0; i< TEST_CNT; i++)
-    // {
-    //     hi_loop_pool_bring_unit(pool, test_index[i]);
-    // }
-    
-    // for (int i = 0; i < TEST_CNT; i++)
-    // {
-    //     test_index[i] = hi_loop_pool_take_unit(pool);
-    //     test_t* ptr = (test_t*)(pool->vector + test_index[i]);
-    //     ptr->a = i;
-    //     ptr->b = i;
-    //     printf("<%d> Second Get Unit: %d \n",i , test_index[i]);
-    // }
+    test_obj();
+    test_mem();
 
-    printf("This system: %d\n", hi_get_os());
     return 0;
 }

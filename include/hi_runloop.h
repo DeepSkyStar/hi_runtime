@@ -25,7 +25,7 @@
 #include "hi_defines.h"
 #include "hi_method_map.h"
 #include "hi_error.h"
-#include "hi_interrupt_queue.h"
+#include "hi_async_queue.h"
 #include "hi_string.h"
 
 #ifdef __cplusplus
@@ -50,11 +50,11 @@ struct hi_runloop_s{
     hi_runloop_state_t state;
     hi_str_t name;
     uint32_t stack_depth;   //stack depth for runloop task.
-    halo_priority_t priority;   //the priority for runloop task.
+    hi_priority_t priority;   //the priority for runloop task.
+    uint64_t periods;    //how many period of this runloop run.
     hi_ticks_t frequency; //0 means no delay.
     uint64_t ticks; //how many ticks when run.
-    uint64_t periods;    //how many period of this runloop run.
-    hi_interrupt_queue_t events; //recv queue for input event.
+    hi_async_queue_t events; //recv queue for input event.
     hi_runloop_func init_func;   //will run once when start a runloop.
     hi_runloop_func loop_func;    //will run many time in 1s, depends on frequency.
     hi_runloop_func end_func;  //will run once after end.

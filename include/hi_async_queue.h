@@ -1,5 +1,5 @@
 /**
- * @file hi_interrupt_queue.h
+ * @file hi_async_queue.h
  * @author Cosmade (deepskystar@outlook.com)
  * @brief 
  * @version
@@ -25,31 +25,23 @@
 #include "hi_defines.h"
 #include "hi_error.h"
 #include "hi_time.h"
+#include "hi_thread.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef struct hi_interrupt_queue_s{
+typedef struct hi_async_queue_s{
     void *queue;
     uint16_t item_size;
     uint16_t len;
-}hi_interrupt_queue_t;
+}hi_async_queue_t;
 
-typedef uint8_t halo_priority_t;
-typedef enum{
-    HALO_PRIORITY_BACKGROUND = 0,   //for data storage or something not important.
-    HALO_PRIORITY_NORMAL = 1,   //usually task.
-    HALO_PRIORITY_RESPONSE = 2, //for response user input.
-    HALO_PRIORITY_DISPLAY = 3,  //for display sync.
-    HALO_PRIORITY_CRITICAL = 4, //for critical safety function.
-}halo_priority_enum;
-
-void hi_interrupt_queue_init(hi_interrupt_queue_t *queue);
-hi_err_t hi_interrupt_queue_send(hi_interrupt_queue_t *queue, void *item, hi_ticks_t ticks_to_wait);
-hi_err_t hi_interrupt_queue_send_fromISR(hi_interrupt_queue_t *queue, void *item, halo_priority_t priority);
-hi_err_t hi_interrupt_queue_recv(hi_interrupt_queue_t *queue, void *item, hi_ticks_t ticks_to_wait);
-void hi_interrupt_queue_deinit(hi_interrupt_queue_t *queue);
+void hi_async_queue_init(hi_async_queue_t *queue);
+hi_err_t hi_async_queue_send(hi_async_queue_t *queue, void *item, hi_ticks_t ticks_to_wait);
+hi_err_t hi_async_queue_send_fromISR(hi_async_queue_t *queue, void *item, hi_priority_t priority);
+hi_err_t hi_async_queue_recv(hi_async_queue_t *queue, void *item, hi_ticks_t ticks_to_wait);
+void hi_async_queue_deinit(hi_async_queue_t *queue);
 
 #ifdef __cplusplus
 }

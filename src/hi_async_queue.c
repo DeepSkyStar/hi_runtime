@@ -1,5 +1,5 @@
 /**
- * @file hi_interrupt_queue.c
+ * @file hi_async_queue.c
  * @author Cosmade (deepskystar@outlook.com)
  * @brief 
  * @version
@@ -20,9 +20,9 @@
  */
 
 #include "hi_defines.h"
-#include "hi_interrupt_queue.h"
+#include "hi_async_queue.h"
 
-void hi_interrupt_queue_init(hi_interrupt_queue_t *queue)
+void hi_async_queue_init(hi_async_queue_t *queue)
 {
 #if _HI_FOR_FREERTOS
     if (queue->len > 0) {
@@ -31,7 +31,7 @@ void hi_interrupt_queue_init(hi_interrupt_queue_t *queue)
 #endif
 }
 
-hi_err_t hi_interrupt_queue_send(hi_interrupt_queue_t *queue, void *item, hi_ticks_t ticks_to_wait)
+hi_err_t hi_async_queue_send(hi_async_queue_t *queue, void *item, hi_ticks_t ticks_to_wait)
 {
 #if _HI_FOR_FREERTOS
     if (queue->len > 0) {
@@ -46,7 +46,7 @@ hi_err_t hi_interrupt_queue_send(hi_interrupt_queue_t *queue, void *item, hi_tic
     return HI_ERR_FAILED_CONST;
 }
 
-hi_err_t hi_interrupt_queue_send_fromISR(hi_interrupt_queue_t *queue, void *item, halo_priority_t priority)
+hi_err_t hi_async_queue_send_fromISR(hi_async_queue_t *queue, void *item, hi_priority_t priority)
 {
 #if _HI_FOR_FREERTOS
     if (queue->len > 0) {
@@ -66,7 +66,7 @@ hi_err_t hi_interrupt_queue_send_fromISR(hi_interrupt_queue_t *queue, void *item
 #endif
 }
 
-hi_err_t hi_interrupt_queue_recv(hi_interrupt_queue_t *queue, void *item, hi_ticks_t ticks_to_wait)
+hi_err_t hi_async_queue_recv(hi_async_queue_t *queue, void *item, hi_ticks_t ticks_to_wait)
 {
 #if _HI_FOR_FREERTOS
     if (queue->len > 0) {
@@ -85,7 +85,7 @@ hi_err_t hi_interrupt_queue_recv(hi_interrupt_queue_t *queue, void *item, hi_tic
 #endif
 }
 
-void hi_interrupt_queue_deinit(hi_interrupt_queue_t *queue)
+void hi_async_queue_deinit(hi_async_queue_t *queue)
 {
 #if _HI_FOR_FREERTOS
     if (queue->len > 0 && queue->queue)

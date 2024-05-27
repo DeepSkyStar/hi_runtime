@@ -29,11 +29,10 @@
 extern "C" {
 #endif
 
-
 typedef struct
 {
+    char* data;
     hi_size_t size;
-    hi_ptr_t data;
 }hi_data_t;
 
 typedef enum
@@ -104,6 +103,7 @@ typedef struct
 typedef struct
 {
     hi_pair_t node;
+    hi_loop_pool_t* pool;   //use memory pool for storage.
 }hi_map_t;
 
 typedef struct

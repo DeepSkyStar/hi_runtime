@@ -31,7 +31,7 @@ extern "C" {
 
 HI_CLASS_DEF(hi_data, hi_object)
     hi_size_t size;
-    hi_ptr_t data;
+    char* data;
 HI_CLASS_END
 
 HI_CLASS_COPYING_DEF(hi_data)
