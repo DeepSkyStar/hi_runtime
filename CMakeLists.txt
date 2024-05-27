@@ -38,6 +38,9 @@ else()
 
         target_include_directories(hi_runtime PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
+        find_package(Threads REQUIRED)
+
+        target_link_libraries(hi_runtime ${CMAKE_THREAD_LIBS_INIT})
         set(BUILD_ONCE_HI_RUNTIME ON CACHE BOOL "hi_runtime has been built")
     endif()
 
