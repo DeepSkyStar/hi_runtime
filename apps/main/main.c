@@ -176,11 +176,11 @@ void print_map(hi_map_t *map)
             if (parent != HI_ITER_NULL) parent_key = hi_map_get_node(map, parent).key;
             if (_HI_MAP_NODE_COLOR(map, head)) 
             {
-                printf("%llu:%llu(B)\t", parent_key, hi_map_get_node(map, head).key);
+                printf("%llu:%llu(B)\t", parent_key.uint64, hi_map_get_node(map, head).key.uint64);
             }
             else
             {
-                printf("%llu:%llu(R)\t", parent_key, hi_map_get_node(map, head).key);
+                printf("%llu:%llu(R)\t", parent_key.uint64, hi_map_get_node(map, head).key.uint64);
             }
             hi_queue_out(queue);
         }
@@ -364,10 +364,10 @@ int main(int argc, char *argv[])
 
     // test_obj();
     // test_mem();
-    // test_async_queue();
-    // test_queue();
-    // test_async_map();
+    test_async_queue();
+    test_queue();
     test_map();
+    // test_async_map();
 
     return 0;
 }
