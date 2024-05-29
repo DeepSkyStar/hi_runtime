@@ -112,7 +112,7 @@ void test_mem()
 
 //2 0000, 3ms, for 80mhz is 100ms
 //200 for 80mhz is 1ms
-#define TEST_MAP_COUNT (100)
+#define TEST_MAP_COUNT (1000000)
 
 //20 0000, 2ms, for 80mhz is 100ms
 //2000 for 80mhz is 1ms
@@ -129,18 +129,6 @@ void print_tab(int num)
     }
 }
 
-#define _HI_MAP_BLACK (1)
-#define _HI_MAP_RED (0)
-
-#define _HI_MAP_ITER_COLOR(__iter__) ((__iter__)&((hi_iter_t)1))
-#define _HI_MAP_ITER(__iter__) (__iter__ == HI_ITER_NULL? __iter__:((__iter__)&(~(hi_iter_t)1)))
-#define _HI_MAP_BLACK_ITER(__iter__) ((__iter__)|((hi_iter_t)1))
-#define _HI_MAP_RED_ITER(__iter__) (_HI_MAP_ITER(__iter__))
-
-#define _HI_MAP_NODE_TRUST(__map__, __iter__) ((hi_map_node_t *)(__map__->pool->container + ((__iter__)&(~(hi_iter_t)1))))
-#define _HI_MAP_NODE(__map__, __iter__) ((hi_map_node_t *)(__map__->pool->container + _HI_MAP_ITER(__iter__)))
-#define _HI_MAP_NODE_COLOR(__map__, __iter__) ((__iter__) == HI_ITER_NULL? _HI_MAP_BLACK: _HI_MAP_ITER_COLOR(_HI_MAP_NODE(__map__, __iter__)->parent))
-
 void print_map(hi_map_t *map)
 {
     hi_queue_t *queue = hi_malloc(sizeof(hi_queue_t));
@@ -149,8 +137,9 @@ void print_map(hi_map_t *map)
     next_queue->pool = &shared_queue_pool;
     hi_queue_init(queue);
     hi_queue_init(next_queue);
-    if (hi_map_root(map) == HI_ITER_NULL) return;
-    hi_queue_in(queue, HI_VALUE_UINT(hi_map_root(map)));
+    if (map->root == HI_ITER_NULL) return;
+
+    hi_queue_in(queue, HI_VALUE_ITER(HI_MAP_ITER(map->root)));
 
     hi_size_t depth = hi_map_depth(map);
     hi_size_t blank = 0;
@@ -162,25 +151,25 @@ void print_map(hi_map_t *map)
         while (queue->head != HI_ITER_NULL)
         {
             hi_iter_t head = hi_queue_head(queue).iter;
-            if (hi_map_left(map, head) != HI_ITER_NULL)
+            if (hi_map_node(map, head).left != HI_ITER_NULL)
             {
-                hi_queue_in(next_queue, HI_VALUE_ITER(hi_map_left(map, head)));
+                hi_queue_in(next_queue, HI_VALUE_ITER(HI_MAP_ITER(hi_map_node(map, head).left)));
             }
-            if (hi_map_right(map, head) != HI_ITER_NULL)
+            if (hi_map_node(map, head).right != HI_ITER_NULL)
             {
-                hi_queue_in(next_queue, HI_VALUE_ITER(hi_map_right(map, head)));
+                hi_queue_in(next_queue, HI_VALUE_ITER(HI_MAP_ITER(hi_map_node(map, head).right)));
             }
 
-            hi_iter_t parent = hi_map_get_node(map, head).parent;
+            hi_iter_t parent = hi_map_node(map, head).parent;
             hi_map_key_t parent_key = HI_VALUE_NULL;
-            if (parent != HI_ITER_NULL) parent_key = hi_map_get_node(map, parent).key;
-            if (_HI_MAP_NODE_COLOR(map, head)) 
+            if (parent != HI_ITER_NULL) parent_key = hi_map_node(map, parent).key;
+            if (HI_MAP_NODE_COLOR(map, head)) 
             {
-                printf("%llu:%llu(B)\t", parent_key.uint64, hi_map_get_node(map, head).key.uint64);
+                printf("%llu:%llu(B)\t", parent_key.uint64, hi_map_node(map, head).key.uint64);
             }
             else
             {
-                printf("%llu:%llu(R)\t", parent_key.uint64, hi_map_get_node(map, head).key.uint64);
+                printf("%llu:%llu(R)\t", parent_key.uint64, hi_map_node(map, head).key.uint64);
             }
             hi_queue_out(queue);
         }
@@ -254,15 +243,15 @@ void test_queue()
 void test_async_map()
 {
     printf("start test map\n");
-    hi_aysnc_map_t *map = hi_malloc(sizeof(hi_aysnc_map_t));
+    hi_async_map_t *map = hi_malloc(sizeof(hi_async_map_t));
     map->unsafe.pool = &shared_map_pool;
-    hi_aysnc_map_init(map);
+    hi_async_map_init(map);
 
     hi_time_t last_time = hi_get_time();
 
     for (int i = 0; i < TEST_MAP_COUNT + 1; i++)
     {
-        hi_result_t result = hi_aysnc_map_set(map, HI_VALUE_INT(i), HI_VALUE_INT(i));
+        hi_result_t result = hi_async_map_set(map, HI_VALUE_INT(i), HI_VALUE_INT(i));
         if (result.res != HI_RESULT_OK)
         {
             printf("the %d failed: %d\n", i, result.reason);
@@ -271,7 +260,7 @@ void test_async_map()
 
     printf("used time: %ld\n", hi_get_time() - last_time);
 
-    hi_size_t depth = hi_aysnc_map_depth(map);
+    hi_size_t depth = hi_async_map_depth(map);
     printf("print depth: %zu\n", depth);
     // print_map(map);
     printf("\n");
@@ -284,7 +273,7 @@ void test_async_map()
     last_time = hi_get_time();
     for (int i = 0; i < TEST_MAP_COUNT; i++)
     {
-        hi_value_t value = hi_aysnc_map_get(map, HI_VALUE_INT(i));
+        hi_value_t value = hi_async_map_get(map, HI_VALUE_INT(i));
     }
     printf("used time: %ld\n", hi_get_time() - last_time);
     printf("end test map\n\n");
@@ -313,8 +302,16 @@ void test_map()
 
     hi_size_t depth = hi_map_depth(map);
     printf("after set\n");
-    print_map(map);
+    // print_map(map);
     printf("\n\n");
+
+
+    int count = 0;
+    for (hi_iter_t iter = hi_map_first(map);iter != HI_ITER_NULL; iter = hi_map_next(map, iter))
+    {
+        count++;
+    }
+    printf("Check count: %d\n", count);
 
     printf("start del\n");
 
@@ -336,7 +333,7 @@ void test_map()
     }
 
     printf("after del\n");
-    print_map(map);
+    // print_map(map);
     printf("\n");
     printf("stop del\n\n");
 

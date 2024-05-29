@@ -31,6 +31,12 @@ extern "C" {
 #include "hi_memory.h"
 #include "hi_thread.h"
 
+#define HI_MAP_BLACK (1)
+#define HI_MAP_RED (0)
+#define HI_MAP_ITER_COLOR(__iter__) ((__iter__)&((hi_iter_t)1))
+#define HI_MAP_ITER(__iter__) (__iter__ == HI_ITER_NULL? __iter__:((__iter__)&(~(hi_iter_t)1)))
+#define HI_MAP_NODE(__map__, __iter__) ((hi_map_node_t *)(__map__->pool->container + HI_MAP_ITER(__iter__)))
+#define HI_MAP_NODE_COLOR(__map__, __iter__) ((__iter__) == HI_ITER_NULL? HI_MAP_BLACK: HI_MAP_ITER_COLOR(HI_MAP_NODE(__map__, __iter__)->parent))
 
 typedef hi_value_t hi_map_key_t;
 typedef struct hi_map_s hi_map_t;
@@ -58,11 +64,22 @@ extern hi_result_t hi_map_set(hi_map_t *map, hi_map_key_t key, hi_value_t value)
 
 extern hi_value_t hi_map_get(hi_map_t *map, hi_map_key_t key);
 
+extern void hi_map_del(hi_map_t *map, hi_map_key_t key);
+
+extern hi_iter_t hi_map_first(hi_map_t *map);
+
+extern hi_iter_t hi_map_next(hi_map_t *map, hi_iter_t node);
+
+/**
+ * @brief get iter from key. SHOULD notice that, the iter last bit will change sometime.
+ * 
+ * @param map map
+ * @param key key the key for get map node.
+ * @return hi_iter_t iter for raw used.
+ */
 extern hi_iter_t hi_map_get_iter(hi_map_t *map, hi_map_key_t key);
 
-extern hi_map_node_t hi_map_get_node(hi_map_t *map, hi_iter_t iter);
-
-extern void hi_map_del(hi_map_t *map, hi_map_key_t key);
+extern hi_map_node_t hi_map_node(hi_map_t *map, hi_iter_t iter);
 
 extern void hi_map_foreach(hi_map_t *map, hi_map_foreach_f func);
 
@@ -70,29 +87,35 @@ extern hi_size_t hi_map_depth(hi_map_t *map);
 
 extern void hi_map_deinit(hi_map_t *map);
 
-extern hi_iter_t hi_map_root(hi_map_t *map);
-extern hi_iter_t hi_map_left(hi_map_t *map, hi_iter_t node);
-extern hi_iter_t hi_map_right(hi_map_t *map, hi_iter_t node);
-extern hi_iter_t hi_map_parent(hi_map_t *map, hi_iter_t node);
+
+/***************************************** Async Map ***************************************************/
 
 
 typedef struct
 {
     hi_mutex_t mutex;
     hi_map_t unsafe;          //the block size must bigger than hi_map_node_t, and can not be odd.
-}hi_aysnc_map_t;
+}hi_async_map_t;
 
-extern void hi_aysnc_map_init(hi_aysnc_map_t *map);
+/**
+ * @brief async map must be init for use. before init, should setup the unsafe.pool for memory recovery.
+ *  If the memory pool is share for some maps, should be careful.
+ * 
+ *  Recommand to setup one pool for one map.
+ * 
+ * @param map 
+ */
+extern void hi_async_map_init(hi_async_map_t *map);
 
-extern hi_result_t hi_aysnc_map_set(hi_aysnc_map_t *map, hi_map_key_t key, hi_value_t value);
+extern hi_result_t hi_async_map_set(hi_async_map_t *map, hi_map_key_t key, hi_value_t value);
 
-extern hi_value_t hi_aysnc_map_get(hi_aysnc_map_t *map, hi_map_key_t key);
+extern hi_value_t hi_async_map_get(hi_async_map_t *map, hi_map_key_t key);
 
-extern void hi_aysnc_map_del(hi_aysnc_map_t *map, hi_map_key_t key);
+extern void hi_async_map_del(hi_async_map_t *map, hi_map_key_t key);
 
-extern hi_size_t hi_aysnc_map_depth(hi_aysnc_map_t *map);
+extern hi_size_t hi_async_map_depth(hi_async_map_t *map);
 
-extern void hi_aysnc_map_deinit(hi_aysnc_map_t *map);
+extern void hi_async_map_deinit(hi_async_map_t *map);
 
 #ifdef __cplusplus
 }
