@@ -1,5 +1,5 @@
 /**
- * @file hi_defines.c
+ * @file hi_sys.c
  * @author Cosmade (deepskystar@outlook.com)
  * @brief 
  * @version
@@ -19,9 +19,9 @@
  *  limitations under the License.
  */
 
-#include "hi_defines.h"
+#include "hi_sys.h"
 
-inline hi_os_t hi_get_os(void)
+inline hi_sys_t hi_get_os(void)
 {
 #if _HI_NON_SYS
     return HI_OS_NON_SYS;

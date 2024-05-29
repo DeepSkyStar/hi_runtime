@@ -19,7 +19,7 @@
  *  limitations under the License.
  */
 
-#include "hi_defines.h"
+#include "hi_sys.h"
 #include "hi_object.h"
 #include "hi_memory.h"
 

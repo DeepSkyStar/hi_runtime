@@ -1,9 +1,9 @@
 /**
- * @file hi_string.c
+ * @file hi_async_list.c
  * @author Cosmade (deepskystar@outlook.com)
  * @brief 
  * @version
- * @date 2024-05-06
+ * @date 2024-05-27
  * 
  * @copyright Copyright 2024 Cosmade
  * 
@@ -19,16 +19,6 @@
  *  limitations under the License.
  */
 
-#include "hi_string.h"
+#include "hi_async_list.h"
 
-HI_CLASS_IMP(hi_string, hi_object)
 
-HI_CLASS_INIT_IMP(hi_string)
-{
-    return object;
-}
-
-HI_CLASS_DEINIT_IMP(hi_string)
-{
-    
-}

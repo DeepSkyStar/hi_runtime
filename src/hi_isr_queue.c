@@ -1,5 +1,5 @@
 /**
- * @file hi_async_queue.c
+ * @file hi_isr_queue.c
  * @author Cosmade (deepskystar@outlook.com)
  * @brief 
  * @version
@@ -19,10 +19,10 @@
  *  limitations under the License.
  */
 
-#include "hi_defines.h"
-#include "hi_async_queue.h"
+#include "hi_sys.h"
+#include "hi_isr_queue.h"
 
-void hi_async_queue_init(hi_async_queue_t *queue)
+void hi_isr_queue_init(hi_isr_queue_t *queue)
 {
 #if _HI_FOR_FREERTOS
     if (queue->len > 0) {
@@ -31,61 +31,62 @@ void hi_async_queue_init(hi_async_queue_t *queue)
 #endif
 }
 
-hi_err_t hi_async_queue_send(hi_async_queue_t *queue, void *item, hi_ticks_t ticks_to_wait)
+hi_result_t hi_isr_queue_send(hi_isr_queue_t *queue, void *item, hi_ticks_t ticks_to_wait)
 {
 #if _HI_FOR_FREERTOS
     if (queue->len > 0) {
         if (xQueueSend(queue->queue, item, ticks_to_wait)) {
-            return HI_ERR_OK_CONST;
+            return HI_RESULT_MAKE_OK;
         }
         else {
-            return HI_ERR_FAILED_CONST;
+            return HI_RESULT_MAKE_FAILED(HI_FAILED_REASON_OUT_OF_INDEX);
         }
     }
 #endif
-    return HI_ERR_FAILED_CONST;
+
+    return HI_RESULT_MAKE_FAILED(HI_FAILED_REASON_NOT_SUPPORT);
 }
 
-hi_err_t hi_async_queue_send_fromISR(hi_async_queue_t *queue, void *item, hi_priority_t priority)
+hi_result_t hi_isr_queue_send_fromISR(hi_isr_queue_t *queue, void *item, hi_priority_t priority)
 {
 #if _HI_FOR_FREERTOS
     if (queue->len > 0) {
         //TODO: Define the priority map.
         if (xQueueSendFromISR(queue->queue, item, NULL)) {
-            return HI_ERR_OK_CONST;
+            return HI_RESULT_MAKE_OK;
         }
         else {
-            return HI_ERR_FAILED_CONST;
+            return HI_RESULT_MAKE_FAILED(HI_FAILED_REASON_SYSTEM);
         }
     }
     else {
-        return HI_ERR_FAILED_CONST;
+        return HI_RESULT_MAKE_FAILED(HI_FAILED_REASON_OUT_OF_INDEX);
     }
 #else
-    return HI_ERR_FAILED_CONST;
+    return HI_RESULT_MAKE_FAILED(HI_FAILED_REASON_NOT_SUPPORT);
 #endif
 }
 
-hi_err_t hi_async_queue_recv(hi_async_queue_t *queue, void *item, hi_ticks_t ticks_to_wait)
+hi_result_t hi_isr_queue_recv(hi_isr_queue_t *queue, void *item, hi_ticks_t ticks_to_wait)
 {
 #if _HI_FOR_FREERTOS
     if (queue->len > 0) {
         if (xQueueReceive(queue->queue, item, ticks_to_wait)){
-            return HI_ERR_OK_CONST;
+            return HI_RESULT_MAKE_OK;
         }
         else {
-            return HI_ERR_FAILED_CONST;
+            return HI_RESULT_MAKE_FAILED(HI_FAILED_REASON_SYSTEM);
         }
     }
     else {
-        return HI_ERR_FAILED_CONST;
+        return HI_RESULT_MAKE_FAILED(HI_FAILED_REASON_OUT_OF_INDEX);
     }
 #else
-    return HI_ERR_FAILED_CONST;
+    return HI_RESULT_MAKE_FAILED(HI_FAILED_REASON_NOT_SUPPORT);
 #endif
 }
 
-void hi_async_queue_deinit(hi_async_queue_t *queue)
+void hi_isr_queue_deinit(hi_isr_queue_t *queue)
 {
 #if _HI_FOR_FREERTOS
     if (queue->len > 0 && queue->queue)

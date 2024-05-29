@@ -1,9 +1,9 @@
 /**
- * @file hi_error.c
+ * @file hi_stack.c
  * @author Cosmade (deepskystar@outlook.com)
  * @brief 
  * @version
- * @date 2024-05-06
+ * @date 2024-05-29
  * 
  * @copyright Copyright 2024 Cosmade
  * 
@@ -18,11 +18,5 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+#include "hi_stack.h"
 
-#include "hi_defines.h"
-#include "hi_error.h"
-
-const hi_err_t HI_ERR_OK_CONST = {HI_ERR_OK, HI_ERR_DOMAIN_RUNTIME, 0};
-const hi_err_t HI_ERR_FAILED_CONST = {HI_ERR_FAILED, HI_ERR_DOMAIN_RUNTIME, 0};
-const hi_err_t HI_ERR_TIMEOUT_CONST = {HI_ERR_TIMEOUT, HI_ERR_DOMAIN_RUNTIME, 0};
-const hi_err_t HI_ERR_CANCEL_CONST = {HI_ERR_CANCEL, HI_ERR_DOMAIN_RUNTIME, 0};

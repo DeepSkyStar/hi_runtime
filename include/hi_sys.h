@@ -1,5 +1,5 @@
 /**
- * @file hi_defines.h
+ * @file hi_sys.h
  * @author Cosmade (deepskystar@outlook.com)
  * @brief 
  * @version
@@ -52,6 +52,14 @@
 #endif
 #endif
 
+#ifndef _HI_SUPPORT_64BIT
+#define _HI_SUPPORT_64BIT (1)
+#endif
+
+#ifndef _HI_ALIGN_MEM_POOL
+#define _HI_ALIGN_MEM_POOL (0)
+#endif
+
 #if _HI_FREERTOS
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -76,11 +84,14 @@ typedef enum{
     HI_OS_IOS = 6,          //_HI_IOS
     HI_OS_WATCHOS = 7,      //_HI_WATCHOS
     HI_OS_TVOS = 8,         //_HI_TVOS
-}hi_os_t;
-extern hi_os_t hi_get_os(void);
+}hi_sys_t;
+extern hi_sys_t hi_get_os(void);
 
 #define HI_MAX_SIZE ((hi_size_t)-1)
+#define HI_ITER_NULL (HI_MAX_SIZE)
+
 typedef size_t hi_size_t;
+typedef hi_size_t hi_iter_t;
 typedef char* hi_str_t;
 
 #ifdef __cplusplus

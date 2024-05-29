@@ -1,9 +1,9 @@
 /**
- * @file hi_string.h
+ * @file hi_task.c
  * @author Cosmade (deepskystar@outlook.com)
  * @brief 
  * @version
- * @date 2024-05-06
+ * @date 2024-05-28
  * 
  * @copyright Copyright 2024 Cosmade
  * 
@@ -18,23 +18,3 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
-#ifndef HI_STRING_H_
-#define HI_STRING_H_
-
-#include "hi_defines.h"
-#include "hi_object.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-HI_CLASS_DEF(hi_string, hi_object)
-    hi_str_t raw;
-HI_CLASS_END
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif

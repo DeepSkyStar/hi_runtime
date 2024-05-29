@@ -1,9 +1,9 @@
 /**
- * @file hi_data.h
+ * @file hi_stack.h
  * @author Cosmade (deepskystar@outlook.com)
  * @brief 
  * @version
- * @date 2024-05-06
+ * @date 2024-05-29
  * 
  * @copyright Copyright 2024 Cosmade
  * 
@@ -19,31 +19,17 @@
  *  limitations under the License.
  */
 
-#ifndef HI_DATA_H_
-#define HI_DATA_H_
-
-#include "hi_defines.h"
-#include "hi_object.h"
+#ifndef HI_STACK_H_
+#define HI_STACK_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-HI_CLASS_DEF(hi_data, hi_object)
-    hi_size_t size;
-    char* data;
-HI_CLASS_END
 
-HI_CLASS_COPYING_DEF(hi_data)
-
-void hi_data_append(hi_data* object, hi_data* append);
-
-// void hi_data_init(hi_data_t *data);
-// void hi_data_copy(hi_data_t *source, hi_data_t *dist);
-// void hi_data_deinit(hi_data_t *data);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif
+#endif /* HI_STACK_H_ */

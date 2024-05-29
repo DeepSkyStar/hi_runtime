@@ -1,5 +1,5 @@
 /**
- * @file hi_async_queue.h
+ * @file hi_isr_queue.h
  * @author Cosmade (deepskystar@outlook.com)
  * @brief 
  * @version
@@ -22,26 +22,27 @@
 #ifndef HI_INTERRUPT_QUEUE_H_
 #define HI_INTERRUPT_QUEUE_H_
 
-#include "hi_defines.h"
-#include "hi_error.h"
+#include "hi_sys.h"
+#include "hi_types.h"
 #include "hi_time.h"
 #include "hi_thread.h"
+#include "hi_log.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef struct hi_async_queue_s{
+typedef struct{
     void *queue;
     uint16_t item_size;
     uint16_t len;
-}hi_async_queue_t;
+}hi_isr_queue_t;
 
-void hi_async_queue_init(hi_async_queue_t *queue);
-hi_err_t hi_async_queue_send(hi_async_queue_t *queue, void *item, hi_ticks_t ticks_to_wait);
-hi_err_t hi_async_queue_send_fromISR(hi_async_queue_t *queue, void *item, hi_priority_t priority);
-hi_err_t hi_async_queue_recv(hi_async_queue_t *queue, void *item, hi_ticks_t ticks_to_wait);
-void hi_async_queue_deinit(hi_async_queue_t *queue);
+void hi_isr_queue_init(hi_isr_queue_t *queue);
+hi_result_t hi_isr_queue_send(hi_isr_queue_t *queue, void *item, hi_ticks_t ticks_to_wait);
+hi_result_t hi_isr_queue_send_fromISR(hi_isr_queue_t *queue, void *item, hi_priority_t priority);
+hi_result_t hi_isr_queue_recv(hi_isr_queue_t *queue, void *item, hi_ticks_t ticks_to_wait);
+void hi_isr_queue_deinit(hi_isr_queue_t *queue);
 
 #ifdef __cplusplus
 }

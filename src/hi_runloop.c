@@ -52,7 +52,7 @@ inline hi_runloop_t *hi_runloop_main()
 
 void hi_runloop_run(hi_runloop_t *runloop)
 {
-    hi_async_queue_init(&runloop->events);
+    hi_isr_queue_init(&runloop->events);
     runloop->state.is_running = 1;
     runloop->ticks = 0;
     runloop->periods = 0;
@@ -123,7 +123,7 @@ END:
     if (runloop->end_func) {
         runloop->end_func(runloop);
     }
-    hi_async_queue_deinit(&runloop->events);
+    hi_isr_queue_deinit(&runloop->events);
 //TODO: add more system support.
 #if _HI_FREERTOS
     vTaskDelete(NULL);
@@ -145,17 +145,17 @@ inline void hi_runloop_stop(hi_runloop_t *runloop)
     runloop->state.is_running = 0;
 }
 
-inline hi_err_t hi_runloop_send(hi_runloop_t *runloop, void *item, hi_ticks_t ticks_to_wait)
+inline hi_result_t hi_runloop_send(hi_runloop_t *runloop, void *item, hi_ticks_t ticks_to_wait)
 {
-    return hi_async_queue_send(&runloop->events, item, ticks_to_wait);
+    return hi_isr_queue_send(&runloop->events, item, ticks_to_wait);
 }
 
-inline hi_err_t hi_runloop_send_fromISR(hi_runloop_t *runloop, void *item, hi_ticks_t ticks_to_wait)
+inline hi_result_t hi_runloop_send_fromISR(hi_runloop_t *runloop, void *item, hi_ticks_t ticks_to_wait)
 {
-    return hi_async_queue_send_fromISR(&runloop->events, item, ticks_to_wait);
+    return hi_isr_queue_send_fromISR(&runloop->events, item, ticks_to_wait);
 }
 
-inline hi_err_t hi_runloop_recv(hi_runloop_t *runloop, void *item, hi_ticks_t ticks_to_wait)
+inline hi_result_t hi_runloop_recv(hi_runloop_t *runloop, void *item, hi_ticks_t ticks_to_wait)
 {
-    return hi_async_queue_recv(&runloop->events, item, ticks_to_wait);
+    return hi_isr_queue_recv(&runloop->events, item, ticks_to_wait);
 }

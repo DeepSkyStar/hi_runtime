@@ -19,7 +19,7 @@
  *  limitations under the License.
  */
 
-#include "hi_defines.h"
+#include "hi_sys.h"
 #include "hi_memory.h"
 
 inline void* hi_memset(void* src, int value, hi_size_t size)
@@ -52,56 +52,65 @@ inline void hi_free(void* ptr)
     free(ptr);
 }
 
-inline hi_loop_pool_t* hi_loop_pool_new(hi_size_t unit_size, hi_size_t unit_count)
+inline hi_mem_pool_t* hi_mem_pool_new(hi_mem_pool_config_t config)
 {
-    if (unit_size < sizeof(hi_size_t)) unit_size = sizeof(hi_size_t);    //The minimun size for loop pool work.
-    hi_loop_pool_t* pool = (hi_loop_pool_t*)hi_malloc(sizeof(hi_loop_pool_t) + unit_count * unit_size);
-    pool->head = HI_MAX_SIZE;
-    pool->tail = HI_MAX_SIZE;
+    //TODO: support align and variable.
+    if (config.align || config.variable) return NULL;
+    if (config.block_size < sizeof(hi_size_t)) config.block_size = sizeof(hi_size_t);
+    //The minimun size for loop pool work.
+    hi_mem_pool_t* pool = (hi_mem_pool_t*)hi_malloc(sizeof(hi_mem_pool_t) + config.block_size * config.block_count);
+    pool->head = HI_ITER_NULL;
+    pool->tail = HI_ITER_NULL;
     pool->cur = 0;
-    pool->unit_size = unit_size;
-    pool->capacity = unit_size * unit_count;
+    pool->config = config;
+    pool->container = (uint8_t *)pool + sizeof(hi_mem_pool_t);
     return pool;
 }
 
-inline hi_loop_pool_t* hi_loop_pool_realloc(hi_loop_pool_t* pool, hi_size_t unit_count)
+inline void hi_mem_pool_realloc(hi_mem_pool_t* pool, hi_size_t block_count)
 {
-    pool = hi_realloc(pool, sizeof(hi_loop_pool_t) + pool->unit_size * unit_count);
-    pool->capacity = pool->unit_size * unit_count;
-    return pool;
+    pool = hi_realloc(pool, sizeof(hi_mem_pool_t) + pool->config.block_size * block_count);
+    pool->config.block_count = block_count;
+    pool->container = (uint8_t *)pool + sizeof(hi_mem_pool_t);
 }
 
-inline void hi_loop_pool_free(hi_loop_pool_t* pool)
+inline void hi_mem_pool_free(hi_mem_pool_t* pool)
 {
     hi_free(pool);
 }
 
-inline hi_size_t hi_loop_pool_take_unit(hi_loop_pool_t* pool)
+inline hi_iter_t hi_mem_pool_take(hi_mem_pool_t* pool)
 {
-    hi_size_t unit = HI_MAX_SIZE;
-    if (pool->head != HI_MAX_SIZE) {
-        unit = pool->head;
-        pool->head = *(hi_size_t*)(pool->vector + pool->head);  //Get next pointer.
-        return unit;
+    hi_iter_t block = HI_ITER_NULL;
+    if (pool->head != HI_ITER_NULL) {
+        block = pool->head;
+        pool->head = *(hi_iter_t*)(pool->container + pool->head);  //Get next pointer.
+        return block;
     }
-    if (pool->cur < pool->capacity) {
-        unit = pool->cur;
-        pool->cur += pool->unit_size;
+    if (pool->cur < pool->config.block_size * pool->config.block_count) {
+        block = pool->cur;
+        pool->cur += pool->config.block_size;
     }
-
-    return unit;
+    return block;
 }
 
-inline void hi_loop_pool_bring_unit(hi_loop_pool_t* pool, hi_size_t unit)
+inline hi_iter_t hi_mem_pool_take_some(hi_mem_pool_t* pool, hi_size_t size)
 {
-    if (pool->head == HI_MAX_SIZE) {
-        pool->head = unit;
-        *((hi_size_t*)(pool->vector + unit)) = HI_MAX_SIZE;
+    //TODO: not support variable mem pool yet.
+    return HI_ITER_NULL;
+}
+
+inline void hi_mem_pool_bring(hi_mem_pool_t* pool, hi_iter_t block)
+{
+    //When block bring, it will reuse to storage the last block.
+    if (pool->head == HI_ITER_NULL) {
+        pool->head = block;
+        *((hi_size_t*)(pool->container + block)) = HI_ITER_NULL;
         pool->tail = pool->head;
     }
     else {
-        *(hi_size_t*)(pool->vector + pool->tail) = unit;
-        pool->tail = unit;
-        *((hi_size_t*)(pool->vector + unit)) = HI_MAX_SIZE;
+        *(hi_size_t*)(pool->container + pool->tail) = block;
+        pool->tail = block;
+        *((hi_size_t*)(pool->container + block)) = HI_ITER_NULL;
     }
 }

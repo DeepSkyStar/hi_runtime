@@ -22,7 +22,9 @@
 #ifndef HI_OBJECT_H_
 #define HI_OBJECT_H_
 
-#include "hi_defines.h"
+#include "hi_sys.h"
+#include "hi_types.h"
+#include "hi_log.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -123,6 +125,7 @@ extern void* hi_object_release(hi_object* object);
 extern void* hi_object_copying(hi_object* src, hi_object* dist);
 
 extern hi_weakptr_t hi_object_weak_ptr_new(hi_object* object);
+
 extern void* hi_object_weak_ptr_get(hi_weakptr_t ptr);
 
 extern void* hi_object_delay_release(hi_object* object);

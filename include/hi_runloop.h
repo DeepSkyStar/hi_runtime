@@ -22,11 +22,9 @@
 #ifndef HI_RUNLOOP_H_
 #define HI_RUNLOOP_H_
 
-#include "hi_defines.h"
-#include "hi_method_map.h"
-#include "hi_error.h"
-#include "hi_async_queue.h"
-#include "hi_string.h"
+#include "hi_sys.h"
+#include "hi_types.h"
+#include "hi_isr_queue.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -54,7 +52,7 @@ struct hi_runloop_s{
     uint64_t periods;    //how many period of this runloop run.
     hi_ticks_t frequency; //0 means no delay.
     uint64_t ticks; //how many ticks when run.
-    hi_async_queue_t events; //recv queue for input event.
+    hi_isr_queue_t events; //recv queue for input event.
     hi_runloop_func init_func;   //will run once when start a runloop.
     hi_runloop_func loop_func;    //will run many time in 1s, depends on frequency.
     hi_runloop_func end_func;  //will run once after end.
@@ -69,9 +67,9 @@ void hi_runloop_start(hi_runloop_t *runloop);
 void hi_runloop_run(hi_runloop_t *runloop);
 void hi_runloop_stop(hi_runloop_t *runloop);
 
-hi_err_t hi_runloop_send(hi_runloop_t *runloop, void *item, hi_ticks_t ticks_to_wait);
-hi_err_t hi_runloop_send_fromISR(hi_runloop_t *runloop, void *item, hi_ticks_t ticks_to_wait);
-hi_err_t hi_runloop_recv(hi_runloop_t *runloop, void *item, hi_ticks_t ticks_to_wait);
+hi_result_t hi_runloop_send(hi_runloop_t *runloop, void *item, hi_ticks_t ticks_to_wait);
+hi_result_t hi_runloop_send_fromISR(hi_runloop_t *runloop, void *item, hi_ticks_t ticks_to_wait);
+hi_result_t hi_runloop_recv(hi_runloop_t *runloop, void *item, hi_ticks_t ticks_to_wait);
 
 #ifdef __cplusplus
 }

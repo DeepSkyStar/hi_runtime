@@ -22,8 +22,8 @@
 #ifndef HI_MEMORY_H_
 #define HI_MEMORY_H_
 
-#include "hi_defines.h"
-#include "hi_error.h"
+#include "hi_sys.h"
+#include "hi_types.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -33,8 +33,6 @@ extern "C" {
 #define HI_SETZERO(__value__) hi_memset(&(__value__), 0, sizeof(__value__))
 #endif
 
-#define HI_OFFSET_NULL (HI_MAX_SIZE)
-
 extern void* hi_memset(void* src, int value, hi_size_t size);
 extern void* hi_memcpy(void* src, void* dst, hi_size_t size);
 
@@ -42,6 +40,15 @@ extern void* hi_malloc(hi_size_t size);
 extern void* hi_calloc(hi_size_t num, hi_size_t size);
 extern void* hi_realloc(void* ptr, hi_size_t size);
 extern void hi_free(void* ptr);
+
+typedef struct
+{
+    //TODO: add variable and align support.
+    hi_size_t variable:1;    //support variable length. default is 0.
+    hi_size_t align:1;    //support memory alignment. default is 0.
+    hi_size_t block_size:30;     //the single unit size of pool. only work when variable is 0.
+    hi_size_t block_count; //the number of whole units.
+}hi_mem_pool_config_t;
 
 // There are three main memory allocation strategies:
 //  1. Instant allocate Instant recovery. This strategy does NOT REQUIRE a memory pool.
@@ -53,44 +60,79 @@ extern void hi_free(void* ptr);
 //
 // If you want to define a static pool, just like that:
 //
-// #define UNIT_COUNT (100)
-// int sample_pool_values[UNIT_COUNT] = {0};
-// hi_loop_pool_t sample_pool = {
-//     .head = NULL,
-//     .tail = NULL,
-//     .cur = 0,
-//     .unit_size = sizeof(int),
-//     .capacity = sizeof(int) * UNIT_COUNT,
-//     .pool = sample_pool_values,
-// };
-//
-//  or like that:
+// HI_MEM_POOL_DEFINE(sample_pool, int, 100)
 // 
-//  hi_loop_pool_t sample_pool = {
-//     .unit_size = sizeof(int),
-//     .capacity = sizeof(int) * UNIT_COUNT,
-//     .pool = sample_pool_values,
-// };
 // After this define, no need to call the new function, and sure cannot call realloc.
 typedef struct
 {
+    hi_mem_pool_config_t config;
     hi_size_t head;
     hi_size_t tail;   //after memory use, memory will put here.
     hi_size_t cur;    //for record where pool is using.
-    hi_size_t unit_size;     //the single unit size of pool.
-    hi_size_t capacity; //the capacity of whole units.
-    uint8_t vector[0];    //the pool for data link.
-}hi_loop_pool_t;
+    uint8_t* container;    //the pool for data link.
+}hi_mem_pool_t;
 
-extern hi_loop_pool_t* hi_loop_pool_new(hi_size_t unit_size, hi_size_t unit_count);
-extern hi_loop_pool_t* hi_loop_pool_realloc(hi_loop_pool_t* pool, hi_size_t unit_count);
-extern void hi_loop_pool_free(hi_loop_pool_t* pool);
+#define HI_MEM_POOL_DEFINE(__name__, __type__, __count__) __type__ __name__##_container[__count__] = {0}; \
+hi_mem_pool_t __name__ = { \
+     .config = {        \
+        .variable = 0,  \
+        .align = _HI_ALIGN_MEM_POOL, \
+        .block_size = sizeof(__type__), \
+        .block_count = __count__  \
+    },  \
+    .head = HI_ITER_NULL, \
+    .tail = HI_ITER_NULL, \
+    .cur = 0,   \
+    .container = (uint8_t *)__name__##_container,    \
+}
 
-//if return HI_OFFSET_NULL, means full.
-extern hi_size_t hi_loop_pool_take_unit(hi_loop_pool_t* pool);
+/**
+ * @brief alloc new mem pool. but in mcu, recommand to new a mem pool by hand.
+ * 
+ * @param config mem pool config.
+ * @return hi_mem_pool_t* mem pool.
+ */
+extern hi_mem_pool_t* hi_mem_pool_new(hi_mem_pool_config_t config);
 
-//MUST ensure each unit bring only once!!!
-extern void hi_loop_pool_bring_unit(hi_loop_pool_t* pool, hi_size_t unit);
+/**
+ * @brief realloc mem pool. the block count must be bigger than before.
+ * 
+ * @param pool mem pool.
+ * @param block_count block count.
+ */
+extern void hi_mem_pool_realloc(hi_mem_pool_t* pool, hi_size_t block_count);
+
+/**
+ * @brief Free mem pool, after that, all ref will invalid.
+ * 
+ * @param pool the mem pool.
+ */
+extern void hi_mem_pool_free(hi_mem_pool_t* pool);
+
+/**
+ * @brief if return HI_ITER_NULL, means full or not support unit.
+ * 
+ * @param pool mem pool.
+ * @return hi_iter_t offset from the container.
+ */
+extern hi_iter_t hi_mem_pool_take(hi_mem_pool_t* pool);
+
+/**
+ * @brief if return HI_ITER_NULL, means full or not support this size.
+ * 
+ * @param pool mem pool.
+ * @param size the for take.
+ * @return hi_iter_t offset from the container.
+ */
+extern hi_iter_t hi_mem_pool_take_some(hi_mem_pool_t* pool, hi_size_t size);
+
+/**
+ * @brief MUST ensure each unit bring only once!!!
+ * 
+ * @param pool mem pool.
+ * @param block offset from the container.
+ */
+extern void hi_mem_pool_bring(hi_mem_pool_t* pool, hi_iter_t block);
 
 #ifdef __cplusplus
 }

@@ -22,7 +22,7 @@
 #ifndef HI_MATH_H_
 #define HI_MATH_H_
 
-#include "hi_defines.h"
+#include "hi_sys.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -51,8 +51,8 @@ typedef struct hi_range16_s{
     uint16_t length;
 } hi_range16_t;
 
-#define HALO_RANGE_END(range) ((range).index + (range).length)
-#define IN_HALO_RANGE(range, i) ((i) >= (range).index && (i) < HALO_RANGE_END(range))
+#define HI_RANGE_END(range) ((range).index + (range).length)
+#define HI_IN_RANGE(range, i) ((i) >= (range).index && (i) < HI_RANGE_END(range))
 
 #ifdef __cplusplus
 }

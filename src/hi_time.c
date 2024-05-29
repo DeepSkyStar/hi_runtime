@@ -20,6 +20,9 @@
  */
 
 #include "hi_time.h"
+#if _HI_PTHREAD
+#include <sys/time.h>
+#endif
 
 inline hi_ticks_t hi_get_ticks(void)
 {
@@ -30,3 +33,15 @@ inline hi_ticks_t hi_get_ticks(void)
 #endif
 }
 
+inline hi_time_t hi_get_time(void)
+{
+#if _HI_PTHREAD
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return tv.tv_sec * 1000 + tv.tv_usec / 1000;
+#elif _HI_FREERTOS
+    return xTaskGetTickCount() / portTICK_PERIOD_MS;
+#else
+    return 0;
+#endif
+}

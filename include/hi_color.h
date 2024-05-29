@@ -22,7 +22,7 @@
 #ifndef HI_COLOR_H_
 #define HI_COLOR_H_
 
-#include "hi_defines.h"
+#include "hi_sys.h"
 
 #ifdef __cplusplus
 extern "C" {

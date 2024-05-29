@@ -1,7 +1,7 @@
 /**
  * @file hi_thread.h
  * @author Cosmade (deepskystar@outlook.com)
- * @brief 
+ * @brief used to instead of thread.
  * @version
  * @date 2024-05-27
  * 
@@ -26,8 +26,8 @@
 extern "C" {
 #endif
 
-#include "hi_defines.h"
-#include "hi_error.h"
+#include "hi_sys.h"
+#include "hi_types.h"
 
 #if _HI_PTHREAD
 #include <pthread.h>
@@ -42,7 +42,7 @@ typedef struct
 {
 
 #if _HI_PTHREAD
-    pthread_mutex_t mutex;
+    pthread_mutex_t *mutex;
 #elif _HI_FREERTOS
     SemaphoreHandle_t mutex;
 #else
@@ -55,7 +55,6 @@ extern int hi_mutex_init(hi_mutex_t *mutex);
 extern int hi_mutex_lock(hi_mutex_t *mutex);
 extern int hi_mutex_unlock(hi_mutex_t *mutex);
 extern int hi_mutex_deinit(hi_mutex_t *mutex);
-
 
 typedef uint8_t hi_priority_t;
 typedef enum{
@@ -79,8 +78,8 @@ typedef struct
 #endif
     hi_str_t name;
     hi_thread_func_f func;
-    uint32_t stack_depth;   //stack depth for runloop task.
-    hi_priority_t priority;   //the priority for runloop task.
+    uint32_t stack_depth;   //stack depth for thread.
+    hi_priority_t priority;   //the priority for thread.
     void *args;
 }hi_thread_t;
 

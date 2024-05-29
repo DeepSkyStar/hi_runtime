@@ -20,11 +20,14 @@
  */
 
 #include "hi_thread.h"
+#include "hi_memory.h"
 
 inline int hi_mutex_init(hi_mutex_t *mutex)
 {
 #if _HI_PTHREAD
-    return pthread_mutex_init(&mutex->mutex, NULL);
+    mutex->mutex = hi_malloc(sizeof(pthread_mutex_t));
+    return pthread_mutex_init(mutex->mutex, NULL);
+
 #elif _HI_FREERTOS
     SemaphoreHandle_t mutex;
 #else
@@ -35,7 +38,7 @@ inline int hi_mutex_init(hi_mutex_t *mutex)
 inline int hi_mutex_lock(hi_mutex_t *mutex)
 {
 #if _HI_PTHREAD
-    return pthread_mutex_lock(&mutex->mutex);
+    return pthread_mutex_lock(mutex->mutex);
 #elif _HI_FREERTOS
     return xSemaphoreTake(mutex->mutex, portMAX_DELAY);
 #else
@@ -46,7 +49,7 @@ inline int hi_mutex_lock(hi_mutex_t *mutex)
 inline int hi_mutex_unlock(hi_mutex_t *mutex)
 {
 #if _HI_PTHREAD
-    return pthread_mutex_init(&mutex->mutex, NULL);
+    return pthread_mutex_init(mutex->mutex, NULL);
 #elif _HI_FREERTOS
     return xSemaphoreGive(mutex->mutex);
 #else
@@ -57,7 +60,9 @@ inline int hi_mutex_unlock(hi_mutex_t *mutex)
 inline int hi_mutex_deinit(hi_mutex_t *mutex)
 {
 #if _HI_PTHREAD
-    return pthread_mutex_destroy(&mutex->mutex);
+    int result = pthread_mutex_destroy(mutex->mutex);
+    hi_free(mutex->mutex);
+    return result;
 #elif _HI_FREERTOS
     return vSemaphoreDelete(mutex->mutex);
 #else
@@ -69,7 +74,7 @@ inline int hi_thread_init(hi_thread_t *thread)
 {
 #if _HI_PTHREAD
     //TODO: fill out thread attr.
-    return pthread_create(&thread->handle, NULL, thread->func, thread->args);
+    return pthread_create(&(thread->handle), NULL, thread->func, thread->args);
 #elif _HI_FREERTOS
     //TODO: make translate from hi_priority to freertos.
     xTaskCreate((void)thread->func,

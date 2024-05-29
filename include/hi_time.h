@@ -22,14 +22,23 @@
 #ifndef HI_TIME_H_
 #define HI_TIME_H_
 
-#include "hi_defines.h"
+#include "hi_sys.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+typedef long hi_time_t;
+
 typedef uint32_t hi_ticks_t;
 extern hi_ticks_t hi_get_ticks(void);
+
+/**
+ * @brief unit is ms.
+ * 
+ * @return hi_time_t 
+ */
+extern hi_time_t hi_get_time(void);
 
 #ifdef __cplusplus
 }
