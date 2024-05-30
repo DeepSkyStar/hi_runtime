@@ -43,7 +43,7 @@ else()
 
         target_link_libraries(hi_runtime ${CMAKE_THREAD_LIBS_INIT} pthread)
         # set(BUILD_ONCE_HI_RUNTIME ON CACHE BOOL "hi_runtime has been built")
-    endif()
+    # endif()
 
 endif()
 
