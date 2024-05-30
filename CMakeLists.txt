@@ -31,7 +31,7 @@ else()
     $<$<PLATFORM_ID:freertos>:_HI_FREERTOR=1>
     ) 
 
-    if (NOT BUILD_ONCE_HI_RUNTIME)
+    # if (NOT BUILD_ONCE_HI_RUNTIME)
 
         add_library(hi_runtime)
 
@@ -42,7 +42,7 @@ else()
         find_package(Threads REQUIRED)
 
         target_link_libraries(hi_runtime ${CMAKE_THREAD_LIBS_INIT} pthread)
-        set(BUILD_ONCE_HI_RUNTIME ON CACHE BOOL "hi_runtime has been built")
+        # set(BUILD_ONCE_HI_RUNTIME ON CACHE BOOL "hi_runtime has been built")
     endif()
 
 endif()
