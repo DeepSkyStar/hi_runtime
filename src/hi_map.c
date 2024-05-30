@@ -23,14 +23,14 @@
 #define _HI_MAP_BLACK_ITER(__iter__) ((__iter__)|((hi_iter_t)1))
 #define _HI_MAP_RED_ITER(__iter__) (HI_MAP_ITER(__iter__))
 
-#define HI_MAP_NODE_TRUST(__map__, __iter__) ((hi_map_node_t *)(__map__->pool->container + ((__iter__)&(~(hi_iter_t)1))))
+#define _HI_MAP_NODE_TRUST(__map__, __iter__) ((hi_map_node_t *)((__map__)->pool->container + ((__iter__)&(~(hi_iter_t)1))))
 
-#define HI_MAP_NODE_LEFT(__map__, __iter__) HI_MAP_ITER(HI_MAP_NODE(__map__, __iter__)->left)
-#define HI_MAP_NODE_RIGHT(__map__, __iter__) HI_MAP_ITER(HI_MAP_NODE(__map__, __iter__)->right)
-#define HI_MAP_NODE_PARENT(__map__, __iter__) HI_MAP_ITER(HI_MAP_NODE(__map__, __iter__)->parent)
+#define _HI_MAP_NODE_LEFT(__map__, __iter__) HI_MAP_ITER(HI_MAP_NODE(__map__, __iter__)->left)
+#define _HI_MAP_NODE_RIGHT(__map__, __iter__) HI_MAP_ITER(HI_MAP_NODE(__map__, __iter__)->right)
+#define _HI_MAP_NODE_PARENT(__map__, __iter__) HI_MAP_ITER(HI_MAP_NODE(__map__, __iter__)->parent)
 
-#define HI_MAP_NODE_IS_BLACK(__map__, __iter__) (HI_MAP_NODE_COLOR(__map__, __iter__) == HI_MAP_BLACK)
-#define HI_MAP_NODE_IS_RED(__map__, __iter__) (HI_MAP_NODE_COLOR(__map__, __iter__) == HI_MAP_RED)
+#define _HI_MAP_NODE_IS_BLACK(__map__, __iter__) (HI_MAP_NODE_COLOR(__map__, __iter__) == HI_MAP_BLACK)
+#define _HI_MAP_NODE_IS_RED(__map__, __iter__) (HI_MAP_NODE_COLOR(__map__, __iter__) == HI_MAP_RED)
 
 #define _HI_MAP_SET_PARENT_BLACK(__map__, __iter__, __parent__) HI_MAP_NODE(__map__, __iter__)->parent = (__parent__ == HI_ITER_NULL?__parent__: _HI_MAP_BLACK_ITER(__parent__))
 #define _HI_MAP_SET_PARENT_RED(__map__, __iter__, __parent__) HI_MAP_NODE(__map__, __iter__)->parent = (__parent__ == HI_ITER_NULL?__parent__: _HI_MAP_RED_ITER(__parent__))
@@ -87,11 +87,11 @@ hi_result_t hi_map_set(hi_map_t *map, hi_map_key_t key, hi_value_t value)
     {
         map->root = hi_mem_pool_take(map->pool);
         if (map->root == HI_ITER_NULL) return HI_RESULT_MAKE_FAILED(HI_FAILED_REASON_OUT_OF_MEMORY);
-        HI_MAP_NODE_TRUST(map, map->root)->left = HI_ITER_NULL;
-        HI_MAP_NODE_TRUST(map, map->root)->right = HI_ITER_NULL;
-        HI_MAP_NODE_TRUST(map, map->root)->parent = HI_ITER_NULL;
-        HI_MAP_NODE_TRUST(map, map->root)->key = key;
-        HI_MAP_NODE_TRUST(map, map->root)->value = value;
+        _HI_MAP_NODE_TRUST(map, map->root)->left = HI_ITER_NULL;
+        _HI_MAP_NODE_TRUST(map, map->root)->right = HI_ITER_NULL;
+        _HI_MAP_NODE_TRUST(map, map->root)->parent = HI_ITER_NULL;
+        _HI_MAP_NODE_TRUST(map, map->root)->key = key;
+        _HI_MAP_NODE_TRUST(map, map->root)->value = value;
 		map->root = _HI_MAP_BLACK_ITER(map->root);
         return HI_RESULT_MAKE_OK;
     }
@@ -99,55 +99,55 @@ hi_result_t hi_map_set(hi_map_t *map, hi_map_key_t key, hi_value_t value)
     hi_iter_t node = map->root;
     while (node != HI_ITER_NULL)
     {
-        if (key.byte < HI_MAP_NODE_TRUST(map, node)->key.byte)
+        if (key.byte < _HI_MAP_NODE_TRUST(map, node)->key.byte)
         {
-            if (HI_MAP_NODE_TRUST(map, node)->left == HI_ITER_NULL)
+            if (_HI_MAP_NODE_TRUST(map, node)->left == HI_ITER_NULL)
             {
-                HI_MAP_NODE_TRUST(map, node)->left = hi_mem_pool_take(map->pool);
-                if (HI_MAP_NODE_TRUST(map, node)->left == HI_ITER_NULL) return HI_RESULT_MAKE_FAILED(HI_FAILED_REASON_OUT_OF_MEMORY);
-                HI_MAP_NODE_TRUST(map, HI_MAP_NODE_TRUST(map, node)->left)->parent = node;
+                _HI_MAP_NODE_TRUST(map, node)->left = hi_mem_pool_take(map->pool);
+                if (_HI_MAP_NODE_TRUST(map, node)->left == HI_ITER_NULL) return HI_RESULT_MAKE_FAILED(HI_FAILED_REASON_OUT_OF_MEMORY);
+                _HI_MAP_NODE_TRUST(map, _HI_MAP_NODE_TRUST(map, node)->left)->parent = node;
 
-                node = HI_MAP_NODE_TRUST(map, node)->left;
-                HI_MAP_NODE_TRUST(map, node)->left = HI_ITER_NULL;
-                HI_MAP_NODE_TRUST(map, node)->right = HI_ITER_NULL;
-                HI_MAP_NODE_TRUST(map, node)->key = key;
-                HI_MAP_NODE_TRUST(map, node)->value = value;
+                node = _HI_MAP_NODE_TRUST(map, node)->left;
+                _HI_MAP_NODE_TRUST(map, node)->left = HI_ITER_NULL;
+                _HI_MAP_NODE_TRUST(map, node)->right = HI_ITER_NULL;
+                _HI_MAP_NODE_TRUST(map, node)->key = key;
+                _HI_MAP_NODE_TRUST(map, node)->value = value;
                 break;
             }
             else
             {
-                node = HI_MAP_NODE_TRUST(map, node)->left;
+                node = _HI_MAP_NODE_TRUST(map, node)->left;
             }
         }
-        else if (key.byte > HI_MAP_NODE_TRUST(map, node)->key.byte)
+        else if (key.byte > _HI_MAP_NODE_TRUST(map, node)->key.byte)
         {
-            if (HI_MAP_NODE_TRUST(map, node)->right == HI_ITER_NULL)
+            if (_HI_MAP_NODE_TRUST(map, node)->right == HI_ITER_NULL)
             {
-                HI_MAP_NODE_TRUST(map, node)->right = hi_mem_pool_take(map->pool);
-                if (HI_MAP_NODE_TRUST(map, node)->right == HI_ITER_NULL) return HI_RESULT_MAKE_FAILED(HI_FAILED_REASON_OUT_OF_MEMORY);
-                HI_MAP_NODE_TRUST(map, HI_MAP_NODE_TRUST(map, node)->right)->parent = node;
+                _HI_MAP_NODE_TRUST(map, node)->right = hi_mem_pool_take(map->pool);
+                if (_HI_MAP_NODE_TRUST(map, node)->right == HI_ITER_NULL) return HI_RESULT_MAKE_FAILED(HI_FAILED_REASON_OUT_OF_MEMORY);
+                _HI_MAP_NODE_TRUST(map, _HI_MAP_NODE_TRUST(map, node)->right)->parent = node;
 
-                node = HI_MAP_NODE_TRUST(map, node)->right;
-                HI_MAP_NODE_TRUST(map, node)->left = HI_ITER_NULL;
-                HI_MAP_NODE_TRUST(map, node)->right = HI_ITER_NULL;
-                HI_MAP_NODE_TRUST(map, node)->key = key;
-                HI_MAP_NODE_TRUST(map, node)->value = value;
+                node = _HI_MAP_NODE_TRUST(map, node)->right;
+                _HI_MAP_NODE_TRUST(map, node)->left = HI_ITER_NULL;
+                _HI_MAP_NODE_TRUST(map, node)->right = HI_ITER_NULL;
+                _HI_MAP_NODE_TRUST(map, node)->key = key;
+                _HI_MAP_NODE_TRUST(map, node)->value = value;
                 break;
             }
             else
             {
-                node = HI_MAP_NODE_TRUST(map, node)->right;
+                node = _HI_MAP_NODE_TRUST(map, node)->right;
             }
         }
         else
         {
-            HI_MAP_NODE_TRUST(map, node)->value = value;
+            _HI_MAP_NODE_TRUST(map, node)->value = value;
             return HI_RESULT_MAKE_OK;
         }
     }
 
     //Fix insert. 
-    hi_iter_t parent = HI_MAP_NODE_TRUST(map, node)->parent;
+    hi_iter_t parent = _HI_MAP_NODE_TRUST(map, node)->parent;
     hi_iter_t gparent = HI_ITER_NULL;
 	hi_iter_t tmp = HI_ITER_NULL;
     while (1) {
@@ -170,14 +170,14 @@ hi_result_t hi_map_set(hi_map_t *map, hi_map_key_t key, hi_value_t value)
 		 * per 4), we don't want a red root or two
 		 * consecutive red nodes.
 		 */
-		if(HI_MAP_NODE_IS_BLACK(map, parent))
+		if(_HI_MAP_NODE_IS_BLACK(map, parent))
 			break;
 
-		gparent = HI_MAP_NODE_TRUST(map, parent)->parent;
+		gparent = _HI_MAP_NODE_TRUST(map, parent)->parent;
 		tmp = HI_MAP_NODE(map, gparent)->right;
 		
 		if (HI_MAP_ITER(parent) != HI_MAP_ITER(tmp)) {	/* parent == gparent->rb_left */
-			if (tmp != HI_ITER_NULL && HI_MAP_NODE_IS_RED(map, tmp)) {
+			if (tmp != HI_ITER_NULL && _HI_MAP_NODE_IS_RED(map, tmp)) {
 				/*
 				 * Case 1 - node's uncle is red (color flips).
 				 *
@@ -191,8 +191,8 @@ hi_result_t hi_map_set(hi_map_t *map, hi_map_key_t key, hi_value_t value)
 				 * 4) does not allow this, we need to recurse
 				 * at g.
 				 */
-				HI_MAP_NODE_TRUST(map, tmp)->parent = _HI_MAP_BLACK_ITER(gparent);
-				HI_MAP_NODE_TRUST(map, parent)->parent = _HI_MAP_BLACK_ITER(gparent);
+				_HI_MAP_NODE_TRUST(map, tmp)->parent = _HI_MAP_BLACK_ITER(gparent);
+				_HI_MAP_NODE_TRUST(map, parent)->parent = _HI_MAP_BLACK_ITER(gparent);
 				node = gparent;
 				parent = HI_MAP_ITER(HI_MAP_NODE(map, node)->parent);
 				_HI_MAP_SET_PARENT_RED(map, node, parent);
@@ -251,7 +251,7 @@ hi_result_t hi_map_set(hi_map_t *map, hi_map_key_t key, hi_value_t value)
 			break;
 		} else {
 			tmp = HI_MAP_NODE(map, gparent)->left;
-			if (tmp != HI_ITER_NULL && HI_MAP_NODE_IS_RED(map, tmp)) {
+			if (tmp != HI_ITER_NULL && _HI_MAP_NODE_IS_RED(map, tmp)) {
 				/* Case 1 - color flips */
 				_HI_MAP_SET_PARENT_BLACK(map, tmp, gparent);
 				_HI_MAP_SET_PARENT_BLACK(map, parent, gparent);
@@ -306,7 +306,7 @@ inline hi_value_t hi_map_get(hi_map_t *map, hi_map_key_t key)
 {
 	hi_iter_t iter = hi_map_get_iter(map, key);
 	if (iter == HI_ITER_NULL) return HI_VALUE_NULL;
-	return HI_MAP_NODE_TRUST(map, iter)->value;
+	return _HI_MAP_NODE_TRUST(map, iter)->value;
 }
 
 inline hi_iter_t hi_map_get_iter(hi_map_t *map, hi_map_key_t key)
@@ -316,13 +316,13 @@ inline hi_iter_t hi_map_get_iter(hi_map_t *map, hi_map_key_t key)
     hi_iter_t iter = map->root;
     while (iter != HI_ITER_NULL)
     {
-        if (key.byte < HI_MAP_NODE_TRUST(map, iter)->key.byte)
+        if (key.byte < _HI_MAP_NODE_TRUST(map, iter)->key.byte)
         {
-			iter = HI_MAP_NODE_TRUST(map, iter)->left;
+			iter = _HI_MAP_NODE_TRUST(map, iter)->left;
         }
-        else if (key.byte > HI_MAP_NODE_TRUST(map, iter)->key.byte)
+        else if (key.byte > _HI_MAP_NODE_TRUST(map, iter)->key.byte)
         {
-			iter = HI_MAP_NODE_TRUST(map, iter)->right;
+			iter = _HI_MAP_NODE_TRUST(map, iter)->right;
         }
         else
         {
@@ -340,9 +340,9 @@ inline hi_map_node_t hi_map_node(hi_map_t *map, hi_iter_t iter)
 hi_iter_t __hi_map_find_left_last(hi_map_t *map, hi_iter_t node)
 {
 	if (node == HI_ITER_NULL) return node;
-	while (HI_MAP_NODE_LEFT(map, node) != HI_ITER_NULL)
+	while (_HI_MAP_NODE_LEFT(map, node) != HI_ITER_NULL)
 	{
-		node = HI_MAP_NODE_LEFT(map, node);
+		node = _HI_MAP_NODE_LEFT(map, node);
 	}
 	return node;
 }
@@ -350,9 +350,9 @@ hi_iter_t __hi_map_find_left_last(hi_map_t *map, hi_iter_t node)
 hi_iter_t __hi_map_find_right_last(hi_map_t *map, hi_iter_t node)
 {
 	if (node == HI_ITER_NULL) return node;
-	while (HI_MAP_NODE_RIGHT(map, node) != HI_ITER_NULL)
+	while (_HI_MAP_NODE_RIGHT(map, node) != HI_ITER_NULL)
 	{
-		node = HI_MAP_NODE_RIGHT(map, node);
+		node = _HI_MAP_NODE_RIGHT(map, node);
 	}
 	return node;
 }
@@ -369,7 +369,6 @@ inline void hi_map_del(hi_map_t *map, hi_map_key_t key)
 	hi_iter_t parent = HI_ITER_NULL;
 	hi_iter_t tmp1 = HI_MAP_NODE(map, node)->left;
 	hi_iter_t tmp2 = HI_MAP_NODE(map, node)->right;
-	hi_iter_t to_delete = node;
 
 	if (tmp1 == HI_ITER_NULL || tmp2 == HI_ITER_NULL)
 	{
@@ -382,8 +381,8 @@ inline void hi_map_del(hi_map_t *map, hi_map_key_t key)
 			if (tmp2 != HI_ITER_NULL) HI_MAP_NODE(map, tmp2)->parent = HI_ITER_NULL;
 			return ;
 		}
-		parent = HI_MAP_NODE_PARENT(map, node);
-		if (HI_MAP_ITER(node) == HI_MAP_NODE_LEFT(map, parent))
+		parent = _HI_MAP_NODE_PARENT(map, node);
+		if (HI_MAP_ITER(node) == _HI_MAP_NODE_LEFT(map, parent))
 		{
 			HI_MAP_NODE(map, parent)->left = tmp2;
 		}
@@ -403,19 +402,19 @@ inline void hi_map_del(hi_map_t *map, hi_map_key_t key)
 	}
 	else
 	{
-		parent = HI_MAP_NODE_PARENT(map, node);
-		if (HI_MAP_ITER(node) == HI_MAP_NODE_LEFT(map, parent))
+		parent = _HI_MAP_NODE_PARENT(map, node);
+		if (HI_MAP_ITER(node) == _HI_MAP_NODE_LEFT(map, parent))
 		{
 			//The left biggest.
 			sibling = __hi_map_find_right_last(map, tmp1);
-			HI_MAP_NODE(map, sibling)->right = HI_MAP_NODE_LEFT(map, node);
+			HI_MAP_NODE(map, sibling)->right = _HI_MAP_NODE_LEFT(map, node);
 			if (HI_MAP_ITER(sibling) == HI_MAP_ITER(tmp1))
 			{
 				HI_MAP_NODE(map, sibling)->left = HI_ITER_NULL;
 			}
 			else
 			{
-				HI_MAP_NODE(map, sibling)->left = HI_MAP_NODE_LEFT(map, node);
+				HI_MAP_NODE(map, sibling)->left = _HI_MAP_NODE_LEFT(map, node);
 			}
 			HI_MAP_NODE(map, sibling)->parent = parent;
 			HI_MAP_NODE(map, parent)->left = sibling;
@@ -425,14 +424,14 @@ inline void hi_map_del(hi_map_t *map, hi_map_key_t key)
 		{	
 			//The right minimal.
 			sibling = __hi_map_find_left_last(map, tmp2);
-			HI_MAP_NODE(map, sibling)->left = HI_MAP_NODE_LEFT(map, node);
+			HI_MAP_NODE(map, sibling)->left = _HI_MAP_NODE_LEFT(map, node);
 			if (HI_MAP_ITER(sibling) == HI_MAP_ITER(tmp2))
 			{
 				HI_MAP_NODE(map, sibling)->right = HI_ITER_NULL;
 			}
 			else
 			{
-				HI_MAP_NODE(map, sibling)->right = HI_MAP_NODE_RIGHT(map, node);
+				HI_MAP_NODE(map, sibling)->right = _HI_MAP_NODE_RIGHT(map, node);
 			}
 			HI_MAP_NODE(map, sibling)->parent = parent;
 			HI_MAP_NODE(map, parent)->right = sibling;
@@ -455,7 +454,7 @@ inline void hi_map_del(hi_map_t *map, hi_map_key_t key)
 		 */
 		sibling = HI_MAP_NODE(map, parent)->right;
 		if (HI_MAP_ITER(node) != HI_MAP_ITER(sibling)) {	/* node == parent->rb_left */
-			if (HI_MAP_NODE_IS_RED(map, sibling)) {
+			if (_HI_MAP_NODE_IS_RED(map, sibling)) {
 				/*
 				 * Case 1 - left rotate at parent
 				 *
@@ -474,9 +473,9 @@ inline void hi_map_del(hi_map_t *map, hi_map_key_t key)
 			}
 			
 			tmp1 = HI_MAP_NODE(map, sibling)->right;
-			if (tmp1 == HI_ITER_NULL || HI_MAP_NODE_IS_BLACK(map, tmp1)) {
+			if (tmp1 == HI_ITER_NULL || _HI_MAP_NODE_IS_BLACK(map, tmp1)) {
 				tmp2 = HI_MAP_NODE(map, sibling)->left;
-				if (tmp2 == HI_ITER_NULL || HI_MAP_NODE_IS_BLACK(map, tmp2)) {
+				if (tmp2 == HI_ITER_NULL || _HI_MAP_NODE_IS_BLACK(map, tmp2)) {
 					/*
 					 * Case 2 - sibling color flip
 					 * (p could be either color here)
@@ -493,12 +492,12 @@ inline void hi_map_del(hi_map_t *map, hi_map_key_t key)
 					 * p is red when coming from Case 1.
 					 */
 					_HI_MAP_SET_PARENT_RED(map, sibling, parent);
-					if (HI_MAP_NODE_IS_RED(map, parent)){
+					if (_HI_MAP_NODE_IS_RED(map, parent)){
 						_HI_MAP_SET_BLACK(map, parent);
 					}
 					else {
 						node = parent;
-						parent = HI_MAP_NODE_PARENT(map, node);
+						parent = _HI_MAP_NODE_PARENT(map, node);
 						if (parent != HI_ITER_NULL){
 							continue;
 						}
@@ -566,7 +565,7 @@ inline void hi_map_del(hi_map_t *map, hi_map_key_t key)
 			break;
 		} else {
 			sibling = HI_MAP_NODE(map, parent)->left;
-			if (HI_MAP_NODE_IS_RED(map, sibling)) {
+			if (_HI_MAP_NODE_IS_RED(map, sibling)) {
 				/* Case 1 - right rotate at parent */
 				tmp1 = HI_MAP_NODE(map, sibling)->right;
 				HI_MAP_NODE(map, parent)->left = tmp1;
@@ -576,17 +575,17 @@ inline void hi_map_del(hi_map_t *map, hi_map_key_t key)
 				sibling = tmp1;
 			}
 			tmp1 = HI_MAP_NODE(map, sibling)->left;
-			if (tmp1 == HI_ITER_NULL || HI_MAP_NODE_IS_BLACK(map, tmp1)) {
+			if (tmp1 == HI_ITER_NULL || _HI_MAP_NODE_IS_BLACK(map, tmp1)) {
 				tmp2 = HI_MAP_NODE(map, sibling)->right;
-				if (tmp2 == HI_ITER_NULL || HI_MAP_NODE_IS_BLACK(map, tmp2)) {
+				if (tmp2 == HI_ITER_NULL || _HI_MAP_NODE_IS_BLACK(map, tmp2)) {
 					/* Case 2 - sibling color flip */
 					_HI_MAP_SET_PARENT_RED(map, sibling, parent);
-					if (HI_MAP_NODE_IS_RED(map, parent)) {
+					if (_HI_MAP_NODE_IS_RED(map, parent)) {
 						_HI_MAP_SET_BLACK(map, parent);
 					}
 					else {
 						node = parent;
-						parent = HI_MAP_NODE_PARENT(map, node);
+						parent = _HI_MAP_NODE_PARENT(map, node);
 						if (parent != HI_ITER_NULL) {
 							continue;
 						}
@@ -632,11 +631,11 @@ inline hi_iter_t hi_map_next(hi_map_t *map, hi_iter_t node)
   
     /* If we have a right-hand child, go down and then left as far 
        as we can. */  
-    if (HI_MAP_NODE_RIGHT(map, node) != HI_ITER_NULL) {
-        node = HI_MAP_NODE_RIGHT(map, node);
-        while (HI_MAP_NODE_LEFT(map, node) != HI_ITER_NULL)
+    if (_HI_MAP_NODE_RIGHT(map, node) != HI_ITER_NULL) {
+        node = _HI_MAP_NODE_RIGHT(map, node);
+        while (_HI_MAP_NODE_LEFT(map, node) != HI_ITER_NULL)
 		{
-            node = HI_MAP_NODE_LEFT(map, node);
+            node = _HI_MAP_NODE_LEFT(map, node);
 		}
         return node;
     }  
@@ -648,11 +647,11 @@ inline hi_iter_t hi_map_next(hi_map_t *map, hi_iter_t node)
        up. First time it's a left-hand child of its parent, said 
        parent is our 'next' node. */  
 
-	hi_iter_t parent = HI_MAP_NODE_PARENT(map, node);
-    while (parent != HI_ITER_NULL && (HI_MAP_ITER(node) == HI_MAP_NODE_RIGHT(map, parent)))
+	hi_iter_t parent = _HI_MAP_NODE_PARENT(map, node);
+    while (parent != HI_ITER_NULL && (HI_MAP_ITER(node) == _HI_MAP_NODE_RIGHT(map, parent)))
 	{
         node = parent;
-		parent = HI_MAP_NODE_PARENT(map, node);
+		parent = _HI_MAP_NODE_PARENT(map, node);
 	}
   
     return parent;  
@@ -700,12 +699,12 @@ inline void hi_map_deinit(hi_map_t *map)
 	{
 		if (HI_MAP_NODE(map, node)->left != HI_ITER_NULL)
 		{ 
-			node =  HI_MAP_NODE_LEFT(map, node);
+			node =  _HI_MAP_NODE_LEFT(map, node);
 			continue;
 		}
 		if (HI_MAP_NODE(map, node)->right != HI_ITER_NULL)
 		{ 
-			node = HI_MAP_NODE_RIGHT(map, node);
+			node = _HI_MAP_NODE_RIGHT(map, node);
 			continue;
 		}
 		break;
@@ -718,17 +717,17 @@ inline void hi_map_deinit(hi_map_t *map)
 
 		while (HI_MAP_NODE(map, node)->left != HI_ITER_NULL)
 		{
-			node = HI_MAP_NODE_LEFT(map, node);
+			node = _HI_MAP_NODE_LEFT(map, node);
 		}
 
-		if (HI_MAP_NODE(map, HI_MAP_NODE_PARENT(map, node))->right != HI_ITER_NULL)
+		if (HI_MAP_NODE(map, _HI_MAP_NODE_PARENT(map, node))->right != HI_ITER_NULL)
 		{
-			node = HI_MAP_NODE_RIGHT(map, HI_MAP_NODE_PARENT(map, node));
+			node = _HI_MAP_NODE_RIGHT(map, _HI_MAP_NODE_PARENT(map, node));
 			continue;
 		}
 		else
 		{
-			node = HI_MAP_NODE_PARENT(map, node);
+			node = _HI_MAP_NODE_PARENT(map, node);
 		}
 
 		hi_mem_pool_bring(map->pool, HI_MAP_ITER(to_delete));
@@ -755,13 +754,25 @@ hi_result_t hi_async_map_set(hi_async_map_t *map, hi_map_key_t key, hi_value_t v
 	return result;
 }
 
-hi_value_t hi_async_map_get(hi_async_map_t *map, hi_map_key_t key)
+hi_value_result_t hi_async_map_get(hi_async_map_t *map, hi_map_key_t key)
 {
-	hi_value_t value = HI_VALUE_NULL;
+	hi_value_result_t result = {
+		.result = HI_RESULT_MAKE_OK, 
+		.value = HI_VALUE_NULL
+	};
 	hi_mutex_lock(&(map->mutex));
-	value = hi_map_get(&(map->unsafe), key);
+	result.value.iter = hi_map_get_iter(&(map->unsafe), key);
+	if (result.value.iter == HI_ITER_NULL)
+	{
+		result.result = HI_RESULT_MAKE_FAILED(HI_FAILED_REASON_NOT_EXIST);
+		result.value = HI_VALUE_NULL;
+	}
+	else
+	{
+		result.value = _HI_MAP_NODE_TRUST(&(map->unsafe), result.value.iter)->value;
+	}
 	hi_mutex_unlock(&(map->mutex));
-	return value;
+	return result;
 }
 
 void hi_async_map_del(hi_async_map_t *map, hi_map_key_t key)

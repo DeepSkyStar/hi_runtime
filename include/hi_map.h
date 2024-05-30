@@ -109,7 +109,7 @@ extern void hi_async_map_init(hi_async_map_t *map);
 
 extern hi_result_t hi_async_map_set(hi_async_map_t *map, hi_map_key_t key, hi_value_t value);
 
-extern hi_value_t hi_async_map_get(hi_async_map_t *map, hi_map_key_t key);
+extern hi_value_result_t hi_async_map_get(hi_async_map_t *map, hi_map_key_t key);
 
 extern void hi_async_map_del(hi_async_map_t *map, hi_map_key_t key);
 

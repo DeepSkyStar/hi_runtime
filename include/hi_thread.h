@@ -33,7 +33,7 @@ extern "C" {
 #include <pthread.h>
 #include <unistd.h>
 #elif _HI_FREERTOS
-
+#include "freertos/semphr.h"
 #else
 
 #endif
@@ -51,10 +51,10 @@ typedef struct
 
 }hi_mutex_t;
 
-extern int hi_mutex_init(hi_mutex_t *mutex);
-extern int hi_mutex_lock(hi_mutex_t *mutex);
-extern int hi_mutex_unlock(hi_mutex_t *mutex);
-extern int hi_mutex_deinit(hi_mutex_t *mutex);
+extern void hi_mutex_init(hi_mutex_t *mutex);
+extern void hi_mutex_lock(hi_mutex_t *mutex);
+extern void hi_mutex_unlock(hi_mutex_t *mutex);
+extern void hi_mutex_deinit(hi_mutex_t *mutex);
 
 typedef uint8_t hi_priority_t;
 typedef enum{
@@ -65,7 +65,11 @@ typedef enum{
     HI_PRIORITY_CRITICAL = 4, //for critical safety function.
 }hi_priority_enum;
 
+#if _HI_FREERTOS
+typedef TaskFunction_t hi_thread_func_f;
+#else
 typedef void* (*hi_thread_func_f)(void* args);
+#endif
 
 typedef struct
 {
@@ -80,7 +84,7 @@ typedef struct
     hi_thread_func_f func;
     uint32_t stack_depth;   //stack depth for thread.
     hi_priority_t priority;   //the priority for thread.
-    void *args;
+    hi_value_t args;
 }hi_thread_t;
 
 #ifndef HI_THREAD_DEFAULT
@@ -89,7 +93,7 @@ typedef struct
     .func = __func__,   \
     .stack_depth = 0,    \
     .priority = HI_PRIORITY_NORMAL, \
-    .args = NULL,   \
+    .args = HI_VALUE_NULL,   \
 }
 #endif
 

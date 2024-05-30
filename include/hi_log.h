@@ -80,27 +80,6 @@ typedef enum hi_log_level_enum{
 #define HI_LOGV( format, ... ) 
 #endif
 
-#ifndef HI_CHECK_ERR
-#define HI_CHECK_ERR(__check__, __str__, ...)                  \
-    do                                                                            \
-    {                                                                             \
-        if ((__check__).res != HI_RESULT_OK)                                      \
-        {                                                                         \
-            HI_LOGE("%s(%d) REASON:%x TIPS: " __str__, __FUNCTION__, __LINE__, (__check__).reason , ##__VA_ARGS__); \
-            return __check__;                                                   \
-        }                                                                         \
-    } while (0)
-#endif
-
-#ifndef HI_ERR_FROM_ESP32
-#define HI_ERR_FROM_ESP32(__var__, __esp32_err__) \
-    do                                                                                              \
-    {                                                                                               \
-        (__var__).reason = __esp32_err__;                                                           \
-        (__var__).res = ((__var__).reason==0)? HI_RESULT_OK: HI_RESULT_FAILED;                        \
-    } while (0)
-#endif
-
 #ifdef __cplusplus
 }
 #endif

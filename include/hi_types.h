@@ -98,21 +98,35 @@ typedef union
     char* str;
     void* byte;
     uint8_t uint8;
+    uint8_t *uint8_list;
     int8_t int8;
+    uint8_t *int8_list;
     uint16_t uint16;
+    uint16_t *uint16_list;
     int16_t int16;
+    int16_t *int16_list;
     uint32_t uint32;
+    uint32_t *uint32_list;
     int32_t int32;
+    int32_t *int32_list;
     float float32;
+    float *float32_list;
 
 #if _HI_SUPPORT_64BIT
     uint64_t uint64;
+    uint64_t *uint64_list;
     int64_t int64;
+    int64_t *int64_list;
     double float64;
+    double *float64_list;
 #endif
 
 }hi_value_t;
 
+typedef struct{
+    hi_result_t result;
+    hi_value_t value;
+}hi_value_result_t;
 
 #define HI_VALUE_ITER(__value__) (hi_value_t){.iter = __value__}
 #define HI_VALUE_STR(__value__) (hi_value_t){.str = __value__}

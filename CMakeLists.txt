@@ -16,6 +16,7 @@ if(DEFINED ESP_PLATFORM)
                     INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include
                     )
     add_definitions(-D_HI_FREERTOS=1)
+    add_definitions(-D_HI_ESP32=1)
 else()
     project(hi_runtime)
     

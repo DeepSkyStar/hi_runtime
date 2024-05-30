@@ -1,9 +1,9 @@
 /**
- * @file hi_time.c
+ * @file hi_buffer.h
  * @author Cosmade (deepskystar@outlook.com)
  * @brief 
  * @version
- * @date 2024-05-06
+ * @date 2024-05-29
  * 
  * @copyright Copyright 2024 Cosmade
  * 
@@ -19,33 +19,25 @@
  *  limitations under the License.
  */
 
-#include "hi_time.h"
-#if _HI_PTHREAD
-#include <sys/time.h>
+#ifndef HI_BUFFER_H_
+#define HI_BUFFER_H_
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-inline hi_ticks_t hi_get_ticks(void)
-{
-#if _HI_FREERTOS
-    return xTaskGetTickCount();
-#else
-    return 0;
-#endif
-}
+#include "hi_sys.h"
+#include "hi_types.h"
 
-inline hi_time_t hi_get_time(void)
+typedef struct hi_buffer
 {
-#if _HI_PTHREAD
-    struct timeval tv;
-    gettimeofday(&tv, NULL);
-    return tv.tv_sec * 1000 + tv.tv_usec / 1000;
-#elif _HI_FREERTOS
-#ifdef configTICK_RATE_HZ
-    return xTaskGetTickCount() * 1000 / configTICK_RATE_HZ;
-#else
-    return xTaskGetTickCount();
-#endif
-#else
-    return 0;
-#endif
+    hi_size_t length;
+};
+
+void hi_buffer_init(void)
+
+#ifdef __cplusplus
 }
+#endif
+
+#endif /* HI_BUFFER_H_ */

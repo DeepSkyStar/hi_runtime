@@ -22,51 +22,50 @@
 #include "hi_thread.h"
 #include "hi_memory.h"
 
-inline int hi_mutex_init(hi_mutex_t *mutex)
+inline void hi_mutex_init(hi_mutex_t *mutex)
 {
 #if _HI_PTHREAD
     mutex->mutex = hi_malloc(sizeof(pthread_mutex_t));
-    return pthread_mutex_init(mutex->mutex, NULL);
-
+    pthread_mutex_init(mutex->mutex, NULL);
 #elif _HI_FREERTOS
-    SemaphoreHandle_t mutex;
+    mutex->mutex = xSemaphoreCreateMutex();
 #else
-    return -1;
+    return ;
 #endif
 }
 
-inline int hi_mutex_lock(hi_mutex_t *mutex)
+inline void hi_mutex_lock(hi_mutex_t *mutex)
 {
 #if _HI_PTHREAD
-    return pthread_mutex_lock(mutex->mutex);
+    pthread_mutex_lock(mutex->mutex);
 #elif _HI_FREERTOS
-    return xSemaphoreTake(mutex->mutex, portMAX_DELAY);
+    xSemaphoreTake(mutex->mutex, portMAX_DELAY);
 #else
-    return -1;
+    return ;
 #endif
 }
 
-inline int hi_mutex_unlock(hi_mutex_t *mutex)
+inline void hi_mutex_unlock(hi_mutex_t *mutex)
 {
 #if _HI_PTHREAD
-    return pthread_mutex_init(mutex->mutex, NULL);
+    pthread_mutex_unlock(mutex->mutex);
 #elif _HI_FREERTOS
-    return xSemaphoreGive(mutex->mutex);
+    xSemaphoreGive(mutex->mutex);
 #else
-    return -1;
+    return ;
 #endif
 }
 
-inline int hi_mutex_deinit(hi_mutex_t *mutex)
+inline void hi_mutex_deinit(hi_mutex_t *mutex)
 {
 #if _HI_PTHREAD
     int result = pthread_mutex_destroy(mutex->mutex);
     hi_free(mutex->mutex);
-    return result;
+    mutex->mutex = NULL;
 #elif _HI_FREERTOS
-    return vSemaphoreDelete(mutex->mutex);
+    vSemaphoreDelete(mutex->mutex);
 #else
-    return -1;
+    return ;
 #endif
 }
 
@@ -74,13 +73,14 @@ inline int hi_thread_init(hi_thread_t *thread)
 {
 #if _HI_PTHREAD
     //TODO: fill out thread attr.
-    return pthread_create(&(thread->handle), NULL, thread->func, thread->args);
+    return pthread_create(&(thread->handle), NULL, thread->func, thread->args.byte);
 #elif _HI_FREERTOS
     //TODO: make translate from hi_priority to freertos.
-    xTaskCreate((void)thread->func,
+    
+    return xTaskCreate(thread->func,
                 thread->name,
-                (thread->stackDepth == 0)?:thread->stackDepth,
-                thread->args,
+                (thread->stack_depth == 0)? CONFIG_PTHREAD_TASK_STACK_SIZE_DEFAULT : thread->stack_depth,
+                thread->args.byte,
                 thread->priority,
                 thread->handle);
 #else
@@ -94,7 +94,7 @@ inline int hi_thread_join(hi_thread_t *thread)
     //TODO: fill out thread attr.
     return pthread_join(thread->handle, NULL);
 #elif _HI_FREERTOS
-    return xTaskWaitForEnd(thread->handle, portMAX_DELAY);
+    return ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
 #else
     return -1;
 #endif
@@ -111,7 +111,7 @@ inline void hi_thread_deinit(void)
     //TODO: test it.
     pthread_exit(NULL);
 #elif _HI_FREERTOS
-    xTaskDelete(NULL);
+    vTaskDelete(NULL);
 #else
     return -1;
 #endif

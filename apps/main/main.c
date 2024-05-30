@@ -273,7 +273,7 @@ void test_async_map()
     last_time = hi_get_time();
     for (int i = 0; i < TEST_MAP_COUNT; i++)
     {
-        hi_value_t value = hi_async_map_get(map, HI_VALUE_INT(i));
+        hi_value_result_t value = hi_async_map_get(map, HI_VALUE_INT(i));
     }
     printf("used time: %ld\n", hi_get_time() - last_time);
     printf("end test map\n\n");
