@@ -59,7 +59,7 @@ inline void hi_mutex_unlock(hi_mutex_t *mutex)
 inline void hi_mutex_deinit(hi_mutex_t *mutex)
 {
 #if _HI_PTHREAD
-    int result = pthread_mutex_destroy(mutex->mutex);
+    pthread_mutex_destroy(mutex->mutex);
     hi_free(mutex->mutex);
     mutex->mutex = NULL;
 #elif _HI_FREERTOS
