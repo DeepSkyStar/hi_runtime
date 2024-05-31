@@ -28,13 +28,34 @@ extern "C" {
 
 #include "hi_sys.h"
 #include "hi_types.h"
+#include "hi_thread.h"
 
-typedef struct hi_buffer
+typedef struct
 {
-    hi_size_t length;
-};
+    hi_mutex_t mutex;
+    hi_size_t max_size; //must bigger than mtu for process.
+    hi_size_t cur_size;
+    hi_iter_t cur;
+    uint8_t* data;
+}hi_buffer_t;
 
-void hi_buffer_init(void)
+void hi_buffer_init(hi_buffer_t *buffer);
+
+/**
+ * @brief if not enough, will return faliled.
+ * 
+ * @param buffer 
+ * @param data 
+ * @param size 
+ * @return hi_result_t
+ */
+hi_result_t hi_buffer_add(hi_buffer_t *buffer, const uint8_t *data, hi_size_t size);
+
+void hi_buffer_lock(hi_buffer_t *buffer);
+void hi_buffer_unlock(hi_buffer_t *buffer);
+
+void hi_buffer_set_data(hi_buffer_t *buffer, const uint8_t *data, hi_size_t size);
+void hi_buffer_clear(hi_buffer_t *buffer);
 
 #ifdef __cplusplus
 }

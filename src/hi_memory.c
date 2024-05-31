@@ -19,7 +19,6 @@
  *  limitations under the License.
  */
 
-#include "hi_sys.h"
 #include "hi_memory.h"
 
 inline void* hi_memset(void* src, int value, hi_size_t size)
@@ -27,9 +26,14 @@ inline void* hi_memset(void* src, int value, hi_size_t size)
     return memset(src, value, size);
 }
 
-inline void* hi_memcpy(void* src, void* dst, hi_size_t size)
+inline void* hi_memcpy(void* dst, const void* src, hi_size_t size)
 {
-    return memcpy(src, dst, size);
+    return memcpy(dst, src, size);
+}
+
+inline void* hi_memmove(void* dst, const void* src, hi_size_t size)
+{
+    return memmove(dst, src, size);
 }
 
 inline void* hi_malloc(hi_size_t size)
@@ -56,7 +60,13 @@ inline hi_mem_pool_t* hi_mem_pool_new(hi_mem_pool_config_t config)
 {
     //TODO: support align and variable.
     if (config.align || config.variable) return NULL;
-    if (config.block_size < sizeof(hi_size_t)) config.block_size = sizeof(hi_size_t);
+    if (config.block_size < sizeof(hi_size_t)) {
+        config.block_size = sizeof(hi_size_t);
+    }
+    //Make sure the block size is even.
+    if ((config.block_size & 1) == 1) {
+        config.block_size += 1;
+    }
     //The minimun size for loop pool work.
     hi_mem_pool_t* pool = (hi_mem_pool_t*)hi_malloc(sizeof(hi_mem_pool_t) + config.block_size * config.block_count);
     pool->head = HI_ITER_NULL;
@@ -84,8 +94,8 @@ inline hi_iter_t hi_mem_pool_take(hi_mem_pool_t* pool)
     hi_iter_t block = HI_ITER_NULL;
     if (pool->head != HI_ITER_NULL) {
         block = pool->head;
-        pool->head = *(hi_iter_t*)(pool->container + pool->head);  //Get next pointer.
-        return block;
+        pool->head = *(hi_iter_t*)(pool->container + HI_SAFE_ITER(pool->head));  //Get next pointer.
+        return HI_SAFE_ITER(block);
     }
     if (pool->cur < pool->config.block_size * pool->config.block_count) {
         block = pool->cur;
@@ -104,13 +114,13 @@ inline void hi_mem_pool_bring(hi_mem_pool_t* pool, hi_iter_t block)
 {
     //When block bring, it will reuse to storage the last block.
     if (pool->head == HI_ITER_NULL) {
-        pool->head = block;
-        *((hi_size_t*)(pool->container + block)) = HI_ITER_NULL;
+        pool->head = HI_ITER_INVALID(block);
+        *((hi_iter_t*)(pool->container + HI_SAFE_ITER(block))) = HI_ITER_NULL;
         pool->tail = pool->head;
     }
     else {
-        *(hi_size_t*)(pool->container + pool->tail) = block;
-        pool->tail = block;
-        *((hi_size_t*)(pool->container + block)) = HI_ITER_NULL;
+        *(hi_iter_t*)(pool->container + HI_SAFE_ITER(pool->tail)) = HI_ITER_INVALID(block);
+        pool->tail = HI_ITER_INVALID(block);
+        *((hi_iter_t*)(pool->container + HI_SAFE_ITER(block))) = HI_ITER_NULL;
     }
 }

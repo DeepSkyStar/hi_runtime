@@ -21,7 +21,7 @@
 #include "hi_queue.h"
 
 #define _HI_QUEUE_HEAD(__queue__) ((hi_queue_node_t *)(queue->pool->container + (hi_iter_t)queue->head))
-#define _HI_QUEUE_ITER(__queue__, __iter__) ((hi_queue_node_t *)(queue->pool->container + (hi_iter_t)(__iter__)))
+#define _HI_QUEUE_NODE(__queue__, __iter__) ((hi_queue_node_t *)(queue->pool->container + (hi_iter_t)(__iter__)))
 #define _HI_QUEUE_LAST(__queue__) ((hi_queue_node_t *)(queue->pool->container + queue->last))
 
 inline void hi_queue_init(hi_queue_t *queue)
@@ -55,17 +55,14 @@ inline hi_result_t hi_queue_in(hi_queue_t *queue, hi_value_t value)
     return HI_RESULT_MAKE_OK;
 }
 
-inline hi_result_t hi_queue_out(hi_queue_t *queue)
+inline void hi_queue_out(hi_queue_t *queue)
 {
-    if (queue == NULL) return HI_RESULT_MAKE_FAILED(HI_FAILED_REASON_NULL_PTR);
-    if (queue->pool == NULL) return HI_RESULT_MAKE_FAILED(HI_FAILED_REASON_OUT_OF_MEMORY);
-    if (queue->head == HI_ITER_NULL) return HI_RESULT_MAKE_FAILED(HI_FAILED_REASON_OUT_OF_INDEX);
+    if (queue == NULL || queue->pool == NULL || queue->head == HI_ITER_NULL) return ;
 
     hi_iter_t iter = queue->head;
     queue->head = _HI_QUEUE_HEAD(queue)->next;
     if (queue->head == HI_ITER_NULL) queue->last = HI_ITER_NULL;
     hi_mem_pool_bring(queue->pool, iter);
-    return HI_RESULT_MAKE_OK;
 }
 
 inline uint8_t hi_queue_empty(hi_queue_t *queue)
@@ -86,11 +83,26 @@ inline hi_value_t hi_queue_last(hi_queue_t *queue)
     return _HI_QUEUE_LAST(queue)->value;
 }
 
-inline hi_iter_t hi_queue_next(hi_queue_t *queue, hi_iter_t iter)
+inline hi_iter_t hi_queue_begin(hi_queue_t *queue)
 {
-    if (iter == HI_ITER_NULL) return iter;
-    if (queue == NULL) return HI_ITER_NULL;
-    return _HI_QUEUE_ITER(queue, iter)->next;
+    return queue->head;
+}
+
+inline hi_queue_node_t hi_queue_next(hi_queue_t *queue, hi_iter_t iter)
+{
+    if (iter == HI_ITER_NULL) return HI_QUEUE_NODE_NULL;
+    if (queue == NULL) return HI_QUEUE_NODE_NULL;
+    return *_HI_QUEUE_NODE(queue, iter);
+}
+
+inline void hi_queue_del_next(hi_queue_t *queue, hi_iter_t iter)
+{
+    if (iter == HI_ITER_NULL) return;
+    if (queue == NULL) return;
+    hi_iter_t next = _HI_QUEUE_NODE(queue, iter)->next;
+    _HI_QUEUE_NODE(queue, iter)->next = _HI_QUEUE_NODE(queue, next)->next;
+    if (_HI_QUEUE_NODE(queue, iter)->next == HI_ITER_NULL) queue->last = iter;
+    hi_mem_pool_bring(queue->pool, next);
 }
 
 inline void hi_queue_deinit(hi_queue_t *queue)
@@ -101,7 +113,6 @@ inline void hi_queue_deinit(hi_queue_t *queue)
         hi_queue_out(queue);
     }
 }
-
 
 void hi_async_queue_init(hi_async_queue_t *queue)
 {
@@ -120,13 +131,11 @@ hi_result_t hi_async_queue_in(hi_async_queue_t *queue, hi_value_t value)
     return result;
 }
 
-hi_result_t hi_async_queue_out(hi_async_queue_t *queue)
+void hi_async_queue_out(hi_async_queue_t *queue)
 {
-    hi_result_t result;
     hi_mutex_lock(&(queue->mutex));
-    result = hi_queue_out(&(queue->unsafe));
+    hi_queue_out(&(queue->unsafe));
     hi_mutex_unlock(&(queue->mutex));
-    return result;
 }
 
 uint8_t hi_async_queue_empty(hi_async_queue_t *queue)
@@ -140,7 +149,7 @@ uint8_t hi_async_queue_empty(hi_async_queue_t *queue)
 
 hi_value_t hi_async_queue_head(hi_async_queue_t *queue)
 {
-    hi_value_t value = HI_VALUE_NULL;
+    hi_value_t value;
     hi_mutex_lock(&(queue->mutex));
     value = hi_queue_head(&(queue->unsafe));
     hi_mutex_unlock(&(queue->mutex));
@@ -149,19 +158,36 @@ hi_value_t hi_async_queue_head(hi_async_queue_t *queue)
 
 hi_value_t hi_async_queue_last(hi_async_queue_t *queue)
 {
-    hi_value_t value = HI_VALUE_NULL;
+    hi_value_t value;
     hi_mutex_lock(&(queue->mutex));
     value = hi_queue_last(&(queue->unsafe));
     hi_mutex_unlock(&(queue->mutex));
     return value;
 }
 
-hi_iter_t hi_async_queue_next(hi_async_queue_t *queue, hi_iter_t iter)
+hi_iter_t hi_async_queue_begin(hi_async_queue_t *queue)
 {
+    hi_iter_t iter;
     hi_mutex_lock(&(queue->mutex));
-    iter = hi_queue_next(&(queue->unsafe), iter);
+    iter = hi_queue_begin(&(queue->unsafe));
     hi_mutex_unlock(&(queue->mutex));
     return iter;
+}
+
+hi_queue_node_t hi_async_queue_next(hi_async_queue_t *queue, hi_iter_t iter)
+{
+    hi_queue_node_t node;
+    hi_mutex_lock(&(queue->mutex));
+    node = hi_queue_next(&(queue->unsafe), iter);
+    hi_mutex_unlock(&(queue->mutex));
+    return node;
+}
+
+void hi_async_queue_del_next(hi_async_queue_t *queue, hi_iter_t iter)
+{
+    hi_mutex_lock(&(queue->mutex));
+    hi_queue_next(&(queue->unsafe), iter);
+    hi_mutex_unlock(&(queue->mutex));
 }
 
 void hi_async_queue_deinit(hi_async_queue_t *queue)

@@ -28,6 +28,15 @@ extern "C" {
 
 #include "hi_sys.h"
 
+#define HI_MAX_SIZE ((hi_size_t)-1)
+#define HI_ITER_NULL HI_MAX_SIZE
+#define HI_SAFE_ITER(__iter__) ((__iter__)&(~(hi_iter_t)1))
+#define HI_ITER_INVALID(__iter__) (__iter__)^=1
+#define HI_ITER_IS_INVALID(__iter__) ((__iter__)&1)
+
+typedef size_t hi_size_t;
+typedef hi_size_t hi_iter_t;
+
 #pragma pack(1)
 
 /************************* Error ****************************/
@@ -36,7 +45,7 @@ typedef enum{
     HI_RESULT_OK = 0,
     HI_RESULT_FAILED = 1,
     HI_RESULT_TIMEOUT = 2,
-    HI_RESULT_CANCEL = 3,
+    HI_RESULT_CANCELLED = 3,
 }hi_result_e;
 
 typedef enum{
@@ -64,7 +73,7 @@ typedef struct{
 #define HI_RESULT_MAKE_OK HI_RESULT_MAKE(HI_RESULT_OK, 0)
 #define HI_RESULT_MAKE_FAILED(__reason__) HI_RESULT_MAKE(HI_RESULT_FAILED, __reason__)
 #define HI_RESULT_MAKE_TIMEOUT HI_RESULT_MAKE(HI_RESULT_TIMEOUT, 0)
-#define HI_RESULT_MAKE_CANCEL HI_RESULT_MAKE(HI_RESULT_CANCEL, 0)
+#define HI_RESULT_MAKE_CANCEL HI_RESULT_MAKE(HI_RESULT_CANCELLED, 0)
 
 #pragma pack()
 
@@ -152,14 +161,14 @@ typedef struct{
 
 typedef struct
 {
-    hi_size_t size;
     hi_value_t data;
+    hi_size_t size;
 }hi_data_t;
 
 #define HI_DATA_NULL ((hi_data_t){.size = 0, .data = HI_VALUE_NULL})
 #define HI_IS_DATA_NULL(__data__) (__data__.size == 0 || HI_IS_VALUE_NULL(__value__))
 
-
+typedef char* hi_str_t;
 
 #ifdef __cplusplus
 }

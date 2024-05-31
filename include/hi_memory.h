@@ -34,8 +34,8 @@ extern "C" {
 #endif
 
 extern void* hi_memset(void* src, int value, hi_size_t size);
-extern void* hi_memcpy(void* src, void* dst, hi_size_t size);
-
+extern void* hi_memcpy(void* dst, const void* src, hi_size_t size);
+extern void* hi_memmove(void* dst, const void* src, hi_size_t size);
 extern void* hi_malloc(hi_size_t size);
 extern void* hi_calloc(hi_size_t num, hi_size_t size);
 extern void* hi_realloc(void* ptr, hi_size_t size);
@@ -66,25 +66,27 @@ typedef struct
 typedef struct
 {
     hi_mem_pool_config_t config;
-    hi_size_t head;
-    hi_size_t tail;   //after memory use, memory will put here.
-    hi_size_t cur;    //for record where pool is using.
+    hi_iter_t head;
+    hi_iter_t tail;   //after memory use, memory will put here.
+    hi_iter_t cur;    //for record where pool is using.
     uint8_t* container;    //the pool for data link.
 }hi_mem_pool_t;
 
-#define HI_MEM_POOL_DEFINE(__name__, __type__, __count__) __type__ __name__##_container[__count__] = {0}; \
-hi_mem_pool_t __name__ = { \
+#define HI_MEM_POOL_INIT(__container__, __block_size__, __block_count__) { \
      .config = {        \
         .variable = 0,  \
         .align = _HI_ALIGN_MEM_POOL, \
-        .block_size = sizeof(__type__), \
-        .block_count = __count__  \
+        .block_size = __block_size__, \
+        .block_count = __block_count__  \
     },  \
     .head = HI_ITER_NULL, \
     .tail = HI_ITER_NULL, \
     .cur = 0,   \
-    .container = (uint8_t *)__name__##_container,    \
+    .container = (uint8_t *)__container__,    \
 }
+
+#define HI_MEM_POOL_DEFINE(__name__, __type__, __count__) __type__ __name__##_container[__count__] = {0}; \
+hi_mem_pool_t __name__ = HI_MEM_POOL_INIT(__name__##_container, sizeof(__type__), __count__)
 
 /**
  * @brief alloc new mem pool. but in mcu, recommand to new a mem pool by hand.

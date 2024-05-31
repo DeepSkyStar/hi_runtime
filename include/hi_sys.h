@@ -87,13 +87,6 @@ typedef enum{
 }hi_sys_t;
 extern hi_sys_t hi_get_os(void);
 
-#define HI_MAX_SIZE ((hi_size_t)-1)
-#define HI_ITER_NULL (HI_MAX_SIZE)
-
-typedef size_t hi_size_t;
-typedef hi_size_t hi_iter_t;
-typedef char* hi_str_t;
-
 #ifdef __cplusplus
 }
 #endif

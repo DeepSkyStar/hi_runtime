@@ -51,13 +51,14 @@ typedef struct
     .pool = __pool__,   \
 }
 
+#define HI_QUEUE_NODE_NULL (hi_queue_node_t){HI_ITER_NULL, HI_VALUE_NULL}
 #define HI_QUEUE_IS_EMPTY(__queue__) ((__queue__).last == HI_ITER_NULL)
 
 extern void hi_queue_init(hi_queue_t *queue);
 
 extern hi_result_t hi_queue_in(hi_queue_t *queue, hi_value_t value);
 
-extern hi_result_t hi_queue_out(hi_queue_t *queue);
+extern void hi_queue_out(hi_queue_t *queue);
 
 extern uint8_t hi_queue_empty(hi_queue_t *queue);
 
@@ -65,7 +66,11 @@ extern hi_value_t hi_queue_head(hi_queue_t *queue);
 
 extern hi_value_t hi_queue_last(hi_queue_t *queue);
 
-extern hi_iter_t hi_queue_next(hi_queue_t *queue, hi_iter_t iter);
+extern hi_iter_t hi_queue_begin(hi_queue_t *queue);
+
+extern hi_queue_node_t hi_queue_next(hi_queue_t *queue, hi_iter_t iter);
+
+extern void hi_queue_del_next(hi_queue_t *queue, hi_iter_t iter);
 
 extern void hi_queue_deinit(hi_queue_t *queue);
 
@@ -80,7 +85,7 @@ extern void hi_async_queue_init(hi_async_queue_t *queue);
 
 extern hi_result_t hi_async_queue_in(hi_async_queue_t *queue, hi_value_t value);
 
-extern hi_result_t hi_async_queue_out(hi_async_queue_t *queue);
+extern void hi_async_queue_out(hi_async_queue_t *queue);
 
 extern uint8_t hi_async_queue_empty(hi_async_queue_t *queue);
 
@@ -88,7 +93,11 @@ extern hi_value_t hi_async_queue_head(hi_async_queue_t *queue);
 
 extern hi_value_t hi_async_queue_last(hi_async_queue_t *queue);
 
-extern hi_iter_t hi_async_queue_next(hi_async_queue_t *queue, hi_iter_t iter);
+extern hi_iter_t hi_async_queue_begin(hi_async_queue_t *queue);
+
+extern hi_queue_node_t hi_async_queue_next(hi_async_queue_t *queue, hi_iter_t iter);
+
+extern void hi_async_queue_del_next(hi_async_queue_t *queue, hi_iter_t iter);
 
 extern void hi_async_queue_deinit(hi_async_queue_t *queue);
 

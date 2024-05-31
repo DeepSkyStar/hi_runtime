@@ -25,11 +25,12 @@
 #include "hi_task.h"
 #include "hi_object.h"
 #include "hi_memory.h"
+#include "hi_buffer.h"
 #include "hi_map.h"
 #include "hi_queue.h"
-#include "hi_async_list.h"
 #include "hi_time.h"
 #include "hi_math.h"
 #include "hi_color.h"
 #include "hi_isr_queue.h"
 #include "hi_runloop.h"
+

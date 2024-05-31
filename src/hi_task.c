@@ -18,3 +18,29 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
+#include "hi_task.h"
+
+//add a task to pool to storage.
+hi_task_id_t hi_task_pool_add(hi_task_pool_t *pool, hi_task_t task)
+{
+    return 0;
+}
+
+//after run it will remove from task immediately.
+void hi_task_pool_run(hi_task_pool_t *pool, hi_task_id_t task_id, hi_result_t result, void *args)
+{
+
+}
+
+//get the task for run multi.
+hi_task_t hi_task_pool_get(hi_task_pool_t *pool, hi_task_id_t task_id)
+{
+    return (hi_task_t){0};
+}
+
+//if task cancel, the result will be HI_RESULT_CANCELLED.
+void hi_task_pool_cancel(hi_task_pool_t *pool, hi_task_id_t task_id)
+{
+
+}

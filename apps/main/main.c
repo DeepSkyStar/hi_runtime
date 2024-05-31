@@ -150,7 +150,7 @@ void print_map(hi_map_t *map)
         blank = 0;
         while (queue->head != HI_ITER_NULL)
         {
-            hi_iter_t head = hi_queue_head(queue).iter;
+            hi_iter_t head = hi_queue_begin(queue);
             if (hi_map_node(map, head).left != HI_ITER_NULL)
             {
                 hi_queue_in(next_queue, HI_VALUE_ITER(HI_MAP_ITER(hi_map_node(map, head).left)));
