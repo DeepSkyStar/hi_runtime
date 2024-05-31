@@ -51,10 +51,29 @@ typedef struct
 
 }hi_mutex_t;
 
+typedef struct
+{
+    hi_mutex_t mutex;
+#if _HI_PTHREAD
+    pthread_cond_t *cond;
+    int semaphore_count;
+#endif
+}hi_semaphore_t;
+
 extern void hi_mutex_init(hi_mutex_t *mutex);
 extern void hi_mutex_lock(hi_mutex_t *mutex);
 extern void hi_mutex_unlock(hi_mutex_t *mutex);
 extern void hi_mutex_deinit(hi_mutex_t *mutex);
+
+extern void hi_recursive_mutex_init(hi_mutex_t *mutex);
+extern void hi_recursive_mutex_lock(hi_mutex_t *mutex);
+extern void hi_recursive_mutex_unlock(hi_mutex_t *mutex);
+extern void hi_recursive_mutex_deinit(hi_mutex_t *mutex);
+
+extern void hi_semaphore_init(hi_semaphore_t *semaphore);
+extern void hi_semaphore_wait(hi_semaphore_t *semaphore);
+extern void hi_semaphore_send(hi_semaphore_t *semaphore);
+extern void hi_semaphore_deinit(hi_semaphore_t *semaphore);
 
 typedef uint8_t hi_priority_t;
 typedef enum{

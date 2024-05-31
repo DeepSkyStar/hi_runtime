@@ -25,6 +25,11 @@
 #include "hi_sys.h"
 #include "hi_types.h"
 #include "hi_isr_queue.h"
+#include "hi_task.h"
+#include "hi_thread.h"
+#include "hi_queue.h"
+#include "hi_map.h"
+#include "hi_buffer.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,20 +51,31 @@ struct hi_runloop_state_s{
 
 struct hi_runloop_s{
     hi_runloop_state_t state;
-    hi_str_t name;
-    uint32_t stack_depth;   //stack depth for runloop task.
-    hi_priority_t priority;   //the priority for runloop task.
-    uint64_t periods;    //how many period of this runloop run.
     hi_ticks_t frequency; //0 means no delay.
+    hi_time_t running_time; //the time for run.
+    uint64_t periods;    //how many period of this runloop run.
     uint64_t ticks; //how many ticks when run.
-    hi_isr_queue_t events; //recv queue for input event.
+
+    void *owner;    //for runloop owner.
+
+    hi_thread_t thread;   //thread
+    hi_buffer_t buffer;   //buffer for read and write.
+
     hi_runloop_func init_func;   //will run once when start a runloop.
     hi_runloop_func loop_func;    //will run many time in 1s, depends on frequency.
     hi_runloop_func end_func;  //will run once after end.
 };
 
 //Default setup for a runloop.
-void hi_runloop_default(hi_runloop_t *runloop, hi_str_t name, hi_runloop_func func);
+#define HI_RUNLOOP_DEFAULT(__owner__, __name__ , __func__) {    \
+    .state = {0},   \
+    .frequency = 0, \
+    .periods = 0,   \
+    .owner = __owner__, \
+    .thread = HI_THREAD_DEFAULT(__name__, __func__),    \
+    .buffer = HI_BUFFER_DEFAULT,    \
+    .loop_func = __func__,  \
+}
 
 hi_runloop_t *hi_runloop_main(void);
 
@@ -67,9 +83,15 @@ void hi_runloop_start(hi_runloop_t *runloop);
 void hi_runloop_run(hi_runloop_t *runloop);
 void hi_runloop_stop(hi_runloop_t *runloop);
 
-hi_result_t hi_runloop_send(hi_runloop_t *runloop, void *item, hi_ticks_t ticks_to_wait);
-hi_result_t hi_runloop_send_fromISR(hi_runloop_t *runloop, void *item, hi_ticks_t ticks_to_wait);
-hi_result_t hi_runloop_recv(hi_runloop_t *runloop, void *item, hi_ticks_t ticks_to_wait);
+// hi_result_t hi_runloop_send(hi_runloop_t *runloop, void *item, hi_ticks_t ticks_to_wait);
+
+// hi_result_t hi_runloop_send_fromISR(hi_runloop_t *runloop, void *item, hi_ticks_t ticks_to_wait);
+
+// hi_size_t hi_runloop_send(hi_runloop_t *runloop, void *data, hi_size_t size);
+// hi_result_t hi_runloop_recv(hi_runloop_t *runloop, void *data, hi_ticks_t ticks_to_wait);
+
+hi_result_t hi_runloop_add_task(hi_runloop_t *runloop, hi_task_t *task);
+void hi_runloop_cancel_task(hi_runloop_t *runloop, hi_task_t *task);
 
 #ifdef __cplusplus
 }

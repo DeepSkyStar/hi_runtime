@@ -22,24 +22,17 @@
 #include "hi_runloop.h"
 #include "hi_time.h"
 
-hi_runloop_t __main_runloop = {
-    .name = "main",
-    .frequency = 0,
-    .priority = HI_PRIORITY_NORMAL,
-    .stack_depth = HI_RUNLOOP_DEFAULT_STACK_DEPTH,
-    .events.len = HI_RUNLOOP_DEFAULT_QUEUE_LEN,
-    .events.item_size = HI_RUNLOOP_DEFAULT_QUEUE_ITEM_SIZE,
-};
+hi_runloop_t __main_runloop = HI_RUNLOOP_DEFAULT(NULL, "main", NULL);
 
 inline void hi_runloop_default(hi_runloop_t *runloop, hi_str_t name, hi_runloop_func func)
 {
-    runloop->name = name;
+    // runloop->name = name;
     runloop->loop_func = func;
-    runloop->priority = HI_PRIORITY_NORMAL;
-    runloop->stack_depth = HI_RUNLOOP_DEFAULT_STACK_DEPTH;
+    // runloop->priority = HI_PRIORITY_NORMAL;
+    // runloop->stack_depth = HI_RUNLOOP_DEFAULT_STACK_DEPTH;
     runloop->state.is_running = 0;
-    runloop->events.len = HI_RUNLOOP_DEFAULT_QUEUE_LEN;
-    runloop->events.item_size = HI_RUNLOOP_DEFAULT_QUEUE_ITEM_SIZE;
+    // runloop->events.len = HI_RUNLOOP_DEFAULT_QUEUE_LEN;
+    // runloop->events.item_size = HI_RUNLOOP_DEFAULT_QUEUE_ITEM_SIZE;
     runloop->frequency = 0;
     runloop->ticks = 0;
     runloop->periods = 0;
@@ -52,7 +45,7 @@ inline hi_runloop_t *hi_runloop_main()
 
 void hi_runloop_run(hi_runloop_t *runloop)
 {
-    hi_isr_queue_init(&runloop->events);
+    // hi_isr_queue_init(&runloop->events);
     runloop->state.is_running = 1;
     runloop->ticks = 0;
     runloop->periods = 0;
@@ -89,45 +82,47 @@ void hi_runloop_run(hi_runloop_t *runloop)
 
         runloop->periods++;
 //TODO: add more system support.
-#if _HI_FREERTOS
-        if (runloop->frequency == 0 || runloop->frequency >= configTICK_RATE_HZ) {
-            continue;
-        }
-#endif
+// #if _HI_FREERTOS
+//         if (runloop->frequency == 0 || runloop->frequency >= configTICK_RATE_HZ) {
+//             continue;
+//         }
+// #endif
 
-        last_ticks = cur_ticks;
-        cur_ticks = hi_get_ticks();
+//         last_ticks = cur_ticks;
+//         cur_ticks = hi_get_ticks();
 
-        //record ticks.
-        if (cur_ticks >= last_ticks) {
-            runloop->ticks = runloop->ticks + (cur_ticks - last_ticks);
-        }
-        else 
-        {
-            //if over 32bits time.
-            runloop->ticks = runloop->ticks + (UINT32_MAX - last_ticks + cur_ticks);
-        }
+//         //record ticks.
+//         if (cur_ticks >= last_ticks) {
+//             runloop->ticks = runloop->ticks + (cur_ticks - last_ticks);
+//         }
+//         else 
+//         {
+//             //if over 32bits time.
+//             runloop->ticks = runloop->ticks + (UINT32_MAX - last_ticks + cur_ticks);
+//         }
 
         //if cur_time > expect time, pass
 //TODO: add more system support.
-#if _HI_FREERTOS
-        if (runloop->periods * configTICK_RATE_HZ <= runloop->ticks * runloop->frequency)
-        {
-            continue;
-        }
-        vTaskDelay( (runloop->periods * configTICK_RATE_HZ - runloop->ticks * runloop->frequency) / runloop->frequency);
-#endif
+// #if _HI_FREERTOS
+//         if (runloop->periods * configTICK_RATE_HZ <= runloop->ticks * runloop->frequency)
+//         {
+//             continue;
+//         }
+//         vTaskDelay( (runloop->periods * configTICK_RATE_HZ - runloop->ticks * runloop->frequency) / runloop->frequency);
+// #endif
+    }
+    if (runloop->frequency != 0)
+    {
+        hi_sleep(1000/runloop->frequency);
     }
 
 END:
     if (runloop->end_func) {
         runloop->end_func(runloop);
     }
-    hi_isr_queue_deinit(&runloop->events);
-//TODO: add more system support.
-#if _HI_FREERTOS
-    vTaskDelete(NULL);
-#endif
+    // hi_isr_queue_deinit(&runloop->events);
+
+    hi_thread_deinit();
 }
 
 inline void hi_runloop_start(hi_runloop_t *runloop)
@@ -135,9 +130,7 @@ inline void hi_runloop_start(hi_runloop_t *runloop)
     if (runloop->state.is_running) return;
     runloop->state.is_running = 1;
 //TODO: add more system support.
-#if _HI_FREERTOS
-    xTaskCreate((TaskFunction_t)hi_runloop_run, runloop->name, runloop->stack_depth, runloop, runloop->priority, NULL);
-#endif
+    hi_thread_init(&(runloop->thread));
 }
 
 inline void hi_runloop_stop(hi_runloop_t *runloop)
@@ -145,17 +138,17 @@ inline void hi_runloop_stop(hi_runloop_t *runloop)
     runloop->state.is_running = 0;
 }
 
-inline hi_result_t hi_runloop_send(hi_runloop_t *runloop, void *item, hi_ticks_t ticks_to_wait)
-{
-    return hi_isr_queue_send(&runloop->events, item, ticks_to_wait);
-}
+// inline hi_result_t hi_runloop_send(hi_runloop_t *runloop, void *item, hi_ticks_t ticks_to_wait)
+// {
+//     return hi_isr_queue_send(&runloop->events, item, ticks_to_wait);
+// }
 
-inline hi_result_t hi_runloop_send_fromISR(hi_runloop_t *runloop, void *item, hi_ticks_t ticks_to_wait)
-{
-    return hi_isr_queue_send_fromISR(&runloop->events, item, ticks_to_wait);
-}
+// inline hi_result_t hi_runloop_send_fromISR(hi_runloop_t *runloop, void *item, hi_ticks_t ticks_to_wait)
+// {
+//     return hi_isr_queue_send_fromISR(&runloop->events, item, ticks_to_wait);
+// }
 
-inline hi_result_t hi_runloop_recv(hi_runloop_t *runloop, void *item, hi_ticks_t ticks_to_wait)
-{
-    return hi_isr_queue_recv(&runloop->events, item, ticks_to_wait);
-}
+// inline hi_result_t hi_runloop_recv(hi_runloop_t *runloop, void *item, hi_ticks_t ticks_to_wait)
+// {
+//     return hi_isr_queue_recv(&runloop->events, item, ticks_to_wait);
+// }

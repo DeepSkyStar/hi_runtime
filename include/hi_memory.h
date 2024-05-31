@@ -72,6 +72,12 @@ typedef struct
     uint8_t* container;    //the pool for data link.
 }hi_mem_pool_t;
 
+typedef struct
+{
+    uint32_t max_size;
+    uint32_t usage;
+}hi_var_mem_pool_t;
+
 #define HI_MEM_POOL_INIT(__container__, __block_size__, __block_count__) { \
      .config = {        \
         .variable = 0,  \
@@ -120,21 +126,15 @@ extern void hi_mem_pool_free(hi_mem_pool_t* pool);
 extern hi_iter_t hi_mem_pool_take(hi_mem_pool_t* pool);
 
 /**
- * @brief if return HI_ITER_NULL, means full or not support this size.
- * 
- * @param pool mem pool.
- * @param size the for take.
- * @return hi_iter_t offset from the container.
- */
-extern hi_iter_t hi_mem_pool_take_some(hi_mem_pool_t* pool, hi_size_t size);
-
-/**
  * @brief MUST ensure each unit bring only once!!!
  * 
  * @param pool mem pool.
  * @param block offset from the container.
  */
 extern void hi_mem_pool_bring(hi_mem_pool_t* pool, hi_iter_t block);
+
+extern void* hi_var_mem_pool_take(hi_var_mem_pool_t* pool, hi_size_t size);
+extern void hi_var_mem_pool_bring(hi_var_mem_pool_t* pool, void* data, hi_size_t size);
 
 #ifdef __cplusplus
 }

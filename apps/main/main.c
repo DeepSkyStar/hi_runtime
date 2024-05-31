@@ -355,16 +355,37 @@ hi_result_t test_result()
     return (hi_result_t){HI_RESULT_TIMEOUT, 0};
 }
 
+hi_async_map_t lock_map = {.unsafe.pool = &shared_map_pool};
+
+void test_lock()
+{
+    // hi_async_map_init(&lock_map);
+    // hi_async_map_set(&lock_map, HI_VALUE_INT(1), HI_VALUE_INT(1));
+
+    hi_mutex_t mutex;
+    hi_mutex_init(&mutex);
+
+    HI_LOGD("start lock");
+    hi_mutex_lock(&mutex);
+
+    HI_LOGD("start lock");
+    hi_mutex_lock(&mutex);
+
+    HI_LOGD("start unlock");
+    hi_mutex_unlock(&mutex);
+}
+
 int main(int argc, char *argv[])
 {
     printf("This system is: %d\n\n", hi_get_os());
 
     // test_obj();
     // test_mem();
-    test_async_queue();
-    test_queue();
-    test_map();
+    // test_async_queue();
+    // test_queue();
+    // test_map();
     // test_async_map();
+    test_lock();
 
     return 0;
 }

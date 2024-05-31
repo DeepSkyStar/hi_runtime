@@ -19,6 +19,7 @@
  *  limitations under the License.
  */
 
+#include "hi_log.h"
 #include "hi_memory.h"
 
 inline void* hi_memset(void* src, int value, hi_size_t size)
@@ -123,4 +124,19 @@ inline void hi_mem_pool_bring(hi_mem_pool_t* pool, hi_iter_t block)
         pool->tail = HI_ITER_INVALID(block);
         *((hi_iter_t*)(pool->container + HI_SAFE_ITER(block))) = HI_ITER_NULL;
     }
+}
+
+inline void* hi_var_mem_pool_take(hi_var_mem_pool_t* pool, hi_size_t size)
+{
+    if (size + pool->usage > pool->max_size) return NULL;
+    pool->usage += size;
+    return hi_malloc(size);
+}
+
+inline void hi_var_mem_pool_bring(hi_var_mem_pool_t* pool, void* data, hi_size_t size)
+{
+    if (size > pool->usage) {
+        HI_LOGE("hi_var_mem_pool_bring: bring size is bigger than pool usage.");
+    }
+    return hi_free(data);
 }

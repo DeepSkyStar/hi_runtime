@@ -39,6 +39,15 @@ typedef struct
     uint8_t* data;
 }hi_buffer_t;
 
+#define HI_BUFFER_INIT(__size__) {  \
+    .cur = 0,   \
+    .cur_size = 0,  \
+    .max_size = __size__,  \
+    .data = NULL,   \
+}
+
+#define HI_BUFFER_DEFAULT HI_BUFFER_INIT(2048)
+
 void hi_buffer_init(hi_buffer_t *buffer);
 
 /**
