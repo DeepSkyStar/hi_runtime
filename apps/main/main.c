@@ -463,9 +463,9 @@ void test_runloop_func2(hi_runloop_t *runloop)
     }
 }
 
-hi_runloop_t shared_runloop = HI_RUNLOOP_INIT("test", test_runloop_func);
+hi_runloop_t shared_runloop = HI_RUNLOOP_INIT("test", 100, test_runloop_func);
 
-hi_runloop_t shared_runloop2 = HI_RUNLOOP_INIT("test2", test_runloop_func2);
+hi_runloop_t shared_runloop2 = HI_RUNLOOP_INIT("test2", 100, test_runloop_func2);
 
 void test_runloop()
 {

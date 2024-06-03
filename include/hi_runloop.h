@@ -73,10 +73,10 @@ struct hi_runloop_s{
 };
 
 //Default setup for a runloop.
-#define HI_RUNLOOP_INIT(__name__ , __func__) {    \
+#define HI_RUNLOOP_INIT(__name__ , __interval__, __func__) {    \
     ._state = (hi_runloop_state_t){0},   \
     .owner = NULL, \
-    .interval = 100, \
+    .interval = __interval__, \
     .thread = HI_THREAD_DEFAULT(__name__, hi_runloop_main),    \
     .loop_func = __func__,  \
 }

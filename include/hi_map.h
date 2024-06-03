@@ -53,10 +53,20 @@ typedef struct
     // hi_value_t value;
 }hi_map_node_t;
 
+typedef struct
+{
+    uint16_t type:2; //type
+    uint16_t key_len:14;  //key bytes.
+    uint8_t key[2];
+    uint32_t value[0];
+}
+hi_map_key_value_t;
+
 struct hi_map_s
 {
-    hi_mem_pool_t *pool;    //the block size must bigger than hi_map_node_t, and can not be odd.
+    hi_size_t usage;
     hi_iter_t root;
+    hi_mem_pool_t *pool;    //the block size must bigger than hi_map_node_t, and can not be odd.
 };
 
 #define HI_MAP_POOL_DEFINE(__name__, __data_size__, __count__) HI_MEM_POOL_DEFINE(__name__, sizeof(hi_map_node_t) + __data_size__, __count__)
@@ -122,14 +132,15 @@ extern void* hi_sync_map_get(hi_sync_map_t *map, hi_map_key_t key);
 
 extern hi_iter_t hi_async_get_iter(hi_sync_map_t *map, hi_map_key_t key);
 
-extern hi_map_node_t* hi_async_get_node(hi_sync_map_t *map, hi_iter_t iter);
+extern hi_size_t hi_sync_map_get_usage(hi_sync_map_t *map);
+
+extern hi_map_node_t* hi_sync_map_get_node(hi_sync_map_t *map, hi_iter_t iter);
 
 extern void hi_sync_map_del(hi_sync_map_t *map, hi_map_key_t key);
 
 extern void hi_sync_map_del_all(hi_sync_map_t *map);
 
 extern hi_size_t hi_sync_map_depth(hi_sync_map_t *map);
-
 
 #ifdef __cplusplus
 }
