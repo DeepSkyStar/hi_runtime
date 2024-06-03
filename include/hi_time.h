@@ -28,10 +28,29 @@
 extern "C" {
 #endif
 
-typedef long hi_time_t;
 
-typedef uint32_t hi_ticks_t;
-extern hi_ticks_t hi_get_ticks(void);
+/**
+ * @brief 32bit for millionseconds only 49 days.
+ *      64bit for nanoseconds, near 210406 days.
+ * 
+ * @return hi_precision_time_t 
+ */
+
+#if _HI_SUPPORT_64BIT
+typedef uint64_t hi_time_t;
+#define HI_TIME_MAX (UINT64_MAX)
+#else
+typedef uint32_t hi_time_t;
+#define HI_TIME_MAX (UINT32_MAX)
+#endif
+
+// typedef uint32_t hi_ticks_t;
+/**
+ * @brief some system not allow. will return 0.
+ * 
+ * @return hi_ticks_t 
+ */
+// extern hi_ticks_t hi_get_ticks(void);
 
 /**
  * @brief unit is ms.

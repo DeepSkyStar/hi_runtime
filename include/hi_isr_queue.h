@@ -39,9 +39,9 @@ typedef struct{
 }hi_isr_queue_t;
 
 void hi_isr_queue_init(hi_isr_queue_t *queue);
-hi_result_t hi_isr_queue_send(hi_isr_queue_t *queue, void *item, hi_ticks_t ticks_to_wait);
+hi_result_t hi_isr_queue_send(hi_isr_queue_t *queue, void *item, hi_time_t time_to_wait);
 hi_result_t hi_isr_queue_send_fromISR(hi_isr_queue_t *queue, void *item, hi_priority_t priority);
-hi_result_t hi_isr_queue_recv(hi_isr_queue_t *queue, void *item, hi_ticks_t ticks_to_wait);
+hi_result_t hi_isr_queue_recv(hi_isr_queue_t *queue, void *item, hi_time_t time_to_wait);
 void hi_isr_queue_deinit(hi_isr_queue_t *queue);
 
 #ifdef __cplusplus

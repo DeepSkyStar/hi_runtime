@@ -28,6 +28,7 @@ extern "C" {
 
 #include "hi_sys.h"
 #include "hi_types.h"
+#include "hi_time.h"
 
 #if _HI_PTHREAD
 #include <pthread.h>
@@ -72,7 +73,7 @@ extern void hi_recursive_mutex_deinit(hi_mutex_t *mutex);
 
 extern void hi_semaphore_init(hi_semaphore_t *semaphore);
 extern void hi_semaphore_wait(hi_semaphore_t *semaphore);
-extern void hi_semaphore_send(hi_semaphore_t *semaphore);
+extern void hi_semaphore_signal(hi_semaphore_t *semaphore);
 extern void hi_semaphore_deinit(hi_semaphore_t *semaphore);
 
 typedef uint8_t hi_priority_t;
@@ -109,7 +110,7 @@ typedef struct
 #ifndef HI_THREAD_DEFAULT
 #define HI_THREAD_DEFAULT(__name__, __func__) { \
     .name = __name__,   \
-    .func = __func__,   \
+    .func = (hi_thread_func_f)__func__,   \
     .stack_depth = 0,    \
     .priority = HI_PRIORITY_NORMAL, \
     .args = HI_VALUE_NULL,   \
@@ -117,10 +118,9 @@ typedef struct
 #endif
 
 extern int hi_thread_init(hi_thread_t *thread);
-extern int hi_thread_join(hi_thread_t *thread);
-extern void hi_thread_cancel(hi_thread_t *thread);
 extern void hi_thread_deinit(void);
-extern void hi_sleep(uint32_t millionseconds);
+
+extern void hi_sleep(hi_time_t ms);
 
 #ifdef __cplusplus
 }

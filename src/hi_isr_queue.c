@@ -31,11 +31,11 @@ void hi_isr_queue_init(hi_isr_queue_t *queue)
 #endif
 }
 
-hi_result_t hi_isr_queue_send(hi_isr_queue_t *queue, void *item, hi_ticks_t ticks_to_wait)
+hi_result_t hi_isr_queue_send(hi_isr_queue_t *queue, void *item, hi_time_t time_to_wait)
 {
 #if _HI_FOR_FREERTOS
     if (queue->len > 0) {
-        if (xQueueSend(queue->queue, item, ticks_to_wait)) {
+        if (xQueueSend(queue->queue, item, time_to_wait * portTICK_PERIOD_MS)) {
             return HI_RESULT_MAKE_OK;
         }
         else {
@@ -67,11 +67,11 @@ hi_result_t hi_isr_queue_send_fromISR(hi_isr_queue_t *queue, void *item, hi_prio
 #endif
 }
 
-hi_result_t hi_isr_queue_recv(hi_isr_queue_t *queue, void *item, hi_ticks_t ticks_to_wait)
+hi_result_t hi_isr_queue_recv(hi_isr_queue_t *queue, void *item, hi_time_t time_to_wait)
 {
 #if _HI_FOR_FREERTOS
     if (queue->len > 0) {
-        if (xQueueReceive(queue->queue, item, ticks_to_wait)){
+        if (xQueueReceive(queue->queue, item, time_to_wait * portTICK_PERIOD_MS)){
             return HI_RESULT_MAKE_OK;
         }
         else {

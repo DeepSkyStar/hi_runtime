@@ -23,6 +23,7 @@
 #define HI_MATH_H_
 
 #include "hi_sys.h"
+#include "hi_types.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -53,6 +54,16 @@ typedef struct hi_range16_s{
 
 #define HI_RANGE_END(range) ((range).index + (range).length)
 #define HI_IN_RANGE(range, i) ((i) >= (range).index && (i) < HI_RANGE_END(range))
+
+/********************************* high precision math *****************************************/
+
+typedef struct {
+    hi_size_t length;
+    union 
+    {
+        void *ptr;
+    };
+}hi_num_t;
 
 #ifdef __cplusplus
 }

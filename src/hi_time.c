@@ -24,27 +24,23 @@
 #include <sys/time.h>
 #endif
 
-inline hi_ticks_t hi_get_ticks(void)
-{
-#if _HI_FREERTOS
-    return xTaskGetTickCount();
-#else
-    return 0;
-#endif
-}
+// inline hi_ticks_t hi_get_ticks(void)
+// {
+// #if _HI_FREERTOS
+//     return xTaskGetTickCount();
+// #else
+//     return 0;
+// #endif
+// }
 
 inline hi_time_t hi_get_time(void)
 {
 #if _HI_PTHREAD
     struct timeval tv;
     gettimeofday(&tv, NULL);
-    return tv.tv_sec * 1000 + tv.tv_usec / 1000;
+    return (hi_time_t)tv.tv_sec * (hi_time_t)1000 + (hi_time_t)tv.tv_usec / (hi_time_t)1000;
 #elif _HI_FREERTOS
-#ifdef configTICK_RATE_HZ
-    return xTaskGetTickCount() * 1000 / configTICK_RATE_HZ;
-#else
-    return xTaskGetTickCount();
-#endif
+    return (hi_time_t)xTaskGetTickCount() * (hi_time_t)portTICK_PERIOD_MS;
 #else
     return 0;
 #endif

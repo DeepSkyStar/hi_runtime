@@ -19,8 +19,8 @@
  *  limitations under the License.
  */
 
-#ifndef HI_LIST_H_
-#define HI_LIST_H_
+#ifndef HI_QUEUE_H_
+#define HI_QUEUE_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,19 +42,20 @@ typedef struct
 {
     hi_iter_t head;
     hi_iter_t last;
-    hi_mem_pool_t *pool;    //unit size must bigger then hi_queue_node_t.
+    hi_mem_block_pool_t *pool;    //unit size must bigger then hi_queue_node_t.
 }hi_queue_t;
 
-#define HI_QUEUE_DEFINE(__name__, __pool__) hi_queue_t __name__ = { \
+
+#define HI_QUEUE_NODE_NULL (hi_queue_node_t){HI_ITER_NULL, HI_VALUE_NULL}
+#define HI_QUEUE_IS_EMPTY(__queue__) ((__queue__).last == HI_ITER_NULL)
+
+#define HI_QUEUE_INIT(__name__, __pool__) { \
     .head = HI_ITER_NULL, \
     .last = HI_ITER_NULL, \
     .pool = __pool__,   \
 }
 
-#define HI_QUEUE_NODE_NULL (hi_queue_node_t){HI_ITER_NULL, HI_VALUE_NULL}
-#define HI_QUEUE_IS_EMPTY(__queue__) ((__queue__).last == HI_ITER_NULL)
-
-extern void hi_queue_init(hi_queue_t *queue);
+extern void hi_queue_init(hi_queue_t *queue, hi_mem_block_pool_t *pool);
 
 extern hi_result_t hi_queue_in(hi_queue_t *queue, hi_value_t value);
 
@@ -81,7 +82,7 @@ typedef struct
     hi_queue_t unsafe;
 }hi_async_queue_t;
 
-extern void hi_async_queue_init(hi_async_queue_t *queue);
+extern void hi_async_queue_init(hi_async_queue_t *queue, hi_mem_block_pool_t *pool);
 
 extern hi_result_t hi_async_queue_in(hi_async_queue_t *queue, hi_value_t value);
 
@@ -105,4 +106,4 @@ extern void hi_async_queue_deinit(hi_async_queue_t *queue);
 }
 #endif
 
-#endif /* HI_LIST_H_ */
+#endif /* HI_QUEUE_H_ */

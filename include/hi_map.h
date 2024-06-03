@@ -35,7 +35,7 @@ extern "C" {
 #define HI_MAP_RED (0)
 #define HI_MAP_ITER_COLOR(__iter__) ((__iter__)&((hi_iter_t)1))
 #define HI_MAP_ITER(__iter__) (__iter__ == HI_ITER_NULL? __iter__:((__iter__)&(~(hi_iter_t)1)))
-#define HI_MAP_NODE(__map__, __iter__) ((hi_map_node_t *)(__map__->pool->container + HI_MAP_ITER(__iter__)))
+#define HI_MAP_NODE(__map__, __iter__) ((hi_map_node_t *)(hi_mem_block_pool_get((__map__)->pool, HI_MAP_ITER(__iter__))))
 #define HI_MAP_NODE_COLOR(__map__, __iter__) ((__iter__) == HI_ITER_NULL? HI_MAP_BLACK: HI_MAP_ITER_COLOR(HI_MAP_NODE(__map__, __iter__)->parent))
 
 typedef hi_value_t hi_map_key_t;
@@ -54,11 +54,18 @@ typedef struct
 
 struct hi_map_s
 {
+    hi_mem_block_pool_t *pool;    //the block size must bigger than hi_map_node_t, and can not be odd.
     hi_iter_t root;
-    hi_mem_pool_t *pool;    //the block size must bigger than hi_map_node_t, and can not be odd.
 };
 
-extern void hi_map_init(hi_map_t *map);
+#define HI_MAP_POOL_DEFINE(__name__, __count__) HI_MEM_POOL_DEFINE(__name__, sizeof(hi_map_node_t), __count__)
+
+#define HI_MAP_INIT(__pool__) { \
+    .pool = __pool__,   \
+    .root = HI_ITER_NULL    \
+}
+
+extern void hi_map_init(hi_map_t *map, hi_mem_block_pool_t *pool);
 
 extern hi_result_t hi_map_set(hi_map_t *map, hi_map_key_t key, hi_value_t value);
 
@@ -87,7 +94,6 @@ extern hi_size_t hi_map_depth(hi_map_t *map);
 
 extern void hi_map_deinit(hi_map_t *map);
 
-
 /***************************************** Async Map ***************************************************/
 
 
@@ -105,7 +111,7 @@ typedef struct
  * 
  * @param map 
  */
-extern void hi_async_map_init(hi_async_map_t *map);
+extern void hi_async_map_init(hi_async_map_t *map, hi_mem_block_pool_t *pool);
 
 extern hi_result_t hi_async_map_set(hi_async_map_t *map, hi_map_key_t key, hi_value_t value);
 

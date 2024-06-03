@@ -19,7 +19,7 @@ if(DEFINED ESP_PLATFORM)
     add_definitions(-D_HI_ESP32=1)
 else()
     project(hi_runtime)
-    
+
     add_compile_definitions(PUBLIC
     $<$<PLATFORM_ID:Windows>:_HI_WIN=1>
     $<$<PLATFORM_ID:Linux>:_HI_LINUX=1>

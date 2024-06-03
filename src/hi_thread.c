@@ -150,7 +150,7 @@ void hi_semaphore_wait(hi_semaphore_t *semaphore)
 #endif
 }
 
-void hi_semaphore_send(hi_semaphore_t *semaphore)
+void hi_semaphore_signal(hi_semaphore_t *semaphore)
 {
 #if _HI_PTHREAD
     pthread_mutex_lock(semaphore->mutex.mutex);
@@ -184,7 +184,6 @@ inline int hi_thread_init(hi_thread_t *thread)
     return pthread_create(&(thread->handle), NULL, thread->func, thread->args.byte);
 #elif _HI_FREERTOS
     //TODO: make translate from hi_priority to freertos.
-    
     return xTaskCreate(thread->func,
                 thread->name,
                 (thread->stack_depth == 0)? CONFIG_PTHREAD_TASK_STACK_SIZE_DEFAULT : thread->stack_depth,
@@ -208,11 +207,6 @@ inline int hi_thread_join(hi_thread_t *thread)
 #endif
 }
 
-inline void hi_thread_cancel(hi_thread_t *thread)
-{
-    //TODO: to be implementation.
-}
-
 inline void hi_thread_deinit(void)
 {
 #if _HI_PTHREAD
@@ -225,13 +219,12 @@ inline void hi_thread_deinit(void)
 #endif
 }
 
-
-inline void hi_sleep(uint32_t millionseconds)
+inline void hi_sleep(hi_time_t ms)
 {
 #if _HI_PTHREAD
-    usleep(millionseconds*1000);
+    usleep((uint64_t)ms*(uint64_t)1000);
 #elif _HI_FREERTOS
-    vTaskDelay(millionseconds / portTICK_PERIOD_MS);
+    vTaskDelay(ms / portTICK_PERIOD_MS);
 #else
     return;
 #endif

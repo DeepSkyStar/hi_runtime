@@ -23,7 +23,7 @@
 #include <time.h>
 #include "hi_runtime.h"
 
-#pragma pack(1)
+// #pragma pack(1)
 
 typedef struct
 {
@@ -40,7 +40,7 @@ HI_CLASS_DEF(sample_obj, hi_object)
     uint8_t end[0];
 HI_CLASS_END
 
-#pragma pack()
+// #pragma pack()
 
 HI_CLASS_IMP(sample_obj, hi_object)
 
@@ -73,41 +73,62 @@ void test_obj()
 }
 
 #define TEST_CLASS test_mem_t
-#define TEST_BLOCK_CNT (32)
+#define TEST_BLOCK_CNT (10)
+
+HI_MEM_POOL_DEFINE(test_mem_pool, sizeof(test_mem_t), TEST_BLOCK_CNT);
 
 void test_mem()
 {   
-    hi_size_t test_index[TEST_BLOCK_CNT] = {0};
-    hi_mem_pool_config_t config = {
-        .block_size = sizeof(TEST_CLASS),
-        .block_count = TEST_BLOCK_CNT
-    };
-    hi_mem_pool_t* pool = hi_mem_pool_new(config);
-    printf("actuall block size is: %d\n", pool->config.block_size);
+    printf("actuall block size is: %d\n", test_mem_pool.config.block_size);
     printf("sample obj size: %lu\n", sizeof(TEST_CLASS));
+    hi_iter_t test_index[TEST_BLOCK_CNT];
     for (int i = 0; i < TEST_BLOCK_CNT; i++)
     {
-        test_index[i] = hi_mem_pool_take(pool);
-        TEST_CLASS* ptr = (TEST_CLASS*)(pool->container + test_index[i]);
-        ptr->a = i;
-        ptr->b = i;
-        printf("<%d> First Get Unit: %zu \n", i, test_index[i]);
+        test_index[i] = hi_mem_block_pool_take(&test_mem_pool);
+        TEST_CLASS* ptr = (TEST_CLASS*)hi_mem_block_pool_get(&test_mem_pool, test_index[i]);
+        // ptr->a = i;
+        // ptr->b = i;
+        printf("<%d> First Get Unit: %zu used: %d\n", i, test_index[i], HI_MEM_POOL_IS_IN_USE(&test_mem_pool, test_index[i]));
+        
     }
 
     for (int i = 0; i < TEST_BLOCK_CNT / 2; i++)
     {
-        hi_mem_pool_bring(pool, test_index[i]);
-        printf("<%d> bring block: %zu \n", i, test_index[i]);
+        printf("<%d> before bring block: %zu used: %d\n", i, test_index[i], HI_MEM_POOL_IS_IN_USE(&test_mem_pool, test_index[i]));
+        hi_mem_block_pool_bring(&test_mem_pool, test_index[i]);
+        printf("<%d> bring block: %zu used: %d\n", i, test_index[i], HI_MEM_POOL_IS_IN_USE(&test_mem_pool, test_index[i]));
+
+        // for (int j = 0; j < TEST_BLOCK_CNT; j++)
+        // {
+        //     int result = (hi_mem_block_pool_get(&test_mem_pool, test_index[j]) != NULL);
+        //     printf("<%d> in use:%d\n", j, result);
+        // }
     }
     
+    for (int j = 0; j < TEST_BLOCK_CNT; j++)
+    {
+        printf("<%d> in use:%d\n", j, hi_mem_block_pool_get(&test_mem_pool, test_index[j]) != NULL);
+    }
+
     for (int i = 0; i < TEST_BLOCK_CNT / 2; i++)
     {
-        test_index[i] = hi_mem_pool_take(pool);
-        TEST_CLASS* ptr = (TEST_CLASS*)(pool->container + test_index[i]);
-        ptr->a = i;
-        ptr->b = i;
-        printf("<%d> Second Get Unit: %zu \n",i , test_index[i]);
+        hi_iter_t iter = hi_mem_block_pool_take(&test_mem_pool); 
+        TEST_CLASS* ptr = (TEST_CLASS*)(hi_mem_block_pool_get(&test_mem_pool, iter));
+        // ptr->a = i;
+        // ptr->b = i;
+        printf("<%d> Second Get Unit: %zu \n",i , iter);
+        for (int j = 0; j < TEST_BLOCK_CNT; j++)
+        {
+            int result = (hi_mem_block_pool_get(&test_mem_pool, test_index[j]) != NULL);
+            printf("<%d> Second in use:%d\n", j, result);
+        }
     }
+
+    // for (int j = 0; j < TEST_BLOCK_CNT; j++)
+    // {
+    //     int result = (hi_mem_block_pool_get(&test_mem_pool, test_index[j]) != NULL);
+    //     printf("<%d> Second in use:%d\n", j, result);
+    // }
 }
 
 //2 0000, 3ms, for 80mhz is 100ms
@@ -118,8 +139,8 @@ void test_mem()
 //2000 for 80mhz is 1ms
 #define TEST_QUEUE_COUNT (1000000)
 
-HI_MEM_POOL_DEFINE(shared_map_pool, hi_map_node_t, TEST_MAP_COUNT);
-HI_MEM_POOL_DEFINE(shared_queue_pool, hi_queue_node_t, TEST_QUEUE_COUNT);
+HI_MAP_POOL_DEFINE(shared_map_pool, TEST_MAP_COUNT);
+HI_MEM_POOL_DEFINE(shared_queue_pool, sizeof(hi_queue_node_t), TEST_QUEUE_COUNT);
 
 void print_tab(int num)
 {
@@ -132,11 +153,9 @@ void print_tab(int num)
 void print_map(hi_map_t *map)
 {
     hi_queue_t *queue = hi_malloc(sizeof(hi_queue_t));
-    queue->pool = &shared_queue_pool;
     hi_queue_t *next_queue = hi_malloc(sizeof(hi_queue_t));
-    next_queue->pool = &shared_queue_pool;
-    hi_queue_init(queue);
-    hi_queue_init(next_queue);
+    hi_queue_init(queue, &shared_queue_pool);
+    hi_queue_init(next_queue, &shared_queue_pool);
     if (map->root == HI_ITER_NULL) return;
 
     hi_queue_in(queue, HI_VALUE_ITER(HI_MAP_ITER(map->root)));
@@ -187,9 +206,7 @@ void test_async_queue(void)
     printf("start test async queue\n");
 
     hi_async_queue_t *async_queue = hi_malloc(sizeof(hi_async_queue_t));
-
-    async_queue->unsafe.pool = &shared_queue_pool;
-    hi_async_queue_init(async_queue);
+    hi_async_queue_init(async_queue, &shared_queue_pool);
     
     hi_time_t last_time = hi_get_time();
 
@@ -198,7 +215,7 @@ void test_async_queue(void)
         hi_async_queue_in(async_queue, HI_VALUE_INT(i));
     }
 
-    printf("used time: %ld\n", hi_get_time() - last_time);
+    printf("used time: %llu\n", hi_get_time() - last_time);
 
     last_time = hi_get_time();
 
@@ -208,7 +225,7 @@ void test_async_queue(void)
         hi_async_queue_out(async_queue);
     }
 
-    printf("used time: %ld\n", hi_get_time() - last_time);
+    printf("used time: %llu\n", hi_get_time() - last_time);
 
     printf("end test async queue\n\n");
 }
@@ -217,8 +234,7 @@ void test_queue()
 {
     printf("start test queue\n");
     hi_queue_t *queue = hi_malloc(sizeof(hi_queue_t));
-    queue->pool = &shared_queue_pool;
-    hi_queue_init(queue);
+    hi_queue_init(queue, &shared_queue_pool);
     
     hi_time_t last_time = hi_get_time();
 
@@ -227,7 +243,7 @@ void test_queue()
         hi_queue_in(queue, HI_VALUE_INT(i));
     }
 
-    printf("used time: %ld\n", hi_get_time() - last_time);
+    printf("used time: %llu\n", hi_get_time() - last_time);
 
     while (queue->head != HI_ITER_NULL)
     {
@@ -235,7 +251,7 @@ void test_queue()
         hi_queue_out(queue);
     }
 
-    printf("used time: %ld\n", hi_get_time() - last_time);
+    printf("used time: %llu\n", hi_get_time() - last_time);
 
     printf("end test queue\n\n");
 }
@@ -244,8 +260,7 @@ void test_async_map()
 {
     printf("start test map\n");
     hi_async_map_t *map = hi_malloc(sizeof(hi_async_map_t));
-    map->unsafe.pool = &shared_map_pool;
-    hi_async_map_init(map);
+    hi_async_map_init(map, &shared_map_pool);
 
     hi_time_t last_time = hi_get_time();
 
@@ -258,7 +273,7 @@ void test_async_map()
         }
     }
 
-    printf("used time: %ld\n", hi_get_time() - last_time);
+    printf("used time: %llu\n", hi_get_time() - last_time);
 
     hi_size_t depth = hi_async_map_depth(map);
     printf("print depth: %zu\n", depth);
@@ -275,7 +290,7 @@ void test_async_map()
     {
         hi_value_result_t value = hi_async_map_get(map, HI_VALUE_INT(i));
     }
-    printf("used time: %ld\n", hi_get_time() - last_time);
+    printf("used time: %llu\n", hi_get_time() - last_time);
     printf("end test map\n\n");
 }
 
@@ -284,8 +299,7 @@ void test_map()
 {
     printf("start test map\n");
     hi_map_t *map = hi_malloc(sizeof(hi_map_t));
-    map->pool = &shared_map_pool;
-    hi_map_init(map);
+    hi_map_init(map, &shared_map_pool);
 
     hi_time_t last_time = hi_get_time();
 
@@ -298,7 +312,7 @@ void test_map()
         }
     }
 
-    printf("used time: %ld\n", hi_get_time() - last_time);
+    printf("used time: %llu\n", hi_get_time() - last_time);
 
     hi_size_t depth = hi_map_depth(map);
     printf("after set\n");
@@ -346,7 +360,7 @@ void test_map()
             printf("%d not found or its 0.\n", i);
         }
     }
-    printf("used time: %ld\n", hi_get_time() - last_time);
+    printf("used time: %llu\n", hi_get_time() - last_time);
     printf("end test map\n\n");
 }
 
@@ -364,6 +378,14 @@ void test_lock()
 
     hi_mutex_t mutex;
     hi_mutex_init(&mutex);
+    // hi_semaphore_t sem;
+    // hi_semaphore_init(&sem);
+
+    // HI_LOGD("start signal");
+    // hi_semaphore_signal(&sem);
+
+    // HI_LOGD("start wait");
+    // hi_semaphore_wait(&sem);
 
     HI_LOGD("start lock");
     hi_mutex_lock(&mutex);
@@ -375,6 +397,47 @@ void test_lock()
     hi_mutex_unlock(&mutex);
 }
 
+void test_runloop_func(hi_runloop_t *runloop)
+{
+    // uint64_t time = hi_get_time();
+    HI_LOGI("current time is:%llu ms\n", hi_runloop_running_time(runloop));
+    // HI_LOGI("current time is:%llu ms\n", hi_get_time());
+    if (hi_runloop_running_time(runloop) >= 1000)
+    {
+        hi_runloop_stop(runloop);
+    }
+}
+
+void test_runloop_func2(hi_runloop_t *runloop)
+{
+    // uint64_t time = hi_get_time();
+    // HI_LOGI("current time is:%llu ms\n", hi_runloop_running_time(runloop));
+    HI_LOGI("current time is:%llu ms\n", hi_get_time());
+    if (hi_runloop_running_time(runloop) >= 2000)
+    {
+        hi_runloop_stop(runloop);
+    }
+}
+
+hi_runloop_t shared_runloop = HI_RUNLOOP_INIT("test", test_runloop_func);
+
+hi_runloop_t shared_runloop2 = HI_RUNLOOP_INIT("test2", test_runloop_func2);
+
+void test_runloop()
+{
+    HI_LOGI("Init");
+    hi_runloop_init(&shared_runloop);
+    hi_runloop_init(&shared_runloop2);
+    HI_LOGI("Start");
+    hi_runloop_start(&shared_runloop);
+    hi_runloop_start(&shared_runloop2);
+    HI_LOGI("Wait");
+    hi_runloop_wait(&shared_runloop);
+    HI_LOGI("End1");
+    hi_runloop_wait(&shared_runloop2);
+    HI_LOGI("End2");
+}
+
 int main(int argc, char *argv[])
 {
     printf("This system is: %d\n\n", hi_get_os());
@@ -383,9 +446,10 @@ int main(int argc, char *argv[])
     // test_mem();
     // test_async_queue();
     // test_queue();
-    // test_map();
+    test_map();
     // test_async_map();
-    test_lock();
+    // test_lock();
+    // test_runloop();
 
     return 0;
 }

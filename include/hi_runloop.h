@@ -30,6 +30,7 @@
 #include "hi_queue.h"
 #include "hi_map.h"
 #include "hi_buffer.h"
+#include "hi_time.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -39,27 +40,32 @@ extern "C" {
 #define HI_RUNLOOP_DEFAULT_QUEUE_LEN (10)
 #define HI_RUNLOOP_DEFAULT_QUEUE_ITEM_SIZE (sizeof(uint32_t))
 
-typedef struct hi_runloop_state_s hi_runloop_state_t;
 typedef struct hi_runloop_s hi_runloop_t;
 
 typedef void (*hi_runloop_func)(hi_runloop_t* runloop);
 
-struct hi_runloop_state_s{
+typedef struct
+{
     uint8_t is_running:1;
     uint8_t reserved:7;
-};
+
+    hi_time_t start_time;   //the time for run. if become zero will change.
+    hi_time_t running_time;   //the time for run. if become zero will change.
+    hi_time_t exp_time;   //expected time for run. if become zero will change.
+    hi_time_t period;    //how many period of this runloop run.
+
+    hi_mutex_t thread_mutex;   //the mutex for runloop run.
+}hi_runloop_state_t;
 
 struct hi_runloop_s{
-    hi_runloop_state_t state;
-    hi_ticks_t frequency; //0 means no delay.
-    hi_time_t running_time; //the time for run.
-    uint64_t periods;    //how many period of this runloop run.
-    uint64_t ticks; //how many ticks when run.
+    hi_runloop_state_t _state;  //the runloop state, should not be modify or fetch it directly
 
-    void *owner;    //for runloop owner.
+    void *owner;    //the thread holder.
+    hi_thread_t thread;   //thread, will alloc in every start.
+    hi_time_t interval; //the interval for one loop. 0 means directly.
 
-    hi_thread_t thread;   //thread
-    hi_buffer_t buffer;   //buffer for read and write.
+    hi_mutex_t queue_mutex; //mutex for task queue.
+    hi_queue_t queue;   //task queue.
 
     hi_runloop_func init_func;   //will run once when start a runloop.
     hi_runloop_func loop_func;    //will run many time in 1s, depends on frequency.
@@ -67,31 +73,31 @@ struct hi_runloop_s{
 };
 
 //Default setup for a runloop.
-#define HI_RUNLOOP_DEFAULT(__owner__, __name__ , __func__) {    \
-    .state = {0},   \
-    .frequency = 0, \
-    .periods = 0,   \
-    .owner = __owner__, \
-    .thread = HI_THREAD_DEFAULT(__name__, __func__),    \
-    .buffer = HI_BUFFER_DEFAULT,    \
+#define HI_RUNLOOP_INIT(__name__ , __func__) {    \
+    ._state = (hi_runloop_state_t){0},   \
+    .owner = NULL, \
+    .interval = 100, \
+    .thread = HI_THREAD_DEFAULT(__name__, hi_runloop_main),    \
     .loop_func = __func__,  \
 }
 
-hi_runloop_t *hi_runloop_main(void);
-
+//The first time used must init.
+void hi_runloop_init(hi_runloop_t *runloop);
 void hi_runloop_start(hi_runloop_t *runloop);
-void hi_runloop_run(hi_runloop_t *runloop);
+void hi_runloop_wait(hi_runloop_t *runloop);
 void hi_runloop_stop(hi_runloop_t *runloop);
 
-// hi_result_t hi_runloop_send(hi_runloop_t *runloop, void *item, hi_ticks_t ticks_to_wait);
+/**
+ * @brief If you call this directly, it wiil run the runloop in current thread.
+ * 
+ * @param runloop 
+ */
+void* hi_runloop_main(hi_runloop_t *runloop);
 
-// hi_result_t hi_runloop_send_fromISR(hi_runloop_t *runloop, void *item, hi_ticks_t ticks_to_wait);
+uint8_t hi_runloop_is_running(hi_runloop_t *runloop);
+hi_time_t hi_runloop_running_time(hi_runloop_t *runloop);
 
-// hi_size_t hi_runloop_send(hi_runloop_t *runloop, void *data, hi_size_t size);
-// hi_result_t hi_runloop_recv(hi_runloop_t *runloop, void *data, hi_ticks_t ticks_to_wait);
-
-hi_result_t hi_runloop_add_task(hi_runloop_t *runloop, hi_task_t *task);
-void hi_runloop_cancel_task(hi_runloop_t *runloop, hi_task_t *task);
+hi_result_t hi_runloop_add_task(hi_runloop_t *runloop, hi_task_t task);
 
 #ifdef __cplusplus
 }

@@ -23,7 +23,7 @@
 #define _HI_MAP_BLACK_ITER(__iter__) ((__iter__)|((hi_iter_t)1))
 #define _HI_MAP_RED_ITER(__iter__) (HI_MAP_ITER(__iter__))
 
-#define _HI_MAP_NODE_TRUST(__map__, __iter__) ((hi_map_node_t *)((__map__)->pool->container + ((__iter__)&(~(hi_iter_t)1))))
+#define _HI_MAP_NODE_TRUST(__map__, __iter__) ((hi_map_node_t *)hi_mem_block_pool_get((__map__)->pool, HI_MAP_ITER(__iter__)))
 
 #define _HI_MAP_NODE_LEFT(__map__, __iter__) HI_MAP_ITER(HI_MAP_NODE(__map__, __iter__)->left)
 #define _HI_MAP_NODE_RIGHT(__map__, __iter__) HI_MAP_ITER(HI_MAP_NODE(__map__, __iter__)->right)
@@ -40,9 +40,11 @@
 #define _HI_MAP_SET_RED(__map__, __iter__) HI_MAP_NODE(__map__, __iter__)->parent = (HI_MAP_NODE(__map__, __iter__)->parent != HI_ITER_NULL ? _HI_MAP_RED_ITER(HI_MAP_NODE(__map__, __iter__)->parent) : HI_ITER_NULL)
 
 
-inline void hi_map_init(hi_map_t *map)
+inline void hi_map_init(hi_map_t *map, hi_mem_block_pool_t *pool)
 {
+	map->pool = pool;
     map->root = HI_ITER_NULL;
+	map->pool->config.use_check = 0;
 }
 
 void __hi_map_change_child(hi_map_t *map, hi_iter_t old, hi_iter_t new, hi_iter_t parent)
@@ -85,7 +87,7 @@ hi_result_t hi_map_set(hi_map_t *map, hi_map_key_t key, hi_value_t value)
     if (map->pool == NULL) return HI_RESULT_MAKE_FAILED(HI_FAILED_REASON_OUT_OF_MEMORY);
     if (map->root == HI_ITER_NULL)
     {
-        map->root = hi_mem_pool_take(map->pool);
+        map->root = hi_mem_block_pool_take(map->pool);
         if (map->root == HI_ITER_NULL) return HI_RESULT_MAKE_FAILED(HI_FAILED_REASON_OUT_OF_MEMORY);
         _HI_MAP_NODE_TRUST(map, map->root)->left = HI_ITER_NULL;
         _HI_MAP_NODE_TRUST(map, map->root)->right = HI_ITER_NULL;
@@ -103,7 +105,7 @@ hi_result_t hi_map_set(hi_map_t *map, hi_map_key_t key, hi_value_t value)
         {
             if (_HI_MAP_NODE_TRUST(map, node)->left == HI_ITER_NULL)
             {
-                _HI_MAP_NODE_TRUST(map, node)->left = hi_mem_pool_take(map->pool);
+                _HI_MAP_NODE_TRUST(map, node)->left = hi_mem_block_pool_take(map->pool);
                 if (_HI_MAP_NODE_TRUST(map, node)->left == HI_ITER_NULL) return HI_RESULT_MAKE_FAILED(HI_FAILED_REASON_OUT_OF_MEMORY);
                 _HI_MAP_NODE_TRUST(map, _HI_MAP_NODE_TRUST(map, node)->left)->parent = node;
 
@@ -123,7 +125,7 @@ hi_result_t hi_map_set(hi_map_t *map, hi_map_key_t key, hi_value_t value)
         {
             if (_HI_MAP_NODE_TRUST(map, node)->right == HI_ITER_NULL)
             {
-                _HI_MAP_NODE_TRUST(map, node)->right = hi_mem_pool_take(map->pool);
+                _HI_MAP_NODE_TRUST(map, node)->right = hi_mem_block_pool_take(map->pool);
                 if (_HI_MAP_NODE_TRUST(map, node)->right == HI_ITER_NULL) return HI_RESULT_MAKE_FAILED(HI_FAILED_REASON_OUT_OF_MEMORY);
                 _HI_MAP_NODE_TRUST(map, _HI_MAP_NODE_TRUST(map, node)->right)->parent = node;
 
@@ -376,7 +378,7 @@ inline void hi_map_del(hi_map_t *map, hi_map_key_t key)
 		tmp1 = HI_ITER_NULL;
 		if (HI_MAP_ITER(node) == HI_MAP_ITER(map->root)) 
 		{
-			hi_mem_pool_bring(map->pool, map->root);
+			hi_mem_block_pool_bring(map->pool, map->root);
 			map->root = tmp2;
 			if (tmp2 != HI_ITER_NULL) HI_MAP_NODE(map, tmp2)->parent = HI_ITER_NULL;
 			return ;
@@ -390,7 +392,7 @@ inline void hi_map_del(hi_map_t *map, hi_map_key_t key)
 		{
 			HI_MAP_NODE(map, parent)->right = tmp2;
 		}
-		hi_mem_pool_bring(map->pool, HI_MAP_ITER(node));
+		hi_mem_block_pool_bring(map->pool, HI_MAP_ITER(node));
 		if (tmp2 != HI_ITER_NULL)
 		{
 			HI_MAP_NODE(map, tmp2)->parent = parent;
@@ -437,7 +439,7 @@ inline void hi_map_del(hi_map_t *map, hi_map_key_t key)
 			HI_MAP_NODE(map, parent)->right = sibling;
 			_HI_MAP_SET_BLACK(map, sibling);
 		}
-		hi_mem_pool_bring(map->pool, node);
+		hi_mem_block_pool_bring(map->pool, node);
 		node = sibling;
 	}
 	sibling = HI_ITER_NULL;
@@ -730,18 +732,18 @@ inline void hi_map_deinit(hi_map_t *map)
 			node = _HI_MAP_NODE_PARENT(map, node);
 		}
 
-		hi_mem_pool_bring(map->pool, HI_MAP_ITER(to_delete));
+		hi_mem_block_pool_bring(map->pool, HI_MAP_ITER(to_delete));
 		to_delete = node;
 	}
-	hi_mem_pool_bring(map->pool, HI_MAP_ITER(node));
+	hi_mem_block_pool_bring(map->pool, HI_MAP_ITER(node));
 	map->root = HI_ITER_NULL;
 }
 
-void hi_async_map_init(hi_async_map_t *map)
+void hi_async_map_init(hi_async_map_t *map, hi_mem_block_pool_t *pool)
 {
 	hi_mutex_init(&(map->mutex));
 	hi_mutex_lock(&(map->mutex));
-	hi_map_init(&(map->unsafe));
+	hi_map_init(&(map->unsafe), pool);
 	hi_mutex_unlock(&(map->mutex));
 }
 

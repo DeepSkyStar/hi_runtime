@@ -73,11 +73,11 @@ int main(int argc, char *argv[])
 //    printf("%u\n", (size_t)-1);
 
 //Loop Pool
-    // hi_mem_pool_t* pool = hi_mem_pool_new(sizeof(test_t), TEST_CNT);
+    // hi_mem_block_pool_t* pool = hi_mem_block_pool_new(sizeof(test_t), TEST_CNT);
     
     // for (int i = 0; i < TEST_CNT; i++)
     // {
-    //     test_index[i] = hi_mem_pool_take(pool);
+    //     test_index[i] = hi_mem_block_pool_take(pool);
     //     test_t* ptr = (test_t*)(pool->vector + test_index[i]);
     //     ptr->a = i;
     //     ptr->b = i;
@@ -86,12 +86,12 @@ int main(int argc, char *argv[])
     
     // for (int i = 0; i< TEST_CNT; i++)
     // {
-    //     hi_mem_pool_bring(pool, test_index[i]);
+    //     hi_mem_block_pool_bring(pool, test_index[i]);
     // }
     
     // for (int i = 0; i < TEST_CNT; i++)
     // {
-    //     test_index[i] = hi_mem_pool_take(pool);
+    //     test_index[i] = hi_mem_block_pool_take(pool);
     //     test_t* ptr = (test_t*)(pool->vector + test_index[i]);
     //     ptr->a = i;
     //     ptr->b = i;

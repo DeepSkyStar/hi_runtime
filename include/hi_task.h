@@ -33,6 +33,7 @@ extern "C" {
 typedef hi_iter_t hi_task_id_t;
 typedef struct hi_task_pool_s hi_task_pool_t;
 typedef struct hi_task_s hi_task_t;
+
 typedef void* (*hi_task_func_t)(const hi_task_t *task, hi_result_t result, void *args);
 
 #define HI_TASK_IS_INVALID(__task_id__) HI_ITER_IS_INVALID(__task_id__)
@@ -55,7 +56,7 @@ struct hi_task_s
 struct hi_task_pool_s
 {
     //SHOULD NOT BE USED shared pool.
-    hi_mem_pool_t pool;    //the block size must bigger that hi_task_t.
+    hi_mem_block_pool_t pool;    //the block size must bigger that hi_task_t.
 };
 
 #define HI_TASK_POOL_INIT(__pool__, __task_size__, __max_count__) {    \
