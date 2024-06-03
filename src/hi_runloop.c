@@ -24,7 +24,7 @@
 void* hi_runloop_main(hi_runloop_t *runloop)
 {
     // hi_isr_queue_init(&runloop->events);
-    hi_mutex_lock(&(runloop->_state.thread_mutex));
+    // hi_mutex_lock(&(runloop->_state.thread_mutex));
     runloop->_state.is_running = 1;
     runloop->_state.start_time = hi_get_time();
     runloop->_state.running_time = 0;
@@ -86,6 +86,7 @@ inline void hi_runloop_start(hi_runloop_t *runloop)
     if (runloop->_state.is_running) {
         return;
     }
+    hi_mutex_lock(&(runloop->_state.thread_mutex));
     hi_thread_init(&(runloop->thread));
 }
 
