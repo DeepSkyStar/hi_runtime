@@ -137,6 +137,7 @@ typedef struct{
     hi_value_t value;
 }hi_value_result_t;
 
+#define HI_VALUE(__value__) ((hi_value_t *)(__value__))
 #define HI_VALUE_ITER(__value__) (hi_value_t){.iter = __value__}
 #define HI_VALUE_STR(__value__) (hi_value_t){.str = __value__}
 #define HI_VALUE_BYTE(__value__) (hi_value_t){.byte = __value__}

@@ -32,23 +32,29 @@ extern "C" {
 
 typedef struct
 {
-    hi_mem_block_pool_t *pool;
+    hi_mem_pool_t *pool;
 }hi_list_t;
 
 #define HI_LIST_POOL_DEFINE(__pool__, __data_size__ ,__count__ ) HI_MEM_POOL_DEFINE(__pool__, __data_size__, __count__)
-#define HI_LIST_INIT(__list__, __pool__) {\
+#define HI_LIST_INIT(__pool__) {\
     .pool = __pool__,   \
 }
 
-extern void hi_list_init(hi_list_t *list, hi_mem_block_pool_t *pool);
+extern hi_list_t* hi_list_new(hi_size_t data_size, hi_size_t max_size);
+extern void hi_list_init(hi_list_t *list, hi_mem_pool_t *pool);
+extern void hi_list_deinit(hi_list_t *list);
+extern void hi_list_free(hi_list_t *list);
 
-extern hi_iter_t hi_list_add(hi_list_t *list, hi_value_t value);
+extern hi_iter_t hi_list_add_value(hi_list_t *list, hi_value_t value);
+
 //must less then the list node size.
-extern hi_iter_t hi_list_add_data(hi_list_t *list, const void* data, hi_size_t size);
+extern hi_iter_t hi_list_add(hi_list_t *list, const void* data, hi_size_t size);
 
 extern void* hi_list_get(hi_list_t *list, hi_iter_t index);
 
 extern void hi_list_del(hi_list_t *list, hi_iter_t index);
+
+extern void hi_list_del_all(hi_list_t *list);
 
 extern hi_iter_t hi_list_begin(hi_list_t *list);
 

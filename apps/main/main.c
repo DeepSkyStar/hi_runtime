@@ -58,10 +58,10 @@ void test_obj()
     HI_RELEASE(a);
     b = NULL;
 
-    HI_RELEASE(a);
+    // HI_RELEASE(a);
 
-    HI_RELEASE(a);
-    HI_RELEASE(a);
+    // HI_RELEASE(a);
+    // HI_RELEASE(a);
 
     // hi_pair_t pair = {
     //     .key = {.byte = {"123"}},
@@ -69,7 +69,7 @@ void test_obj()
     // };
 
 //    printf("%s: %s\n", (char *)pair.key.byte.ptr, (char *)pair.value.byte.ptr);
-   printf("%zu\n", (size_t)-1);
+//    printf("%zu\n", (size_t)-1);
 }
 
 #define TEST_CLASS test_mem_t
@@ -84,8 +84,8 @@ void test_mem()
     hi_iter_t test_index[TEST_BLOCK_CNT];
     for (int i = 0; i < TEST_BLOCK_CNT; i++)
     {
-        test_index[i] = hi_mem_block_pool_take(&test_mem_pool);
-        TEST_CLASS* ptr = (TEST_CLASS*)hi_mem_block_pool_get(&test_mem_pool, test_index[i]);
+        test_index[i] = hi_mem_pool_take(&test_mem_pool);
+        TEST_CLASS* ptr = (TEST_CLASS*)hi_mem_pool_get(&test_mem_pool, test_index[i]);
         // ptr->a = i;
         // ptr->b = i;
         printf("<%d> First Get Unit: %zu used: %d\n", i, test_index[i], HI_MEM_POOL_IS_IN_USE(&test_mem_pool, test_index[i]));
@@ -95,38 +95,38 @@ void test_mem()
     for (int i = 0; i < TEST_BLOCK_CNT / 2; i++)
     {
         printf("<%d> before bring block: %zu used: %d\n", i, test_index[i], HI_MEM_POOL_IS_IN_USE(&test_mem_pool, test_index[i]));
-        hi_mem_block_pool_bring(&test_mem_pool, test_index[i]);
+        hi_mem_pool_bring(&test_mem_pool, test_index[i]);
         printf("<%d> bring block: %zu used: %d\n", i, test_index[i], HI_MEM_POOL_IS_IN_USE(&test_mem_pool, test_index[i]));
 
         // for (int j = 0; j < TEST_BLOCK_CNT; j++)
         // {
-        //     int result = (hi_mem_block_pool_get(&test_mem_pool, test_index[j]) != NULL);
+        //     int result = (hi_mem_pool_get(&test_mem_pool, test_index[j]) != NULL);
         //     printf("<%d> in use:%d\n", j, result);
         // }
     }
     
     for (int j = 0; j < TEST_BLOCK_CNT; j++)
     {
-        printf("<%d> in use:%d\n", j, hi_mem_block_pool_get(&test_mem_pool, test_index[j]) != NULL);
+        printf("<%d> in use:%d\n", j, hi_mem_pool_get(&test_mem_pool, test_index[j]) != NULL);
     }
 
     for (int i = 0; i < TEST_BLOCK_CNT / 2; i++)
     {
-        hi_iter_t iter = hi_mem_block_pool_take(&test_mem_pool); 
-        TEST_CLASS* ptr = (TEST_CLASS*)(hi_mem_block_pool_get(&test_mem_pool, iter));
+        hi_iter_t iter = hi_mem_pool_take(&test_mem_pool); 
+        TEST_CLASS* ptr = (TEST_CLASS*)(hi_mem_pool_get(&test_mem_pool, iter));
         // ptr->a = i;
         // ptr->b = i;
         printf("<%d> Second Get Unit: %zu \n",i , iter);
         for (int j = 0; j < TEST_BLOCK_CNT; j++)
         {
-            int result = (hi_mem_block_pool_get(&test_mem_pool, test_index[j]) != NULL);
+            int result = (hi_mem_pool_get(&test_mem_pool, test_index[j]) != NULL);
             printf("<%d> Second in use:%d\n", j, result);
         }
     }
 
     // for (int j = 0; j < TEST_BLOCK_CNT; j++)
     // {
-    //     int result = (hi_mem_block_pool_get(&test_mem_pool, test_index[j]) != NULL);
+    //     int result = (hi_mem_pool_get(&test_mem_pool, test_index[j]) != NULL);
     //     printf("<%d> Second in use:%d\n", j, result);
     // }
 }
@@ -139,8 +139,8 @@ void test_mem()
 //2000 for 80mhz is 1ms
 #define TEST_QUEUE_COUNT (1000000)
 
-HI_MAP_POOL_DEFINE(shared_map_pool, TEST_MAP_COUNT);
-HI_MEM_POOL_DEFINE(shared_queue_pool, sizeof(hi_queue_node_t), TEST_QUEUE_COUNT);
+HI_MAP_POOL_DEFINE(shared_map_pool, sizeof(hi_value_t), TEST_MAP_COUNT);
+HI_QUEUE_POOL_DEFINE(shared_queue_pool, sizeof(hi_value_t), TEST_QUEUE_COUNT);
 
 void print_tab(int num)
 {
@@ -152,77 +152,81 @@ void print_tab(int num)
 
 void print_map(hi_map_t *map)
 {
-    hi_queue_t *queue = hi_malloc(sizeof(hi_queue_t));
-    hi_queue_t *next_queue = hi_malloc(sizeof(hi_queue_t));
-    hi_queue_init(queue, &shared_queue_pool);
-    hi_queue_init(next_queue, &shared_queue_pool);
     if (map->root == HI_ITER_NULL) return;
+    hi_queue_t queue = HI_QUEUE_INIT(&shared_queue_pool);
+    hi_queue_t next_queue = HI_QUEUE_INIT(&shared_queue_pool);
 
-    hi_queue_in(queue, HI_VALUE_ITER(HI_MAP_ITER(map->root)));
+    hi_queue_add_last_value(&queue, HI_VALUE_ITER(HI_MAP_ITER(map->root)));
 
     hi_size_t depth = hi_map_depth(map);
     hi_size_t blank = 0;
     printf("\n");
     printf("print depth: %zu\n", depth);
-    while (queue->head != HI_ITER_NULL)
+    while (hi_queue_begin(&queue) != HI_ITER_NULL)
     {
         blank = 0;
-        while (queue->head != HI_ITER_NULL)
+        while (hi_queue_begin(&queue) != HI_ITER_NULL)
         {
-            hi_iter_t head = hi_queue_begin(queue);
-            if (hi_map_node(map, head).left != HI_ITER_NULL)
+            hi_iter_t head = *(hi_iter_t *)hi_queue_get_first(&queue);
+            if (hi_map_get_node(map, head)->left != HI_ITER_NULL)
             {
-                hi_queue_in(next_queue, HI_VALUE_ITER(HI_MAP_ITER(hi_map_node(map, head).left)));
+                
+                hi_queue_add_last_value(&next_queue, HI_VALUE_ITER(HI_MAP_ITER(hi_map_get_node(map, head)->left)));
             }
-            if (hi_map_node(map, head).right != HI_ITER_NULL)
+            if (hi_map_get_node(map, head)->right != HI_ITER_NULL)
             {
-                hi_queue_in(next_queue, HI_VALUE_ITER(HI_MAP_ITER(hi_map_node(map, head).right)));
+                hi_queue_add_last_value(&next_queue, HI_VALUE_ITER(HI_MAP_ITER(hi_map_get_node(map, head)->right)));
             }
 
-            hi_iter_t parent = hi_map_node(map, head).parent;
+            hi_iter_t parent = hi_map_get_node(map, head)->parent;
             hi_map_key_t parent_key = HI_VALUE_NULL;
-            if (parent != HI_ITER_NULL) parent_key = hi_map_node(map, parent).key;
+            if (parent != HI_ITER_NULL) parent_key = hi_map_get_node(map, parent)->key;
             if (HI_MAP_NODE_COLOR(map, head)) 
             {
-                printf("%llu:%llu(B)\t", parent_key.uint64, hi_map_node(map, head).key.uint64);
+                printf("%llu:%llu(B)\t", parent_key.uint64, hi_map_get_node(map, head)->key.uint64);
             }
             else
             {
-                printf("%llu:%llu(R)\t", parent_key.uint64, hi_map_node(map, head).key.uint64);
+                printf("%llu:%llu(R)\t", parent_key.uint64, hi_map_get_node(map, head)->key.uint64);
             }
-            hi_queue_out(queue);
+            hi_queue_del_first(&queue);
         }
         printf("\n");
-        hi_queue_t *tmp = queue;
+        hi_queue_t tmp = queue;
         queue = next_queue;
         // printf("<check:%llu>", hi_queue_head(next_queue).uint64);
         next_queue = tmp;
     }
     printf("\n");
+
 }
 
-void test_async_queue(void)
+void test_sync_queue(void)
 {
     printf("start test async queue\n");
 
-    hi_async_queue_t *async_queue = hi_malloc(sizeof(hi_async_queue_t));
-    hi_async_queue_init(async_queue, &shared_queue_pool);
-    
+    hi_sync_queue_t *sync_queue = hi_malloc(sizeof(hi_sync_queue_t));
+    sync_queue->unsafe.pool = NULL;
+    HI_LOGD("start init");
+    hi_sync_queue_init(sync_queue, &shared_queue_pool);
+
+    HI_LOGD("stop init");
     hi_time_t last_time = hi_get_time();
 
-    for (int i = 0;i < TEST_QUEUE_COUNT; i++)
+    for (int i = 0;i < 10000000; i++)
     {
-        hi_async_queue_in(async_queue, HI_VALUE_INT(i));
+        hi_sync_queue_add_last_value(sync_queue, HI_VALUE_INT(i));
     }
 
     printf("used time: %llu\n", hi_get_time() - last_time);
 
     last_time = hi_get_time();
 
-    while (!hi_async_queue_empty(async_queue))
+    
+    while (hi_sync_queue_end(sync_queue) != HI_ITER_NULL)
     {
-        // printf("get last:%d\n", hi_async_queue_last(async_queue).int32);
-        hi_async_queue_out(async_queue);
+        // printf("get first:%d\n", ((hi_value_t *)hi_sync_queue_get_last(sync_queue))->int32);
+        hi_sync_queue_del_last(sync_queue);
     }
 
     printf("used time: %llu\n", hi_get_time() - last_time);
@@ -240,15 +244,15 @@ void test_queue()
 
     for (int i = 0;i < TEST_QUEUE_COUNT; i++)
     {
-        hi_queue_in(queue, HI_VALUE_INT(i));
+        hi_queue_add_last_value(queue, HI_VALUE_INT(i));
     }
 
     printf("used time: %llu\n", hi_get_time() - last_time);
 
-    while (queue->head != HI_ITER_NULL)
+    while (hi_queue_begin(queue) != HI_ITER_NULL)
     {
-        // printf("%d\n", hi_queue_head(queue).int32);
-        hi_queue_out(queue);
+        // printf("%d\n", HI_VALUE(hi_queue_get_first(queue))->int32);
+        hi_queue_del_first(queue);
     }
 
     printf("used time: %llu\n", hi_get_time() - last_time);
@@ -259,23 +263,23 @@ void test_queue()
 void test_async_map()
 {
     printf("start test map\n");
-    hi_async_map_t *map = hi_malloc(sizeof(hi_async_map_t));
-    hi_async_map_init(map, &shared_map_pool);
+    hi_sync_map_t *map = hi_malloc(sizeof(hi_sync_map_t));
+    hi_sync_map_init(map, &shared_map_pool);
 
     hi_time_t last_time = hi_get_time();
 
     for (int i = 0; i < TEST_MAP_COUNT + 1; i++)
     {
-        hi_result_t result = hi_async_map_set(map, HI_VALUE_INT(i), HI_VALUE_INT(i));
-        if (result.res != HI_RESULT_OK)
+        hi_iter_t result = hi_sync_map_set_value(map, HI_VALUE_INT(i), HI_VALUE_INT(i));
+        if (result == HI_ITER_NULL)
         {
-            printf("the %d failed: %d\n", i, result.reason);
+            printf("the %d failed\n", i);
         }
     }
 
     printf("used time: %llu\n", hi_get_time() - last_time);
 
-    hi_size_t depth = hi_async_map_depth(map);
+    hi_size_t depth = hi_sync_map_depth(map);
     printf("print depth: %zu\n", depth);
     // print_map(map);
     printf("\n");
@@ -288,7 +292,7 @@ void test_async_map()
     last_time = hi_get_time();
     for (int i = 0; i < TEST_MAP_COUNT; i++)
     {
-        hi_value_result_t value = hi_async_map_get(map, HI_VALUE_INT(i));
+        hi_value_t *value = hi_sync_map_get(map, HI_VALUE_INT(i));
     }
     printf("used time: %llu\n", hi_get_time() - last_time);
     printf("end test map\n\n");
@@ -303,25 +307,25 @@ void test_map()
 
     hi_time_t last_time = hi_get_time();
 
-    for (int i = 0; i < TEST_MAP_COUNT + 1; i++)
+    for (int i = 0; i < TEST_MAP_COUNT + 2; i++)
     {
-        hi_result_t result = hi_map_set(map, HI_VALUE_INT(i), HI_VALUE_INT(i));
-        if (result.res != HI_RESULT_OK)
+        hi_iter_t result = hi_map_set_value(map, HI_VALUE_INT(i), HI_VALUE_INT(i));
+        if (result == HI_ITER_NULL)
         {
-            printf("the %d failed: %d\n", i, result.reason);
+            printf("the %d failed\n", i);
         }
     }
 
     printf("used time: %llu\n", hi_get_time() - last_time);
 
     hi_size_t depth = hi_map_depth(map);
-    printf("after set\n");
+    printf("after set, depth:%zu\n", depth);
     // print_map(map);
     printf("\n\n");
 
 
     int count = 0;
-    for (hi_iter_t iter = hi_map_first(map);iter != HI_ITER_NULL; iter = hi_map_next(map, iter))
+    for (hi_iter_t iter = hi_map_begin(map);iter != HI_ITER_NULL; iter = hi_map_next(map, iter))
     {
         count++;
     }
@@ -341,7 +345,7 @@ void test_map()
     {
         // printf("cur del %d depth: %zu\n", i, depth);
         // hi_map_del(map, HI_VALUE_INT(i));
-        hi_map_set(map, HI_VALUE_INT(i), HI_VALUE_INT(i));
+        hi_map_set_value(map, HI_VALUE_INT(i), HI_VALUE_INT(i));
         // print_map(map);
         // printf("\n");
     }
@@ -354,8 +358,8 @@ void test_map()
     last_time = hi_get_time();
     for (int i = 0; i < TEST_MAP_COUNT; i++)
     {
-        hi_value_t value = hi_map_get(map, HI_VALUE_INT(i));
-        if (HI_IS_VALUE_NULL(value))
+        hi_value_t *value = hi_map_get(map, HI_VALUE_INT(i));
+        if (value == NULL)
         {
             printf("%d not found or its 0.\n", i);
         }
@@ -369,12 +373,52 @@ hi_result_t test_result()
     return (hi_result_t){HI_RESULT_TIMEOUT, 0};
 }
 
-hi_async_map_t lock_map = {.unsafe.pool = &shared_map_pool};
+typedef struct
+{
+    int a;
+    int b;
+}test_list_node_t;
+
+HI_LIST_POOL_DEFINE(test_list_pool, sizeof(test_list_node_t), 100);
+hi_list_t test_list = HI_LIST_INIT(&test_list_pool);
+
+void test_list_func()
+{
+    for (int i = 0; i < 102; i++)
+    {
+        test_list_node_t node = {
+            .a = i,
+            .b = i
+        };
+        hi_iter_t iter = hi_list_add(&test_list, &node, sizeof(node));
+        // HI_LOGD("add: %zu: %zu", iter, hi_list_get(&test_list, iter));
+
+        // test_list_node_t *test_node = hi_list_get(&test_list, iter);
+        HI_LOGD("add %zu",iter);
+    }
+    hi_iter_t iter = hi_list_begin(&test_list);
+    int i = 0;
+    for (int i = 0;iter!=HI_ITER_NULL && i < 102;iter = hi_list_next(&test_list, iter))
+    {   
+        test_list_node_t *test_node = hi_list_get(&test_list, iter);
+        if (test_node != NULL)
+        {
+            HI_LOGD("this %d: %llu: %d %d", i, (uint64_t)test_node, test_node->a, test_node->b);
+        }
+        else
+        {
+            HI_LOGD("this: NULL");
+        }
+        i++;
+    }
+}
+
+hi_sync_map_t lock_map = {.unsafe.pool = &shared_map_pool};
 
 void test_lock()
 {
-    // hi_async_map_init(&lock_map);
-    // hi_async_map_set(&lock_map, HI_VALUE_INT(1), HI_VALUE_INT(1));
+    // hi_sync_map_init(&lock_map);
+    // hi_sync_map_set_value(&lock_map, HI_VALUE_INT(1), HI_VALUE_INT(1));
 
     hi_mutex_t mutex;
     hi_mutex_init(&mutex);
@@ -444,9 +488,10 @@ int main(int argc, char *argv[])
 
     // test_obj();
     // test_mem();
-    // test_async_queue();
+    // test_sync_queue();
     // test_queue();
     test_map();
+    // test_list_func();
     // test_async_map();
     // test_lock();
     // test_runloop();

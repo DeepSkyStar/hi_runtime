@@ -56,7 +56,7 @@ struct hi_task_s
 struct hi_task_pool_s
 {
     //SHOULD NOT BE USED shared pool.
-    hi_mem_block_pool_t pool;    //the block size must bigger that hi_task_t.
+    hi_mem_pool_t pool;    //the block size must bigger that hi_task_t.
 };
 
 #define HI_TASK_POOL_INIT(__pool__, __task_size__, __max_count__) {    \

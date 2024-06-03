@@ -57,7 +57,7 @@ inline void hi_free(void* ptr)
     free(ptr);
 }
 
-inline hi_mem_block_pool_t* hi_mem_block_pool_new(hi_mem_pool_config_t config)
+inline hi_mem_pool_t* hi_mem_pool_new(hi_mem_pool_config_t config)
 {
     if (config.block_size < sizeof(hi_size_t)) {
         config.block_size = sizeof(hi_size_t);
@@ -66,34 +66,39 @@ inline hi_mem_block_pool_t* hi_mem_block_pool_new(hi_mem_pool_config_t config)
     if ((config.block_size & 1) == 1) {
         config.block_size += 1;
     }
+
+    //if it's new, means not static.
+    config.is_dynamic = 1;
     //The minimun size for loop pool work.
-    hi_mem_block_pool_t* pool = (hi_mem_block_pool_t*)hi_malloc(sizeof(hi_mem_block_pool_t) + config.block_size * (config.block_count + (config.block_count >> 3) + 1));
-    hi_memset(pool, 0, sizeof(hi_mem_block_pool_t) + config.block_size * (config.block_count + (config.block_count >> 3) + 1));
+    hi_mem_pool_t* pool = (hi_mem_pool_t*)hi_malloc(sizeof(hi_mem_pool_t) + config.block_size * (config.block_count + (config.block_count >> 3) + 1));
+    hi_memset(pool, 0, sizeof(hi_mem_pool_t) + config.block_size * (config.block_count + (config.block_count >> 3) + 1));
     pool->reuse = HI_ITER_NULL;
     pool->cur = 0;
     pool->config = config;
-    pool->container = (uint8_t *)pool + sizeof(hi_mem_block_pool_t);
+    pool->container = (uint8_t *)pool + sizeof(hi_mem_pool_t);
     return pool;
 }
 
-inline hi_mem_block_pool_t* hi_mem_block_pool_realloc(hi_mem_block_pool_t* pool, hi_size_t block_count)
+inline hi_mem_pool_t* hi_mem_pool_realloc(hi_mem_pool_t* pool, hi_size_t block_count)
 {
-
-    pool = hi_realloc(pool, sizeof(hi_mem_block_pool_t) + pool->config.block_size * (block_count + (block_count >> 3) + 1));
+    pool = hi_realloc(pool, sizeof(hi_mem_pool_t) + pool->config.block_size * (block_count + (block_count >> 3) + 1));
+    if (pool == NULL) return NULL;
     //TODO: when realloc, should set memory 0.
     pool->config.block_count = block_count;
-    pool->container = (uint8_t *)pool + sizeof(hi_mem_block_pool_t);
+    pool->container = (uint8_t *)pool + sizeof(hi_mem_pool_t);
     return pool;
 }
 
-inline void hi_mem_block_pool_free(hi_mem_block_pool_t* pool)
+inline void hi_mem_pool_free(hi_mem_pool_t* pool)
 {
+    if (pool == NULL || pool->config.is_dynamic == 0) return ;
     hi_free(pool);
 }
 
-inline hi_iter_t hi_mem_block_pool_take(hi_mem_block_pool_t* pool)
+inline hi_iter_t hi_mem_pool_take(hi_mem_pool_t* pool)
 {
-    assert(pool->config.block_size >= sizeof(hi_iter_t));
+    //Will cause critical bugs. so must be assert here.
+    assert((pool != NULL) && pool->config.block_size >= sizeof(hi_iter_t));
     hi_iter_t block = HI_ITER_NULL;
     if (pool->reuse != HI_ITER_NULL) {
         block = pool->reuse;
@@ -111,15 +116,20 @@ inline hi_iter_t hi_mem_block_pool_take(hi_mem_block_pool_t* pool)
     return block;
 }
 
-inline uint8_t* hi_mem_block_pool_get(hi_mem_block_pool_t* pool, hi_iter_t iter)
+inline uint8_t* hi_mem_pool_get(hi_mem_pool_t* pool, hi_iter_t iter)
 {
-    if (pool->config.use_check && HI_MEM_POOL_IS_IN_USE(pool, iter) == 0) return NULL;
+    if (pool == NULL || iter == HI_ITER_NULL || (pool->config.use_check && HI_MEM_POOL_IS_IN_USE(pool, iter) == 0)) return NULL;
     return (HI_MEM_POOL_START(pool) + iter);
 }
 
-inline void hi_mem_block_pool_bring(hi_mem_block_pool_t* pool, hi_iter_t block)
+inline uint8_t hi_mem_block_check_full(hi_mem_pool_t* pool)
 {
-    if (pool->config.use_check && HI_MEM_POOL_IS_IN_USE(pool, block) == 0) return ;
+    return (pool == NULL) || pool->cur >= pool->config.block_size * pool->config.block_count;
+}
+
+inline void hi_mem_pool_bring(hi_mem_pool_t* pool, hi_iter_t block)
+{
+    if (pool == NULL || block == HI_ITER_NULL || (pool->config.use_check && HI_MEM_POOL_IS_IN_USE(pool, block) == 0)) return ;
 
     if (block + pool->config.block_size == pool->cur)
     {
@@ -135,16 +145,22 @@ inline void hi_mem_block_pool_bring(hi_mem_block_pool_t* pool, hi_iter_t block)
     // HI_LOGD("bring 2 %zu", block);
 }
 
+inline void hi_mem_pool_bring_all(hi_mem_pool_t* pool)
+{
+    if (pool == NULL) return ;
+    pool->cur = 0;
+    pool->reuse = HI_ITER_NULL;
+}
+
 inline void* hi_mem_limit_pool_take(hi_mem_limit_pool_t* pool, hi_size_t size)
 {
-    if (size + pool->usage > pool->max_size) return NULL;
-    pool->usage += size;
+    if (pool == NULL || size + pool->usage > pool->max_size) return NULL;
     return hi_malloc(size);
 }
 
 inline void hi_var_mem_pool_bring(hi_mem_limit_pool_t* pool, void* data, hi_size_t size)
 {
-    if (size > pool->usage) {
+    if (pool == NULL ||  size > pool->usage) {
         HI_LOGE("hi_var_mem_pool_bring: bring size is bigger than pool usage.");
     }
     return hi_free(data);

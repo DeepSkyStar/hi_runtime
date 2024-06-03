@@ -34,73 +34,105 @@ extern "C" {
 
 typedef struct
 {
+    hi_iter_t prev;
     hi_iter_t next;
-    hi_value_t value;
+    uint8_t data[0];
 }hi_queue_node_t;
 
 typedef struct
 {
-    hi_iter_t head;
+    hi_iter_t first;
     hi_iter_t last;
-    hi_mem_block_pool_t *pool;    //unit size must bigger then hi_queue_node_t.
+    hi_size_t usage;
+    hi_mem_pool_t *pool;    //unit size must bigger then hi_queue_node_t.
 }hi_queue_t;
-
 
 #define HI_QUEUE_NODE_NULL (hi_queue_node_t){HI_ITER_NULL, HI_VALUE_NULL}
 #define HI_QUEUE_IS_EMPTY(__queue__) ((__queue__).last == HI_ITER_NULL)
 
-#define HI_QUEUE_INIT(__name__, __pool__) { \
-    .head = HI_ITER_NULL, \
+#define HI_QUEUE_POOL_DEFINE(__pool__, __data_size__, __count__) HI_MEM_POOL_DEFINE(__pool__, sizeof(hi_queue_node_t) +  __data_size__, __count__)
+
+#define HI_QUEUE_INIT(__pool__) { \
+    .first = HI_ITER_NULL, \
     .last = HI_ITER_NULL, \
     .pool = __pool__,   \
 }
 
-extern void hi_queue_init(hi_queue_t *queue, hi_mem_block_pool_t *pool);
+//If the queue is not static define, must be free at the end.
+//After new, no need to call init.
+extern hi_queue_t* hi_queue_new(hi_size_t data_size, hi_size_t max_size);
+extern void hi_queue_init(hi_queue_t *queue, hi_mem_pool_t *pool);
+extern void hi_queue_deinit(hi_queue_t *queue);
+extern void hi_queue_free(hi_queue_t *queue);
 
-extern hi_result_t hi_queue_in(hi_queue_t *queue, hi_value_t value);
+extern hi_iter_t hi_queue_add_first(hi_queue_t *queue, const void* data, hi_size_t size);
+extern hi_iter_t hi_queue_add_first_value(hi_queue_t *queue, hi_value_t value);
+extern hi_iter_t hi_queue_add_last(hi_queue_t *queue, const void* data, hi_size_t size);
+extern hi_iter_t hi_queue_add_last_value(hi_queue_t *queue, hi_value_t value);
 
-extern void hi_queue_out(hi_queue_t *queue);
+extern hi_iter_t hi_queue_insert_next(hi_queue_t *queue, hi_iter_t iter, const void *data, hi_size_t size);
+extern hi_iter_t hi_queue_insert_next_value(hi_queue_t *queue, hi_iter_t iter, hi_value_t value);
+extern hi_iter_t hi_queue_insert_prev(hi_queue_t *queue, hi_iter_t iter, const void *data, hi_size_t size);
+extern hi_iter_t hi_queue_insert_prev_value(hi_queue_t *queue, hi_iter_t iter, hi_value_t value);
 
-extern uint8_t hi_queue_empty(hi_queue_t *queue);
+extern void* hi_queue_get(hi_queue_t *queue, hi_iter_t iter);
+extern void* hi_queue_get_first(hi_queue_t *queue);
+extern void* hi_queue_get_last(hi_queue_t *queue);
 
-extern hi_value_t hi_queue_head(hi_queue_t *queue);
+extern hi_queue_node_t* hi_queue_get_node(hi_queue_t *queue, hi_iter_t iter);
+extern hi_size_t hi_queue_get_usage(hi_queue_t *queue);
+extern hi_size_t hi_queue_get_data_size(hi_queue_t *queue);
+extern hi_size_t hi_queue_get_max_size(hi_queue_t *queue);
 
-extern hi_value_t hi_queue_last(hi_queue_t *queue);
+extern void hi_queue_del_first(hi_queue_t *queue);
+extern void hi_queue_del_last(hi_queue_t *queue);
+extern void hi_queue_del(hi_queue_t *queue, hi_iter_t iter);
+extern void hi_queue_del_all(hi_queue_t *queue);
 
 extern hi_iter_t hi_queue_begin(hi_queue_t *queue);
-
-extern hi_queue_node_t hi_queue_next(hi_queue_t *queue, hi_iter_t iter);
-
-extern void hi_queue_del_next(hi_queue_t *queue, hi_iter_t iter);
-
-extern void hi_queue_deinit(hi_queue_t *queue);
-
+extern hi_iter_t hi_queue_end(hi_queue_t *queue);
+extern hi_iter_t hi_queue_next(hi_queue_t *queue, hi_iter_t iter);
+extern hi_iter_t hi_queue_prev(hi_queue_t *queue, hi_iter_t iter);
 
 typedef struct
 {
     hi_mutex_t mutex;   //mutex for create.
     hi_queue_t unsafe;
-}hi_async_queue_t;
+}hi_sync_queue_t;
 
-extern void hi_async_queue_init(hi_async_queue_t *queue, hi_mem_block_pool_t *pool);
+extern hi_sync_queue_t* hi_sync_queue_new(hi_size_t data_size, hi_size_t max_size);
+extern void hi_sync_queue_init(hi_sync_queue_t *queue, hi_mem_pool_t *pool);
+extern void hi_sync_queue_deinit(hi_sync_queue_t *queue);
+extern void hi_sync_queue_free(hi_sync_queue_t *queue);
 
-extern hi_result_t hi_async_queue_in(hi_async_queue_t *queue, hi_value_t value);
+extern hi_iter_t hi_sync_queue_add_first(hi_sync_queue_t *queue, const void* data, hi_size_t size);
+extern hi_iter_t hi_sync_queue_add_first_value(hi_sync_queue_t *queue, hi_value_t value);
+extern hi_iter_t hi_sync_queue_add_last(hi_sync_queue_t *queue, const void* data, hi_size_t size);
+extern hi_iter_t hi_sync_queue_add_last_value(hi_sync_queue_t *queue, hi_value_t value);
 
-extern void hi_async_queue_out(hi_async_queue_t *queue);
+extern hi_iter_t hi_sync_queue_insert_next(hi_sync_queue_t *queue, hi_iter_t iter, const void *data, hi_size_t size);
+extern hi_iter_t hi_sync_queue_insert_next_value(hi_sync_queue_t *queue, hi_iter_t iter, hi_value_t value);
+extern hi_iter_t hi_sync_queue_insert_prev(hi_sync_queue_t *queue, hi_iter_t iter, const void *data, hi_size_t size);
+extern hi_iter_t hi_sync_queue_insert_prev_value(hi_sync_queue_t *queue, hi_iter_t iter, hi_value_t value);
 
-extern uint8_t hi_async_queue_empty(hi_async_queue_t *queue);
+extern void* hi_sync_queue_get(hi_sync_queue_t *queue, hi_iter_t iter);
+extern void* hi_sync_queue_get_first(hi_sync_queue_t *queue);
+extern void* hi_sync_queue_get_last(hi_sync_queue_t *queue);
 
-extern hi_value_t hi_async_queue_head(hi_async_queue_t *queue);
+extern hi_queue_node_t* hi_sync_queue_get_node(hi_sync_queue_t *queue, hi_iter_t iter);
+extern hi_size_t hi_sync_queue_get_usage(hi_sync_queue_t *queue);
+extern hi_size_t hi_sync_queue_get_data_size(hi_sync_queue_t *queue);
+extern hi_size_t hi_sync_queue_get_max_size(hi_sync_queue_t *queue);
 
-extern hi_value_t hi_async_queue_last(hi_async_queue_t *queue);
+extern void hi_sync_queue_del_first(hi_sync_queue_t *queue);
+extern void hi_sync_queue_del_last(hi_sync_queue_t *queue);
+extern void hi_sync_queue_del(hi_sync_queue_t *queue, hi_iter_t iter);
+extern void hi_sync_queue_del_all(hi_sync_queue_t *queue);
 
-extern hi_iter_t hi_async_queue_begin(hi_async_queue_t *queue);
-
-extern hi_queue_node_t hi_async_queue_next(hi_async_queue_t *queue, hi_iter_t iter);
-
-extern void hi_async_queue_del_next(hi_async_queue_t *queue, hi_iter_t iter);
-
-extern void hi_async_queue_deinit(hi_async_queue_t *queue);
+extern hi_iter_t hi_sync_queue_begin(hi_sync_queue_t *queue);
+extern hi_iter_t hi_sync_queue_end(hi_sync_queue_t *queue);
+extern hi_iter_t hi_sync_queue_next(hi_sync_queue_t *queue, hi_iter_t iter);
+extern hi_iter_t hi_sync_queue_prev(hi_sync_queue_t *queue, hi_iter_t iter);
 
 #ifdef __cplusplus
 }

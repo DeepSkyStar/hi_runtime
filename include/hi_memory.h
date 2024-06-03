@@ -59,7 +59,8 @@ typedef struct
 {
     //TODO: replace to other implement.
     uint32_t use_check:1;       //would be slow.
-    uint32_t block_size:31;     //the single unit size of pool. only work when variable is 0.
+    uint32_t is_dynamic:1;       //would let pool free.
+    uint32_t block_size:30;     //the single unit size of pool. only work when variable is 0.
     uint32_t block_count; //the number of whole units.
 }hi_mem_pool_config_t;
 
@@ -69,7 +70,7 @@ typedef struct
     hi_iter_t reuse;   //after memory use, memory will put here.
     hi_iter_t cur;    //for record where pool is using.
     uint8_t* container;    //the pool for data link.
-}hi_mem_block_pool_t;
+}hi_mem_pool_t;
 
 #define HI_MEM_POOL_START(__pool__) ((__pool__)->container + ((__pool__)->config.block_count >> 3) + 1)
 
@@ -84,6 +85,7 @@ typedef struct
 #define HI_MEM_POOL_INIT(__container__, __block_size__, __block_count__) { \
      .config = {        \
         .use_check = 1,  \
+        .is_dynamic = 0, \
         .block_size = __block_size__, \
         .block_count = __block_count__  \
     },  \
@@ -93,7 +95,7 @@ typedef struct
 }
 
 #define HI_MEM_POOL_DEFINE(__name__, __block_size__, __count__) uint8_t __name__##_container[(__block_size__) * ((__count__) + ((__count__)>>3)) + 1] = {0}; \
-hi_mem_block_pool_t __name__ = HI_MEM_POOL_INIT(__name__##_container, __block_size__, __count__)
+hi_mem_pool_t __name__ = HI_MEM_POOL_INIT(__name__##_container, __block_size__, __count__)
 
 typedef struct
 {
@@ -105,25 +107,25 @@ typedef struct
  * @brief alloc new mem pool. but in mcu, recommand to new a mem pool by hand.
  * 
  * @param config mem pool config.
- * @return hi_mem_block_pool_t* mem pool.
+ * @return hi_mem_pool_t* mem pool.
  */
-extern hi_mem_block_pool_t* hi_mem_block_pool_new(hi_mem_pool_config_t config);
+extern hi_mem_pool_t* hi_mem_pool_new(hi_mem_pool_config_t config);
 
 /**
  * @brief realloc mem pool. the block count must be bigger than before.
  * 
  * @param pool mem pool.
  * @param block_count block count.
- * @return hi_mem_block_pool_t* if success will return new one.
+ * @return hi_mem_pool_t* if success will return new one.
  */
-extern hi_mem_block_pool_t* hi_mem_block_pool_realloc(hi_mem_block_pool_t* pool, hi_size_t block_count);
+extern hi_mem_pool_t* hi_mem_pool_realloc(hi_mem_pool_t* pool, hi_size_t block_count);
 
 /**
  * @brief Free mem pool, after that, all ref will invalid.
  * 
  * @param pool the mem pool.
  */
-extern void hi_mem_block_pool_free(hi_mem_block_pool_t* pool);
+extern void hi_mem_pool_free(hi_mem_pool_t* pool);
 
 /**
  * @brief if return HI_ITER_NULL, means full or not support unit.
@@ -131,7 +133,18 @@ extern void hi_mem_block_pool_free(hi_mem_block_pool_t* pool);
  * @param pool mem pool.
  * @return hi_iter_t offset from the container.
  */
-extern hi_iter_t hi_mem_block_pool_take(hi_mem_block_pool_t* pool);
+extern hi_iter_t hi_mem_pool_take(hi_mem_pool_t* pool);
+
+/**
+ * @brief MUST ensure each unit bring only once!!!
+ * 
+ * @param pool mem pool.
+ * @param block offset from the container.
+ */
+extern void hi_mem_pool_bring(hi_mem_pool_t* pool, hi_iter_t block);
+
+//Fast bring all.
+extern void hi_mem_pool_bring_all(hi_mem_pool_t* pool);
 
 /**
  * @brief Get the actuall point of iter.
@@ -140,15 +153,15 @@ extern hi_iter_t hi_mem_block_pool_take(hi_mem_block_pool_t* pool);
  * @param iter the iter to fetch.
  * @return void* if no data in it, it would be NULL.
  */
-extern uint8_t* hi_mem_block_pool_get(hi_mem_block_pool_t* pool, hi_iter_t iter);
+extern uint8_t* hi_mem_pool_get(hi_mem_pool_t* pool, hi_iter_t iter);
 
 /**
- * @brief MUST ensure each unit bring only once!!!
+ * @brief Get the check is full.
  * 
  * @param pool mem pool.
- * @param block offset from the container.
+ * @return void* if no data in it, it would be NULL.
  */
-extern void hi_mem_block_pool_bring(hi_mem_block_pool_t* pool, hi_iter_t block);
+extern uint8_t hi_mem_block_check_full(hi_mem_pool_t* pool);
 
 extern void* hi_mem_limit_pool_take(hi_mem_limit_pool_t* pool, hi_size_t size);
 
