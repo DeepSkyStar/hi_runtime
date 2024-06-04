@@ -20,6 +20,18 @@
  */
 
 #include "hi_time.h"
+
+#if _HI_ESP32
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/queue.h"
+#elif _HI_FREERTOS
+#include "FreeRTOS.h"
+#include "task.h"
+#include "queue.h"
+#else
+#endif
+
 #if _HI_PTHREAD
 #include <sys/time.h>
 #endif

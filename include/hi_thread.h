@@ -36,11 +36,11 @@ typedef struct
 #if _HI_PTHREAD
     pthread_mutex_t *mutex;
 #elif _HI_FREERTOS
-    SemaphoreHandle_t mutex;
+    // SemaphoreHandle_t mutex;
+    void *mutex;
 #else
     uint32_t mutex;
 #endif
-
 }hi_mutex_t;
 
 typedef struct
@@ -51,16 +51,6 @@ typedef struct
     int semaphore_count;
 #endif
 }hi_semaphore_t;
-
-#if _HI_PTHREAD
-
-#elif _HI_FREERTOS
-#define HI_MUTEX_INIT { \
-    .mutex =   \
-    \
-}
-#else
-#endif
 
 extern void hi_mutex_init(hi_mutex_t *mutex);
 extern void hi_mutex_lock(hi_mutex_t *mutex);
@@ -87,7 +77,8 @@ typedef enum{
 }hi_priority_enum;
 
 #if _HI_FREERTOS
-typedef TaskFunction_t hi_thread_func_f;
+// typedef TaskFunction_t hi_thread_func_f;
+typedef void* (*hi_thread_func_f)(void* args);
 #else
 typedef void* (*hi_thread_func_f)(void* args);
 #endif
@@ -97,7 +88,8 @@ typedef struct
 #if _HI_PTHREAD
     pthread_t handle;
 #elif _HI_FREERTOS
-    TaskHandle_t handle;
+    // TaskHandle_t handle;
+    void* handle;
 #else
     uint32_t handle;
 #endif
@@ -119,9 +111,7 @@ typedef struct
 #endif
 
 #ifdef CONFIG_PTHREAD_TASK_STACK_SIZE_DEFAULT
-
 #define HI_THREAD_DEFAULT_STACK_SIZE CONFIG_PTHREAD_TASK_STACK_SIZE_DEFAULT
-
 #else 
 
 #ifdef configMINIMAL_STACK_SIZE
@@ -132,10 +122,8 @@ typedef struct
 
 #endif
 
-
 extern int hi_thread_init(hi_thread_t *thread);
 extern void hi_thread_deinit(void);
-
 extern void hi_sleep(hi_time_t ms);
 
 #ifdef __cplusplus

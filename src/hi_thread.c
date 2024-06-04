@@ -18,9 +18,21 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 #include "hi_thread.h"
 #include "hi_memory.h"
+
+#if _HI_ESP32
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/queue.h"
+#include "freertos/semphr.h"
+#elif _HI_FREERTOS
+#include "FreeRTOS.h"
+#include "task.h"
+#include "queue.h"
+#include "semphr.h"
+#else
+#endif
 
 inline void hi_mutex_init(hi_mutex_t *mutex)
 {
@@ -39,7 +51,7 @@ inline void hi_mutex_lock(hi_mutex_t *mutex)
 #if _HI_PTHREAD
     pthread_mutex_lock(mutex->mutex);
 #elif _HI_FREERTOS
-    xSemaphoreTake(mutex->mutex, portMAX_DELAY);
+    xSemaphoreTake((SemaphoreHandle_t)mutex->mutex, portMAX_DELAY);
 #else
     return ;
 #endif
@@ -50,7 +62,7 @@ inline void hi_mutex_unlock(hi_mutex_t *mutex)
 #if _HI_PTHREAD
     pthread_mutex_unlock(mutex->mutex);
 #elif _HI_FREERTOS
-    xSemaphoreGive(mutex->mutex);
+    xSemaphoreGive((SemaphoreHandle_t)mutex->mutex);
 #else
     return ;
 #endif
@@ -63,7 +75,7 @@ inline void hi_mutex_deinit(hi_mutex_t *mutex)
     hi_free(mutex->mutex);
     mutex->mutex = NULL;
 #elif _HI_FREERTOS
-    vSemaphoreDelete(mutex->mutex);
+    vSemaphoreDelete((SemaphoreHandle_t)mutex->mutex);
     mutex->mutex = NULL;
 #else
     return ;
@@ -184,7 +196,7 @@ inline int hi_thread_init(hi_thread_t *thread)
     return pthread_create(&(thread->handle), NULL, thread->func, thread->args.byte);
 #elif _HI_FREERTOS
     //TODO: make translate from hi_priority to freertos.
-    return xTaskCreate(thread->func,
+    return xTaskCreate((TaskFunction_t)thread->func,
                 thread->name,
                 (thread->stack_depth == 0)? HI_THREAD_DEFAULT_STACK_SIZE: thread->stack_depth,
                 thread->args.byte,
