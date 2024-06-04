@@ -60,17 +60,23 @@
 #define _HI_ALIGN_MEM_POOL (0)
 #endif
 
-#if _HI_FREERTOS
+#if _HI_ESP32
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/queue.h"
-#endif
-
-#if _HI_ESP32
+#include "freertos/semphr.h"
 #include "esp_log.h"
+#elif _HI_FREERTOS
+#include "FreeRTOS.h"
+#include "task.h"
+#include "queue.h"
+#include "semphr.h"
+#else
 #endif
 
-#if _HI_ESP32
+#if _HI_PTHREAD
+#include <pthread.h>
+#include <unistd.h>
 #endif
 
 #ifdef __cplusplus

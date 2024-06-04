@@ -30,15 +30,6 @@ extern "C"
 #include "hi_types.h"
 #include "hi_time.h"
 
-#if _HI_PTHREAD
-#include <pthread.h>
-#include <unistd.h>
-#elif _HI_FREERTOS
-#include "freertos/semphr.h"
-#else
-
-#endif
-
 typedef struct
 {
 
