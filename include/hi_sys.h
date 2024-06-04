@@ -70,6 +70,9 @@
 #include "esp_log.h"
 #endif
 
+#if _HI_ESP32
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif

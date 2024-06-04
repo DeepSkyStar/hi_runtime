@@ -186,7 +186,7 @@ inline int hi_thread_init(hi_thread_t *thread)
     //TODO: make translate from hi_priority to freertos.
     return xTaskCreate(thread->func,
                 thread->name,
-                (thread->stack_depth == 0)? CONFIG_PTHREAD_TASK_STACK_SIZE_DEFAULT : thread->stack_depth,
+                (thread->stack_depth == 0)? HI_THREAD_DEFAULT_STACK_SIZE: thread->stack_depth,
                 thread->args.byte,
                 thread->priority,
                 thread->handle);

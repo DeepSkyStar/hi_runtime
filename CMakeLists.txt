@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.15)
 
+if(DEFINED ESP_PLATFORM)
+else()
+    project(hi_runtime)
+endif()
+
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
@@ -24,17 +29,20 @@ if(DEFINED ESP_PLATFORM)
 elseif("${STM_PLATFORM}" STREQUAL "stm32")
     project(hi_runtime)
 
+    find_package(sdk)
     add_definitions(-D_HI_FREERTOS=1)
-
+    add_definitions(-D_HI_STM32=1)
+    
     add_library(hi_runtime)
-
+    
+    target_link_libraries(hi_runtime
+            sdk::sdk
+    )
+    
     target_sources(hi_runtime PRIVATE ${SRC_FILES})
-
+    
     target_include_directories(hi_runtime PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-
 else()
-    project(hi_runtime)
-
     add_compile_definitions(PUBLIC
     $<$<PLATFORM_ID:Windows>:_HI_WIN=1>
     $<$<PLATFORM_ID:Linux>:_HI_LINUX=1>
