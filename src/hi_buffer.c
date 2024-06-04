@@ -9,6 +9,7 @@ hi_buffer_t* hi_buffer_new(hi_size_t size)
     buffer->cur_size = 0;
     buffer->cur = 0;
     buffer->data = hi_malloc(size);
+    return buffer;
 }
 
 void hi_buffer_init(hi_buffer_t *buffer)

@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.15)
 
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+
 message("BEGIN hi_runtime build.")
 
 file(GLOB_RECURSE SRC_FILES
@@ -20,9 +23,9 @@ if(DEFINED ESP_PLATFORM)
 
 elseif(DEFINED STM_PLATFORM)
 
-    add_library(hi_runtime)
-
     add_definitions(-D_HI_FREERTOS=1)
+
+    add_library(hi_runtime)
 
     target_sources(hi_runtime PRIVATE ${SRC_FILES})
 
