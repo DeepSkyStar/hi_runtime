@@ -42,6 +42,13 @@ elseif("${STM_PLATFORM}" STREQUAL "stm32")
     target_sources(hi_runtime PRIVATE ${SRC_FILES})
     
     target_include_directories(hi_runtime PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+    file(GLOB_RECURSE HI_RUNTIME_HEADERS
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+    )
+    set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${HI_RUNTIME_HEADERS}")
+
+    install(TARGETS ${PROJECT_NAME})
 else()
     add_compile_definitions(PUBLIC
     $<$<PLATFORM_ID:Windows>:_HI_WIN=1>
