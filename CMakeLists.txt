@@ -44,7 +44,7 @@ elseif("${STM_PLATFORM}" STREQUAL "stm32")
     target_include_directories(hi_runtime PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
     file(GLOB_RECURSE HI_RUNTIME_HEADERS
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        "${CMAKE_CURRENT_SOURCE_DIR}/include"
     )
     set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${HI_RUNTIME_HEADERS}")
 
