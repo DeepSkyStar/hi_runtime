@@ -1,6 +1,16 @@
 #include "hi_buffer.h"
 #include "hi_memory.h"
 
+hi_buffer_t* hi_buffer_new(hi_size_t size)
+{
+    hi_buffer_t *buffer = hi_malloc(sizeof(hi_buffer_t));
+    buffer->is_dynamic = 1;
+    buffer->max_size = size;
+    buffer->cur_size = 0;
+    buffer->cur = 0;
+    buffer->data = hi_malloc(size);
+}
+
 void hi_buffer_init(hi_buffer_t *buffer)
 {
     hi_mutex_init(&(buffer->mutex));
@@ -46,4 +56,15 @@ void hi_buffer_clear(hi_buffer_t *buffer)
 void hi_buffer_deinit(hi_buffer_t *buffer)
 {
     hi_mutex_deinit(&(buffer->mutex));
+}
+
+void hi_buffer_free(hi_buffer_t *buffer)
+{
+    hi_buffer_deinit(buffer);
+    if (buffer->is_dynamic)
+    {
+        hi_free(buffer->data);
+        buffer->data = NULL;
+    }
+    hi_free(buffer);
 }

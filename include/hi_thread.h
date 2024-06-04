@@ -23,7 +23,7 @@
 #define HI_THREAD_H_
 
 #ifdef __cplusplus
-extern "C" {
+extern "C" 
 #endif
 
 #include "hi_sys.h"
@@ -60,6 +60,16 @@ typedef struct
     int semaphore_count;
 #endif
 }hi_semaphore_t;
+
+#if _HI_PTHREAD
+
+#elif _HI_FREERTOS
+#define HI_MUTEX_INIT { \
+    .mutex =   \
+    \
+}
+#else
+#endif
 
 extern void hi_mutex_init(hi_mutex_t *mutex);
 extern void hi_mutex_lock(hi_mutex_t *mutex);
@@ -123,7 +133,7 @@ extern void hi_thread_deinit(void);
 extern void hi_sleep(hi_time_t ms);
 
 #ifdef __cplusplus
-}
+
 #endif
 
 #endif /* HI_THREAD_H_ */

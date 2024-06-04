@@ -111,6 +111,12 @@ typedef struct
     hi_map_t unsafe;          //the block size must bigger than hi_map_node_t, and can not be odd.
 }hi_sync_map_t;
 
+#define HI_SYNC_MAP_POOL_DEFINE(__name__, __data_size__, __count__) HI_MEM_POOL_DEFINE(__name__, sizeof(hi_map_node_t) + __data_size__, __count__)
+
+#define HI_SYNC_MAP_INIT(__pool__) { \
+    .unsafe = HI_ITER_NULL    \
+}
+
 /**
  * @brief async map must be init for use. before init, should setup the unsafe.pool for memory recovery.
  *  If the memory pool is share for some maps, should be careful.

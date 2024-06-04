@@ -33,6 +33,7 @@ extern "C" {
 typedef struct
 {
     hi_mutex_t mutex;
+    uint8_t is_dynamic;
     hi_size_t max_size; //must bigger than mtu for process.
     hi_size_t cur_size;
     hi_iter_t cur;
@@ -42,8 +43,11 @@ typedef struct
 
 #define HI_BUFFER_DEFAULT_SIZE (2048)
 
+#define HI_BUFFER_POOL_DEFINE(__container__, __size__) uint8_t __container__[__size__] = {0}
+
 #define HI_BUFFER_INIT(__container__, __size__) {  \
     .cur = 0,   \
+    .is_dynamic = 0, \
     .cur_size = 0,  \
     .max_size = __size__,  \
     .data = __container__, \
@@ -51,6 +55,8 @@ typedef struct
 
 #define HI_BUFFER_DEFINE(__name__, __size__) uint8_t __name__##_container[__size__] = {0}; \
 hi_buffer_t __name__ = HI_BUFFER_INIT(__name__##_container, __size__)
+
+hi_buffer_t* hi_buffer_new(hi_size_t size);
 
 void hi_buffer_init(hi_buffer_t *buffer);
 
@@ -71,6 +77,7 @@ void hi_buffer_set_data(hi_buffer_t *buffer, const uint8_t *data, hi_size_t size
 void hi_buffer_clear(hi_buffer_t *buffer);
 
 void hi_buffer_deinit(hi_buffer_t *buffer);
+void hi_buffer_free(hi_buffer_t *buffer);
 
 #ifdef __cplusplus
 }
