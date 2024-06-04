@@ -110,18 +110,6 @@ typedef struct
 }
 #endif
 
-#ifdef CONFIG_PTHREAD_TASK_STACK_SIZE_DEFAULT
-#define HI_THREAD_DEFAULT_STACK_SIZE CONFIG_PTHREAD_TASK_STACK_SIZE_DEFAULT
-#else 
-
-#ifdef configMINIMAL_STACK_SIZE
-#define HI_THREAD_DEFAULT_STACK_SIZE configMINIMAL_STACK_SIZE
-#else
-#define HI_THREAD_DEFAULT_STACK_SIZE (1024 * 2)
-#endif
-
-#endif
-
 extern int hi_thread_init(hi_thread_t *thread);
 extern void hi_thread_deinit(void);
 extern void hi_sleep(hi_time_t ms);
