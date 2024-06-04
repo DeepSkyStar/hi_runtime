@@ -22,8 +22,6 @@
 #include "hi_list.h"
 #include "hi_log.h"
 
-
-
 inline hi_list_t* hi_list_new(hi_size_t data_size, hi_size_t max_size)
 {
     hi_list_t *list = hi_malloc(sizeof(hi_list_t));
