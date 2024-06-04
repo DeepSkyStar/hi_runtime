@@ -22,7 +22,8 @@ if(DEFINED ESP_PLATFORM)
     add_definitions(-D_HI_ESP32=1)
 
 elseif(DEFINED STM_PLATFORM)
-
+    project(hi_runtime)
+    
     add_definitions(-D_HI_FREERTOS=1)
 
     add_library(hi_runtime)
