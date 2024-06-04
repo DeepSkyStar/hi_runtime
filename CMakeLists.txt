@@ -17,6 +17,17 @@ if(DEFINED ESP_PLATFORM)
                     )
     add_definitions(-D_HI_FREERTOS=1)
     add_definitions(-D_HI_ESP32=1)
+
+elseif(DEFINED STM_PLATFORM)
+
+    add_library(hi_runtime)
+
+    add_definitions(-D_HI_FREERTOS=1)
+
+    target_sources(hi_runtime PRIVATE ${SRC_FILES})
+
+    target_include_directories(hi_runtime PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
 else()
     project(hi_runtime)
 
