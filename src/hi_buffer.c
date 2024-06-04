@@ -6,15 +6,18 @@ void hi_buffer_init(hi_buffer_t *buffer)
     hi_mutex_init(&(buffer->mutex));
 }
 
-hi_result_t hi_buffer_add(hi_buffer_t *buffer, const uint8_t *data, hi_size_t size)
+hi_size_t hi_buffer_add(hi_buffer_t *buffer, const uint8_t *data, hi_size_t size)
 {
-    if (buffer->cur_size + size > buffer->max_size) return HI_RESULT_MAKE_FAILED(HI_FAILED_REASON_OUT_OF_MEMORY);
     hi_buffer_lock(buffer);
-    hi_memcpy(buffer->data + buffer->cur, data, size);
-    buffer->cur = buffer->cur + size;
-    buffer->cur_size = buffer->cur_size + size;
+    size = buffer->cur_size + size > buffer->max_size?buffer->max_size - buffer->cur_size:size;
+    if (size > 0)   
+    {
+        hi_memcpy(buffer->data + buffer->cur, data, size);
+        buffer->cur = buffer->cur + size;
+        buffer->cur_size = buffer->cur_size + size;
+    }
     hi_buffer_unlock(buffer);
-    return HI_RESULT_MAKE_OK;
+    return size;
 }
 
 void hi_buffer_lock(hi_buffer_t *buffer)

@@ -55,14 +55,14 @@ hi_buffer_t __name__ = HI_BUFFER_INIT(__name__##_container, __size__)
 void hi_buffer_init(hi_buffer_t *buffer);
 
 /**
- * @brief if not enough, will return faliled.
+ * @brief read data to buffer.
  * 
- * @param buffer 
- * @param data 
- * @param size 
- * @return hi_result_t
+ * @param buffer the buffer to add data.
+ * @param data reading data.
+ * @param size reading size data.
+ * @return hi_size_t the size of data readed.
  */
-hi_result_t hi_buffer_add(hi_buffer_t *buffer, const uint8_t *data, hi_size_t size);
+hi_size_t hi_buffer_add(hi_buffer_t *buffer, const uint8_t *data, hi_size_t size);
 
 void hi_buffer_lock(hi_buffer_t *buffer);
 void hi_buffer_unlock(hi_buffer_t *buffer);
