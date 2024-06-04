@@ -30,6 +30,8 @@ elseif("${STM_PLATFORM}" STREQUAL "stm32")
     project(hi_runtime)
 
     find_package(sdk)
+    include(${sdk_LIB_DIRS_DEBUG}/tral_if/buildinfo.cmake)
+
     add_definitions(-D_HI_FREERTOS=1)
     add_definitions(-D_HI_STM32=1)
     
