@@ -77,7 +77,7 @@ struct hi_map_s
 }
 
 extern hi_map_t* hi_map_new(hi_size_t data_size, hi_size_t max_size);
-extern void hi_map_init(hi_map_t *map, hi_mem_pool_t *pool);
+extern void hi_map_init(hi_map_t *map);
 extern void hi_map_deinit(hi_map_t *map);
 extern void hi_map_free(hi_map_t *map);
 
@@ -120,7 +120,7 @@ typedef struct
  * @param map 
  */
 extern hi_sync_map_t* hi_sync_map_new(hi_size_t data_size, hi_size_t max_size);
-extern void hi_sync_map_init(hi_sync_map_t *map, hi_mem_pool_t *pool);
+extern void hi_sync_map_init(hi_sync_map_t *map);
 extern void hi_sync_map_deinit(hi_sync_map_t *map);
 extern void hi_sync_map_free(hi_sync_map_t *map);
 

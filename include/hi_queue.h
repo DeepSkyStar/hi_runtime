@@ -61,7 +61,7 @@ typedef struct
 //If the queue is not static define, must be free at the end.
 //After new, no need to call init.
 extern hi_queue_t* hi_queue_new(hi_size_t data_size, hi_size_t max_size);
-extern void hi_queue_init(hi_queue_t *queue, hi_mem_pool_t *pool);
+extern void hi_queue_init(hi_queue_t *queue);
 extern void hi_queue_deinit(hi_queue_t *queue);
 extern void hi_queue_free(hi_queue_t *queue);
 
@@ -101,7 +101,7 @@ typedef struct
 }hi_sync_queue_t;
 
 extern hi_sync_queue_t* hi_sync_queue_new(hi_size_t data_size, hi_size_t max_size);
-extern void hi_sync_queue_init(hi_sync_queue_t *queue, hi_mem_pool_t *pool);
+extern void hi_sync_queue_init(hi_sync_queue_t *queue);
 extern void hi_sync_queue_deinit(hi_sync_queue_t *queue);
 extern void hi_sync_queue_free(hi_sync_queue_t *queue);
 

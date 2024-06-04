@@ -43,23 +43,17 @@
 inline hi_map_t* hi_map_new(hi_size_t data_size, hi_size_t max_size)
 {
 	hi_map_t *map = hi_malloc(sizeof(hi_map_t));
-	hi_mem_pool_t *pool = hi_mem_pool_new((hi_mem_pool_config_t){
+	map->pool = hi_mem_pool_new((hi_mem_pool_config_t){
         .use_check = 1,
         .is_dynamic = 1,
         .block_size = sizeof(hi_map_node_t) + data_size,
         .block_count = max_size
     });
-    hi_map_init(map, pool);
 	return map;
 }
 
-inline void hi_map_init(hi_map_t *map, hi_mem_pool_t *pool)
+inline void hi_map_init(hi_map_t *map)
 {
-	if (map->pool != NULL)
-	{
-		hi_map_deinit(map);
-	}
-	map->pool = pool;
     map->root = HI_ITER_NULL;
 	map->usage = 0;
 	// TODO: found a new way to solve use check.
@@ -751,21 +745,20 @@ inline hi_size_t hi_map_depth(hi_map_t *map)
 inline hi_sync_map_t* hi_sync_map_new(hi_size_t data_size, hi_size_t max_size)
 {
 	hi_sync_map_t *map = hi_malloc(sizeof(hi_sync_map_t));
-	hi_mem_pool_t *pool = hi_mem_pool_new((hi_mem_pool_config_t){
+	map->unsafe.pool = hi_mem_pool_new((hi_mem_pool_config_t){
         .use_check = 1,
         .is_dynamic = 1,
         .block_size = sizeof(hi_map_node_t) + data_size,
         .block_count = max_size
     });
-    hi_sync_map_init(map, pool);
 	return map;
 }
 
-inline void hi_sync_map_init(hi_sync_map_t *map, hi_mem_pool_t *pool)
+inline void hi_sync_map_init(hi_sync_map_t *map)
 {
 	hi_mutex_init(&(map->mutex));
 	hi_mutex_lock(&(map->mutex));
-	hi_map_init(&(map->unsafe), pool);
+	hi_map_init(&(map->unsafe));
 	hi_mutex_unlock(&(map->mutex));
 }
 

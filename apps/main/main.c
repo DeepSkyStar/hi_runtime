@@ -206,9 +206,9 @@ void test_sync_queue(void)
     printf("start test async queue\n");
 
     hi_sync_queue_t *sync_queue = hi_malloc(sizeof(hi_sync_queue_t));
-    sync_queue->unsafe.pool = NULL;
+    sync_queue->unsafe.pool = &shared_queue_pool;
     HI_LOGD("start init");
-    hi_sync_queue_init(sync_queue, &shared_queue_pool);
+    hi_sync_queue_init(sync_queue);
 
     HI_LOGD("stop init");
     hi_time_t last_time = hi_get_time();
@@ -238,7 +238,8 @@ void test_queue()
 {
     printf("start test queue\n");
     hi_queue_t *queue = hi_malloc(sizeof(hi_queue_t));
-    hi_queue_init(queue, &shared_queue_pool);
+    queue->pool = &shared_queue_pool;
+    hi_queue_init(queue);
     
     hi_time_t last_time = hi_get_time();
 
@@ -264,7 +265,8 @@ void test_async_map()
 {
     printf("start test map\n");
     hi_sync_map_t *map = hi_malloc(sizeof(hi_sync_map_t));
-    hi_sync_map_init(map, &shared_map_pool);
+    map->unsafe.pool = &shared_map_pool;
+    hi_sync_map_init(map);
 
     hi_time_t last_time = hi_get_time();
 
@@ -303,7 +305,8 @@ void test_map()
 {
     printf("start test map\n");
     hi_map_t *map = hi_malloc(sizeof(hi_map_t));
-    hi_map_init(map, &shared_map_pool);
+    map->pool = &shared_map_pool;
+    hi_map_init(map);
 
     hi_time_t last_time = hi_get_time();
 

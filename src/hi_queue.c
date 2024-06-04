@@ -23,25 +23,33 @@
 inline hi_queue_t* hi_queue_new(hi_size_t data_size, hi_size_t max_size)
 {
     hi_queue_t *queue = hi_malloc(sizeof(hi_queue_t));
-    hi_mem_pool_t *pool = hi_mem_pool_new((hi_mem_pool_config_t){
+    queue->pool = hi_mem_pool_new((hi_mem_pool_config_t){
         .use_check = 1,
         .is_dynamic = 1,
         .block_size = sizeof(hi_queue_node_t) + data_size,
         .block_count = max_size
     });
-    hi_queue_init(queue, pool);
     return queue;
 }
 
-inline void hi_queue_init(hi_queue_t *queue, hi_mem_pool_t *pool)
+inline void hi_queue_init(hi_queue_t *queue)
 {
-    if (queue->pool != NULL) {
-        hi_queue_deinit(queue);
-    }
     queue->first = HI_ITER_NULL;
     queue->last = HI_ITER_NULL;
     queue->usage = 0;
-    queue->pool = pool;
+}
+
+inline void hi_queue_deinit(hi_queue_t *queue)
+{
+    hi_queue_del_all(queue);
+    hi_mem_pool_free(queue->pool);
+    queue->pool = NULL;
+}
+
+inline void hi_queue_free(hi_queue_t *queue)
+{
+    hi_queue_deinit(queue);
+    hi_free(queue);
 }
 
 inline hi_iter_t hi_queue_add_first(hi_queue_t *queue, const void* data, hi_size_t size)
@@ -284,39 +292,25 @@ inline hi_iter_t hi_queue_prev(hi_queue_t *queue, hi_iter_t iter)
     return hi_queue_get_node(queue, iter)->prev;
 }
 
-inline void hi_queue_deinit(hi_queue_t *queue)
-{
-    hi_queue_del_all(queue);
-    hi_mem_pool_free(queue->pool);
-    queue->pool = NULL;
-}
-
-inline void hi_queue_free(hi_queue_t *queue)
-{
-    hi_queue_deinit(queue);
-    hi_free(queue);
-}
-
 /************************************************* sync queue ***************************************************/
 
 hi_sync_queue_t* hi_sync_queue_new(hi_size_t data_size, hi_size_t max_size)
 {
     hi_sync_queue_t *queue = hi_malloc(sizeof(hi_sync_queue_t));
-    hi_mem_pool_t *pool = hi_mem_pool_new((hi_mem_pool_config_t){
+    queue->unsafe.pool = hi_mem_pool_new((hi_mem_pool_config_t){
         .use_check = 1,
         .is_dynamic = 1,
         .block_size = sizeof(hi_queue_node_t) + data_size,
         .block_count = max_size
     });
-    hi_sync_queue_init(queue, pool);
     return queue;
 }
 
-inline void hi_sync_queue_init(hi_sync_queue_t *queue, hi_mem_pool_t *pool)
+inline void hi_sync_queue_init(hi_sync_queue_t *queue)
 {
     hi_mutex_init(&(queue->mutex));
     hi_mutex_lock(&(queue->mutex));
-    hi_queue_init(&(queue->unsafe), pool);
+    hi_queue_init(&(queue->unsafe));
     hi_mutex_unlock(&(queue->mutex));
 }
 
@@ -330,7 +324,7 @@ inline void hi_sync_queue_deinit(hi_sync_queue_t *queue)
 
 inline void hi_sync_queue_free(hi_sync_queue_t *queue)
 {
-    if (queue->unsafe.pool != NULL) hi_sync_queue_deinit(queue);
+    hi_sync_queue_deinit(queue);
     hi_free(queue);
 }
 
