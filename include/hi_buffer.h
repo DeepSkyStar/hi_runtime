@@ -70,6 +70,8 @@ void hi_buffer_unlock(hi_buffer_t *buffer);
 void hi_buffer_set_data(hi_buffer_t *buffer, const uint8_t *data, hi_size_t size);
 void hi_buffer_clear(hi_buffer_t *buffer);
 
+void hi_buffer_deinit(hi_buffer_t *buffer);
+
 #ifdef __cplusplus
 }
 #endif
