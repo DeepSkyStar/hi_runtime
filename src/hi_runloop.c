@@ -25,6 +25,7 @@ void* hi_runloop_main(hi_runloop_t *runloop)
 {
     // hi_isr_queue_init(&runloop->events);
     // hi_mutex_lock(&(runloop->_state.thread_mutex));
+    HI_LOGD("start runloop");
     runloop->_state.is_running = 1;
     runloop->_state.start_time = hi_get_time();
     runloop->_state.running_time = 0;
@@ -79,6 +80,8 @@ void hi_runloop_init(hi_runloop_t *runloop)
     runloop->_state = (hi_runloop_state_t){0};
     hi_mutex_init(&(runloop->_state.thread_mutex));
     runloop->thread.args.byte = runloop;
+    runloop->thread.priority = HI_PRIORITY_NORMAL;
+    runloop->thread.func = (hi_thread_func_f)hi_runloop_main;
 }
 
 inline void hi_runloop_start(hi_runloop_t *runloop)
@@ -87,7 +90,9 @@ inline void hi_runloop_start(hi_runloop_t *runloop)
         return;
     }
     hi_mutex_lock(&(runloop->_state.thread_mutex));
+    HI_LOGD("start runloop after lock");
     hi_thread_init(&(runloop->thread));
+    HI_LOGD("start runloop after thread");
 }
 
 inline void hi_runloop_wait(hi_runloop_t *runloop)
