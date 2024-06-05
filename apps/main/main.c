@@ -485,6 +485,17 @@ void test_runloop()
     HI_LOGI("End2");
 }
 
+void test_copy()
+{
+    uint32_t src_value = 0;
+    uint32_t dst_value = 0;
+
+    src_value = (uint8_t)234;
+
+    hi_memcpy(&dst_value, &src_value, sizeof(uint16_t));
+    printf("%u \n", dst_value);
+}
+
 int main(int argc, char *argv[])
 {
     printf("This system is: %d\n\n", hi_get_os());
@@ -493,11 +504,11 @@ int main(int argc, char *argv[])
     // test_mem();
     // test_sync_queue();
     // test_queue();
-    test_map();
+    // test_map();
     // test_list_func();
     // test_async_map();
     // test_lock();
     // test_runloop();
-
+    test_copy();
     return 0;
 }
