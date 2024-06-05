@@ -97,7 +97,7 @@ inline hi_iter_t hi_queue_add_last(hi_queue_t *queue, const void* data, hi_size_
 {
     if (queue == NULL || queue->pool == NULL) return HI_ITER_NULL;
     if (queue->pool->config.block_size < size){
-        HI_LOGE("the size is %lu bigger then queue block size %lu!", size, queue->pool->config.block_size);
+        HI_LOGE("the size is bigger then queue block size!");
         return HI_ITER_NULL;
     }
 
@@ -132,7 +132,7 @@ inline hi_iter_t hi_queue_insert_next(hi_queue_t *queue, hi_iter_t iter, const v
 {
     if (queue == NULL || queue->pool == NULL) return HI_ITER_NULL;
     if (queue->pool->config.block_size < size){
-        HI_LOGE("the size is %lu bigger then queue block size %lu!", size, queue->pool->config.block_size);
+        HI_LOGE("the size is bigger then queue block size!");
         return HI_ITER_NULL;
     }
 
@@ -167,7 +167,7 @@ inline hi_iter_t hi_queue_insert_prev(hi_queue_t *queue, hi_iter_t iter, const v
 {
     if (queue == NULL || queue->pool == NULL) return HI_ITER_NULL;
     if (queue->pool->config.block_size < size){
-        HI_LOGE("the size is %lu bigger then queue block size %lu!", size, queue->pool->config.block_size);
+        HI_LOGE("the size is bigger then queue block size!");
         return HI_ITER_NULL;
     }
 
