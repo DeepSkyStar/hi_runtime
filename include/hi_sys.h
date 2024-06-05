@@ -86,6 +86,8 @@ typedef enum{
 }hi_sys_t;
 extern hi_sys_t hi_get_os(void);
 
+extern void hi_print_stack(void);
+
 #ifdef __cplusplus
 }
 #endif

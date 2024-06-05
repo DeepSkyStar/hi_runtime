@@ -39,7 +39,7 @@ typedef struct
     // SemaphoreHandle_t mutex;
     void *mutex;
 #else
-    uint32_t mutex;
+    uint64_t mutex;
 #endif
 }hi_mutex_t;
 

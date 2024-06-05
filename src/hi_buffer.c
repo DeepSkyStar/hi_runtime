@@ -22,10 +22,9 @@ inline hi_size_t hi_buffer_add(hi_buffer_t *buffer, const uint8_t *data, hi_size
     //TODO: currently for fast test, so just add simple protect.
     if (size > buffer->max_size - buffer->cur_size) return 0;
     size = buffer->cur_size + size > buffer->max_size?buffer->max_size - buffer->cur_size:size;
-    if (size > 0)   
+    if (size > 0)
     {
-        hi_memcpy(buffer->data + buffer->cur, data, size);
-        buffer->cur = buffer->cur + size;
+        hi_memcpy(hi_buffer_begin(buffer), data, size);
         buffer->cur_size = buffer->cur_size + size;
     }
     return size;
@@ -56,30 +55,35 @@ inline void hi_buffer_clear(hi_buffer_t *buffer)
     buffer->cur_size = 0;
 }
 
-inline uint8_t* hi_buffer_cur(hi_buffer_t *buffer)
+inline uint8_t* hi_buffer_begin(hi_buffer_t *buffer)
 {
     return buffer->data + buffer->cur;
 }
 
-inline hi_size_t hi_buffer_remain_parsing(hi_buffer_t *buffer)
+inline uint8_t* hi_buffer_last(hi_buffer_t *buffer)
+{
+    return buffer->data + buffer->cur_size;
+}
+
+inline hi_size_t hi_buffer_length(hi_buffer_t *buffer)
 {
     if (buffer->cur_size <= buffer->cur) return 0;
     return buffer->cur_size - buffer->cur;
 }
 
-inline hi_size_t hi_buffer_remain_space(hi_buffer_t *buffer)
+inline hi_size_t hi_buffer_remain(hi_buffer_t *buffer)
 {
     return buffer->max_size - buffer->cur_size;
 }
 
-inline void hi_buffer_set_to_cur(hi_buffer_t *buffer)
+inline void hi_buffer_clear_begin(hi_buffer_t *buffer)
 {
     //TODO: should be optimize.
-    if (buffer->cur < buffer->cur_size)
+    if (hi_buffer_length(buffer) > 0)
     {
-        hi_memmove(buffer->data, buffer->data + buffer->cur, buffer->cur_size - buffer->cur);
+        hi_memmove(buffer->data, hi_buffer_begin(buffer), hi_buffer_length(buffer));
     }
-    buffer->cur_size = buffer->cur_size - buffer->cur;
+    buffer->cur_size = hi_buffer_length(buffer);
     buffer->cur = 0;
 }
 

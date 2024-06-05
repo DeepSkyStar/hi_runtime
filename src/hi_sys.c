@@ -20,6 +20,11 @@
  */
 
 #include "hi_sys.h"
+#if _HI_PTHREAD
+#include <execinfo.h>
+#include <stdio.h>
+#include <stdlib.h>
+#endif
 
 inline hi_sys_t hi_get_os(void)
 {
@@ -43,5 +48,25 @@ inline hi_sys_t hi_get_os(void)
     return HI_OS_WATCHOS;
 #else
     return HI_OS_NON_SYS;
+#endif
+}
+
+void hi_print_stack(void)
+{
+#if _HI_PTHREAD
+    void *array[10];
+    size_t size;
+    char **strings;
+    size_t i;
+
+    size = backtrace(array, 10);
+    strings = backtrace_symbols(array, size);
+
+    printf("Stack trace:\n");
+    for (i = 0; i < size; i++) {
+        printf("%s\n", strings[i]);
+    }
+
+    free(strings);
 #endif
 }

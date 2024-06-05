@@ -21,3 +21,15 @@
 
 #include "hi_sys.h"
 #include "hi_log.h"
+
+void hi_print_hex(const uint8_t *data, hi_size_t size)
+{
+#if DEBUG
+    printf("hex:");
+    for (int i = 0; i < size; i++)
+    {
+        printf("%02x,", data[i]);
+    }
+    printf("\n");
+#endif
+}

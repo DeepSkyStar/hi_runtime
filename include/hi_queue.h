@@ -98,8 +98,8 @@ extern hi_iter_t hi_queue_prev(hi_queue_t *queue, hi_iter_t iter);
 
 typedef struct
 {
-    hi_mutex_t mutex;   //mutex for create.
     hi_queue_t unsafe;
+    hi_mutex_t mutex;   //mutex for create.
 }hi_sync_queue_t;
 
 extern hi_sync_queue_t* hi_sync_queue_new(hi_size_t data_size, hi_size_t max_size);
