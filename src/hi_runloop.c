@@ -102,6 +102,13 @@ inline void hi_runloop_stop(hi_runloop_t *runloop)
     runloop->_state.is_running = 0;
 }
 
+inline void hi_runloop_deinit(hi_runloop_t *runloop)
+{
+    hi_runloop_stop(runloop);
+    hi_runloop_wait(runloop);
+    hi_mutex_deinit(&(runloop->_state.thread_mutex));
+}
+
 inline uint8_t hi_runloop_is_running(hi_runloop_t *runloop)
 {
     return runloop->_state.is_running;

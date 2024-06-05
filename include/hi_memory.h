@@ -136,6 +136,14 @@ extern void hi_mem_pool_free(hi_mem_pool_t* pool);
 extern hi_iter_t hi_mem_pool_take(hi_mem_pool_t* pool);
 
 /**
+ * @brief Try take a block.
+ * 
+ * @param pool 
+ * @return hi_iter_t 
+ */
+extern hi_iter_t hi_mem_pool_try(hi_mem_pool_t* pool);
+
+/**
  * @brief MUST ensure each unit bring only once!!!
  * 
  * @param pool mem pool.

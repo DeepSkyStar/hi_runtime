@@ -65,6 +65,8 @@ extern void hi_queue_init(hi_queue_t *queue);
 extern void hi_queue_deinit(hi_queue_t *queue);
 extern void hi_queue_free(hi_queue_t *queue);
 
+extern hi_iter_t hi_queue_try_add(hi_queue_t *queue);
+
 extern hi_iter_t hi_queue_add_first(hi_queue_t *queue, const void* data, hi_size_t size);
 extern hi_iter_t hi_queue_add_first_value(hi_queue_t *queue, hi_value_t value);
 extern hi_iter_t hi_queue_add_last(hi_queue_t *queue, const void* data, hi_size_t size);
@@ -105,6 +107,7 @@ extern void hi_sync_queue_init(hi_sync_queue_t *queue);
 extern void hi_sync_queue_deinit(hi_sync_queue_t *queue);
 extern void hi_sync_queue_free(hi_sync_queue_t *queue);
 
+extern hi_iter_t hi_sync_queue_try_add(hi_sync_queue_t *queue);
 extern hi_iter_t hi_sync_queue_add_first(hi_sync_queue_t *queue, const void* data, hi_size_t size);
 extern hi_iter_t hi_sync_queue_add_first_value(hi_sync_queue_t *queue, hi_value_t value);
 extern hi_iter_t hi_sync_queue_add_last(hi_sync_queue_t *queue, const void* data, hi_size_t size);

@@ -86,7 +86,7 @@ void hi_runloop_init(hi_runloop_t *runloop);
 void hi_runloop_start(hi_runloop_t *runloop);
 void hi_runloop_wait(hi_runloop_t *runloop);
 void hi_runloop_stop(hi_runloop_t *runloop);
-
+void hi_runloop_deinit(hi_runloop_t *runloop);
 /**
  * @brief If you call this directly, it wiil run the runloop in current thread.
  * 

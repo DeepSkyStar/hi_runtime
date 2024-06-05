@@ -116,6 +116,21 @@ inline hi_iter_t hi_mem_pool_take(hi_mem_pool_t* pool)
     return block;
 }
 
+inline hi_iter_t hi_mem_pool_try(hi_mem_pool_t* pool)
+{
+    //Will cause critical bugs. so must be assert here.
+    assert((pool != NULL) && pool->config.block_size >= sizeof(hi_iter_t));
+    hi_iter_t block = HI_ITER_NULL;
+    if (pool->reuse != HI_ITER_NULL) {
+        block = pool->reuse;
+        return block;
+    }
+    if (pool->cur < pool->config.block_size * pool->config.block_count) {
+        block = pool->cur;
+    }
+    return block;
+}
+
 inline uint8_t* hi_mem_pool_get(hi_mem_pool_t* pool, hi_iter_t iter)
 {
     if (pool == NULL || iter == HI_ITER_NULL || (pool->config.use_check && HI_MEM_POOL_IS_IN_USE(pool, iter) == 0)) return NULL;

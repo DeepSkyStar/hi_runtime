@@ -52,6 +52,12 @@ inline void hi_queue_free(hi_queue_t *queue)
     hi_free(queue);
 }
 
+inline hi_iter_t hi_queue_try_add(hi_queue_t *queue)
+{
+    if (queue == NULL || queue->pool == NULL) return HI_ITER_NULL;
+    return hi_mem_pool_try(queue->pool);
+}
+
 inline hi_iter_t hi_queue_add_first(hi_queue_t *queue, const void* data, hi_size_t size)
 {
     if (queue == NULL || queue->pool == NULL) return HI_ITER_NULL;
@@ -326,6 +332,15 @@ inline void hi_sync_queue_free(hi_sync_queue_t *queue)
 {
     hi_sync_queue_deinit(queue);
     hi_free(queue);
+}
+
+inline hi_iter_t hi_sync_queue_try_add(hi_sync_queue_t *queue)
+{
+    hi_iter_t iter;
+    hi_mutex_lock(&(queue->mutex));
+    iter = hi_queue_try_add(&(queue->unsafe));
+    hi_mutex_unlock(&(queue->mutex));
+    return iter;
 }
 
 inline hi_iter_t hi_sync_queue_add_first(hi_sync_queue_t *queue, const void* data, hi_size_t size)
