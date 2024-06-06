@@ -62,7 +62,11 @@ else()
     $<$<PLATFORM_ID:watchOS>:_HI_WATCHOS=1>
     $<$<PLATFORM_ID:freertos>:_HI_FREERTOR=1>
     ) 
-
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_definitions(-DDEBUG)
+    add_compile_options(-g) # 添加调试信息
+    add_compile_options(-O0) # 禁用优化
+endif()
     # if (NOT BUILD_ONCE_HI_RUNTIME)
 
         add_library(hi_runtime)

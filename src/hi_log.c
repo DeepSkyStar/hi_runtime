@@ -24,6 +24,7 @@
 
 void hi_print_hex(const uint8_t *data, hi_size_t size)
 {
+#ifndef BOOTLOADER_BUILD
 #if DEBUG
     printf("hex:");
     for (int i = 0; i < size; i++)
@@ -31,5 +32,6 @@ void hi_print_hex(const uint8_t *data, hi_size_t size)
         printf("%02x,", data[i]);
     }
     printf("\n");
+#endif
 #endif
 }
