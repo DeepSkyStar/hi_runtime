@@ -43,7 +43,7 @@ typedef struct
     uint8_t is_started:1;
     uint8_t is_cancelled:1;
     uint8_t is_finished:1;
-    uint8_t reserved;
+    uint8_t reserved:5;
 }hi_task_state_t;
 
 struct hi_task_s

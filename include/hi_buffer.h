@@ -40,7 +40,6 @@ typedef struct
     uint8_t* data;
 }hi_buffer_t;
 
-
 #define HI_BUFFER_DEFAULT_SIZE (2048)
 
 #define HI_BUFFER_POOL_DEFINE(__container__, __size__) uint8_t __container__[__size__] = {0}

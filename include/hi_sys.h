@@ -69,6 +69,9 @@
 #include <unistd.h>
 #endif
 
+#if _HI_NO_DEBUG_LOG
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif

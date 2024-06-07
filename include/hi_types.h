@@ -149,7 +149,6 @@ typedef struct{
 #define HI_VALUE_UINT(__value__) (hi_value_t){.uint64 = __value__}
 #define HI_VALUE_DOUBLE(__value__) (hi_value_t){.float64 = __value__}
 
-
 #else
 
 #define HI_VALUE_INT(__value__) (hi_value_t){.int32 = __value__}

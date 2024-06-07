@@ -68,11 +68,12 @@ typedef enum hi_log_level_enum{
 #define HI_LOGW( format, ... ) printf( "<WARNING>%s:%d: " format "\n", __FILE__, __LINE__, ##__VA_ARGS__)
 #define HI_LOGI( format, ... ) printf( "<INFO>%s:%d: " format "\n", __FILE__, __LINE__, ##__VA_ARGS__)
 
-#if DEBUG
+#ifndef _HI_NO_DEBUG_LOG
 #define HI_LOGD( format, ... ) printf( "<DEBUG>%s:%d: " format "\n", __FILE__, __LINE__, ##__VA_ARGS__)
 #else
 #define HI_LOGD( format, ... )
 #endif
+
 
 #define HI_LOGV( format, ... ) printf( "<VERBOSE>%s:%d: " format "\n", __FILE__, __LINE__, ##__VA_ARGS__)
 

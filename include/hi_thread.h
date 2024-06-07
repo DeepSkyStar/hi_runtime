@@ -41,6 +41,7 @@ typedef struct
 #else
     uint64_t mutex;
 #endif
+    uint64_t context;
 }hi_mutex_t;
 
 typedef struct
@@ -50,6 +51,7 @@ typedef struct
     pthread_cond_t *cond;
     int semaphore_count;
 #endif
+    uint64_t context;
 }hi_semaphore_t;
 
 extern void hi_mutex_init(hi_mutex_t *mutex);
@@ -93,6 +95,7 @@ typedef struct
 #else
     uint32_t handle;
 #endif
+    uint64_t context;
     hi_str_t name;
     hi_thread_func_f func;
     uint32_t stack_depth;   //stack depth for thread.
