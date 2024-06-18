@@ -60,6 +60,10 @@
 #define _HI_ALIGN_MEM_POOL (0)
 #endif
 
+#ifdef ESP_PLATFORM
+#define _HI_ESP32 (1)
+#endif
+
 #if _HI_ESP32
 #include "esp_log.h"
 #endif

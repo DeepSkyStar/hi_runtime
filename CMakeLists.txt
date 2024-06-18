@@ -19,6 +19,7 @@ file(GLOB_RECURSE SRC_FILES
 
 # build for different sys.
 if(DEFINED ESP_PLATFORM)
+
     idf_component_register(SRCS
                     ${SRC_FILES}
                     INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include

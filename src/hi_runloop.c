@@ -90,9 +90,9 @@ inline void hi_runloop_start(hi_runloop_t *runloop)
         return;
     }
     hi_mutex_lock(&(runloop->_state.thread_mutex));
-    HI_LOGD("start runloop after lock");
+    // HI_LOGD("start runloop after lock");
     hi_thread_init(&(runloop->thread));
-    HI_LOGD("start runloop after thread");
+    // HI_LOGD("start runloop after thread");
 }
 
 inline void hi_runloop_wait(hi_runloop_t *runloop)
