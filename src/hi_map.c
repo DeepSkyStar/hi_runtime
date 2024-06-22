@@ -823,7 +823,7 @@ hi_iter_t hi_sync_map_get_copy(hi_sync_map_t *map, hi_map_key_t key, void* data,
 	iter = hi_map_get_iter(&(map->unsafe), key);
 	if (iter != HI_ITER_NULL)
 	{
-		hi_memcpy(data, hi_map_get_node(map, iter)->data, size);
+		hi_memcpy(data, hi_map_get_node(&(map->unsafe), iter)->data, size);
 	}
 	hi_mutex_unlock(&(map->mutex));
 	return iter;
@@ -854,6 +854,38 @@ hi_map_node_t* hi_sync_map_get_node(hi_sync_map_t *map, hi_iter_t iter)
 	node = hi_map_get_node(&(map->unsafe), iter);
 	hi_mutex_unlock(&(map->mutex));
 	return node;
+}
+
+hi_iter_t hi_sync_map_begin(hi_sync_map_t *map)
+{
+	hi_mutex_lock(&(map->mutex));
+	return hi_map_begin(&(map->unsafe));
+}
+
+hi_iter_t hi_sync_map_next(hi_sync_map_t *map, hi_iter_t iter)
+{
+	return hi_map_next(&(map->unsafe), iter);
+}
+
+void hi_sync_map_copy_iter(hi_sync_map_t *map, hi_iter_t iter, void* data, hi_size_t size)
+{
+	if (iter == HI_ITER_NULL) return;
+	hi_map_node_t *node = hi_map_get_node(&(map->unsafe), iter);
+	if (node == NULL) return;
+	hi_memcpy(data, node->data, size);
+}
+
+hi_map_key_t hi_sync_map_iter_key(hi_sync_map_t *map, hi_iter_t iter)
+{
+	if (iter == HI_ITER_NULL) return HI_VALUE_NULL;
+	hi_map_node_t *node = hi_map_get_node(&(map->unsafe), iter);
+	if (node == NULL) return HI_VALUE_NULL;
+	return node->key;
+}
+
+void hi_sync_map_finish(hi_sync_map_t *map)
+{
+	hi_mutex_unlock(&(map->mutex));
 }
 
 void hi_sync_map_del(hi_sync_map_t *map, hi_map_key_t key)

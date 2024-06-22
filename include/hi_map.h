@@ -144,7 +144,13 @@ extern hi_iter_t hi_sync_get_iter(hi_sync_map_t *map, hi_map_key_t key);
 
 extern hi_size_t hi_sync_map_get_usage(hi_sync_map_t *map);
 
-extern hi_map_node_t* hi_sync_map_get_node(hi_sync_map_t *map, hi_iter_t iter);
+
+//in the end of begin, must call finished.
+extern hi_iter_t hi_sync_map_begin(hi_sync_map_t *map);
+extern hi_iter_t hi_sync_map_next(hi_sync_map_t *map, hi_iter_t iter);
+extern void hi_sync_map_copy_iter(hi_sync_map_t *map, hi_iter_t iter, void* data, hi_size_t size);
+extern hi_map_key_t hi_sync_map_iter_key(hi_sync_map_t *map, hi_iter_t iter);
+extern void hi_sync_map_finish(hi_sync_map_t *map);
 
 extern void hi_sync_map_del(hi_sync_map_t *map, hi_map_key_t key);
 

@@ -61,7 +61,9 @@
 #endif
 
 #ifdef ESP_PLATFORM
+#ifndef _HI_ESP32
 #define _HI_ESP32 (1)
+#endif
 #endif
 
 #if _HI_ESP32
