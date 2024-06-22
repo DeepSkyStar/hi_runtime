@@ -128,6 +128,10 @@ typedef union
     int64_t *int64_list;
     double float64;
     double *float64_list;
+
+    uint8_t raw[8];
+#else
+    uint8_t raw[4];
 #endif
 
 }hi_value_t;
