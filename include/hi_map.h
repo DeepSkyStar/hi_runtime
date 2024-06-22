@@ -136,7 +136,7 @@ extern hi_iter_t hi_sync_map_set(hi_sync_map_t *map, hi_map_key_t key, const voi
 
 extern void* hi_sync_map_get(hi_sync_map_t *map, hi_map_key_t key);
 
-extern hi_iter_t hi_async_get_iter(hi_sync_map_t *map, hi_map_key_t key);
+extern hi_iter_t hi_sync_get_iter(hi_sync_map_t *map, hi_map_key_t key);
 
 extern hi_size_t hi_sync_map_get_usage(hi_sync_map_t *map);
 

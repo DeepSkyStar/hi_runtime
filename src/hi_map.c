@@ -801,7 +801,7 @@ void* hi_sync_map_get(hi_sync_map_t *map, hi_map_key_t key)
 	return data;
 }
 
-hi_iter_t hi_async_get_iter(hi_sync_map_t *map, hi_map_key_t key)
+hi_iter_t hi_sync_get_iter(hi_sync_map_t *map, hi_map_key_t key)
 {
 	hi_iter_t iter;
 	hi_mutex_lock(&(map->mutex));
