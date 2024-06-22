@@ -121,6 +121,9 @@ extern hi_iter_t hi_sync_queue_insert_prev_value(hi_sync_queue_t *queue, hi_iter
 extern void* hi_sync_queue_get(hi_sync_queue_t *queue, hi_iter_t iter);
 extern void* hi_sync_queue_get_first(hi_sync_queue_t *queue);
 extern void* hi_sync_queue_get_last(hi_sync_queue_t *queue);
+extern void hi_sync_queue_get_copy(hi_sync_queue_t *queue, hi_iter_t iter, void* data, hi_size_t size);
+extern void hi_sync_queue_get_first_copy(hi_sync_queue_t *queue, hi_iter_t iter, void* data, hi_size_t size);
+extern void hi_sync_queue_get_last_copy(hi_sync_queue_t *queue, hi_iter_t iter, void* data, hi_size_t size);
 
 extern hi_queue_node_t* hi_sync_queue_get_node(hi_sync_queue_t *queue, hi_iter_t iter);
 extern hi_size_t hi_sync_queue_get_usage(hi_sync_queue_t *queue);

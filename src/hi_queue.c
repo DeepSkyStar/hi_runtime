@@ -420,14 +420,54 @@ inline void* hi_sync_queue_get(hi_sync_queue_t *queue, hi_iter_t iter)
 
 inline void* hi_sync_queue_get_first(hi_sync_queue_t *queue)
 {
-    //TODO: check the thread safe.
-    return hi_sync_queue_get(queue, queue->unsafe.first);
+    void *data;
+    hi_mutex_lock(&(queue->mutex));
+    data = hi_queue_get(&(queue->unsafe), queue->unsafe.first);
+    hi_mutex_unlock(&(queue->mutex));
+    return data;
 }
 
 inline void* hi_sync_queue_get_last(hi_sync_queue_t *queue)
 {
-    //TODO: check the thread safe.
-    return hi_sync_queue_get(queue, queue->unsafe.last);
+    void *data;
+    hi_mutex_lock(&(queue->mutex));
+    data = hi_queue_get(&(queue->unsafe), queue->unsafe.last);
+    hi_mutex_unlock(&(queue->mutex));
+    return data;
+}
+
+inline void hi_sync_queue_get_copy(hi_sync_queue_t *queue, hi_iter_t iter, void* data, hi_size_t size)
+{
+    if (iter == HI_ITER_NULL) return;
+    hi_mutex_lock(&(queue->mutex));
+    void* source_data = hi_queue_get(&(queue->unsafe), iter);
+    if (source_data != NULL)
+    {
+        hi_memcpy(data, source_data, size);
+    }
+    hi_mutex_unlock(&(queue->mutex));
+}
+
+inline void hi_sync_queue_get_first_copy(hi_sync_queue_t *queue, hi_iter_t iter, void* data, hi_size_t size)
+{
+    hi_mutex_lock(&(queue->mutex));
+    void* source_data = hi_queue_get_first(&(queue->unsafe));
+    if (source_data != NULL)
+    {
+        hi_memcpy(data, source_data, size);
+    }
+    hi_mutex_unlock(&(queue->mutex));
+}
+
+inline void hi_sync_queue_get_last_copy(hi_sync_queue_t *queue, hi_iter_t iter, void* data, hi_size_t size)
+{
+    hi_mutex_lock(&(queue->mutex));
+    void* source_data = hi_queue_get_last(&(queue->unsafe));
+    if (source_data != NULL)
+    {
+        hi_memcpy(data, source_data, size);
+    }
+    hi_mutex_unlock(&(queue->mutex));
 }
 
 inline hi_queue_node_t* hi_sync_queue_get_node(hi_sync_queue_t *queue, hi_iter_t iter)
