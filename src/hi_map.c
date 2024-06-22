@@ -60,6 +60,13 @@ inline void hi_map_init(hi_map_t *map)
 	// map->pool->config.use_check = 0;
 }
 
+inline void hi_map_init_with_pool(hi_map_t *map, hi_mem_pool_t *pool)
+{
+	map->root = HI_ITER_NULL;
+	map->usage = 0;
+	map->pool = pool;
+}
+
 inline void hi_map_deinit(hi_map_t *map)
 {
 	hi_map_del_all(map);
@@ -762,6 +769,14 @@ inline void hi_sync_map_init(hi_sync_map_t *map)
 	hi_mutex_unlock(&(map->mutex));
 }
 
+inline void hi_sync_map_init_with_pool(hi_sync_map_t *map, hi_mem_pool_t *pool)
+{
+	hi_mutex_init(&(map->mutex));
+	hi_mutex_lock(&(map->mutex));
+	hi_map_init_with_pool(&(map->unsafe), pool);
+	hi_mutex_unlock(&(map->mutex));
+}
+
 inline void hi_sync_map_deinit(hi_sync_map_t *map)
 {
 	hi_mutex_lock(&(map->mutex));
@@ -799,6 +814,19 @@ void* hi_sync_map_get(hi_sync_map_t *map, hi_map_key_t key)
 	data = hi_map_get(&(map->unsafe), key);
 	hi_mutex_unlock(&(map->mutex));
 	return data;
+}
+
+hi_iter_t hi_sync_map_get_copy(hi_sync_map_t *map, hi_map_key_t key, void* data, hi_size_t size)
+{
+	hi_iter_t iter;
+	hi_mutex_lock(&(map->mutex));
+	iter = hi_map_get_iter(&(map->unsafe), key);
+	if (iter != HI_ITER_NULL)
+	{
+		hi_memcpy(data, hi_map_get_node(map, iter)->data, size);
+	}
+	hi_mutex_unlock(&(map->mutex));
+	return iter;
 }
 
 hi_iter_t hi_sync_get_iter(hi_sync_map_t *map, hi_map_key_t key)
