@@ -34,6 +34,12 @@ extern "C" {
 #define HI_ITER_INVALID(__iter__) (__iter__)^=1
 #define HI_ITER_IS_INVALID(__iter__) ((__iter__)&1)
 
+#define HI_OFFSET_OF(__type__, __member__) ((size_t) &((__type__ *)0)->__member__)
+#define HI_CONTAINER_OF(ptr, type, member) ({           \
+const typeof( ((type *)0)->member ) *__mptr = (ptr);    \
+(type *)( (char *)__mptr - HI_OFFSET_OF(type, member) );})
+
+
 typedef size_t hi_size_t;
 typedef hi_size_t hi_iter_t;
 
@@ -98,7 +104,6 @@ typedef enum
     HI_VALUE_TYPE_INT64     = 12,
     HI_VALUE_TYPE_FLOAT64   = 13,
 #endif
-
 }hi_value_type_e;
 
 typedef union
@@ -133,7 +138,6 @@ typedef union
 #else
     uint8_t raw[4];
 #endif
-
 }hi_value_t;
 
 typedef struct{
