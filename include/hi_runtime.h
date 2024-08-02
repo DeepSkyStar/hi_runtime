@@ -21,6 +21,7 @@
 
 #include "hi_sys.h"
 #include "hi_types.h"
+#include "hi_osal.h"
 #include "hi_log.h"
 #include "hi_object.h"
 #include "hi_memory.h"
@@ -34,4 +35,3 @@
 #include "hi_color.h"
 #include "hi_isr_queue.h"
 #include "hi_runloop.h"
-

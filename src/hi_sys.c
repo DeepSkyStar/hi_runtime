@@ -28,8 +28,8 @@
 
 inline hi_sys_t hi_get_os(void)
 {
-#if _HI_NON_SYS
-    return HI_OS_NON_SYS;
+#if _HI_NO_SYS
+    return HI_OS_NO_SYS;
 #elif _HI_FREERTOS
     return HI_OS_FREERTOR;
 #elif _HI_WIN
@@ -47,7 +47,7 @@ inline hi_sys_t hi_get_os(void)
 #elif _HI_WATCHOS
     return HI_OS_WATCHOS;
 #else
-    return HI_OS_NON_SYS;
+    return HI_OS_NO_SYS;
 #endif
 }
 

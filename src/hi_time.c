@@ -20,40 +20,9 @@
  */
 
 #include "hi_time.h"
-
-#if _HI_ESP32
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "freertos/queue.h"
-#elif _HI_FREERTOS
-#include "FreeRTOS.h"
-#include "task.h"
-#include "queue.h"
-#else
-#endif
-
-#if _HI_PTHREAD
-#include <sys/time.h>
-#endif
-
-// inline hi_ticks_t hi_get_ticks(void)
-// {
-// #if _HI_FREERTOS
-//     return xTaskGetTickCount();
-// #else
-//     return 0;
-// #endif
-// }
+#include "hi_osal.h"
 
 inline hi_time_t hi_get_time(void)
 {
-#if _HI_PTHREAD
-    struct timeval tv;
-    gettimeofday(&tv, NULL);
-    return (hi_time_t)tv.tv_sec * (hi_time_t)1000 + (hi_time_t)tv.tv_usec / (hi_time_t)1000;
-#elif _HI_FREERTOS
-    return (hi_time_t)xTaskGetTickCount() * (hi_time_t)portTICK_PERIOD_MS;
-#else
-    return 0;
-#endif
+    return hi_osal->time.get_time_imp();
 }

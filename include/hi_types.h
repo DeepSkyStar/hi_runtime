@@ -39,7 +39,6 @@ extern "C" {
 const typeof( ((type *)0)->member ) *__mptr = (ptr);    \
 (type *)( (char *)__mptr - HI_OFFSET_OF(type, member) );})
 
-
 typedef size_t hi_size_t;
 typedef hi_size_t hi_iter_t;
 
@@ -177,6 +176,20 @@ typedef struct
 #define HI_IS_DATA_NULL(__data__) (__data__.size == 0 || HI_IS_VALUE_NULL(__value__))
 
 typedef char* hi_str_t;
+
+/**
+ * @brief 32bit for millionseconds only 49 days.
+ *      64bit for nanoseconds, near 210406 days.
+ * 
+ * @return hi_precision_time_t 
+ */
+#if _HI_SUPPORT_64BIT
+typedef uint64_t hi_time_t;
+#define HI_TIME_MAX (UINT64_MAX)
+#else
+typedef uint32_t hi_time_t;
+#define HI_TIME_MAX (UINT32_MAX)
+#endif
 
 #ifdef __cplusplus
 }

@@ -37,7 +37,6 @@ extern void* hi_memset(void* src, int value, hi_size_t size);
 extern void* hi_memcpy(void* dst, const void* src, hi_size_t size);
 extern void* hi_memmove(void* dst, const void* src, hi_size_t size);
 extern void* hi_malloc(hi_size_t size);
-extern void* hi_calloc(hi_size_t num, hi_size_t size);
 extern void* hi_realloc(void* ptr, hi_size_t size);
 extern void hi_free(void* ptr);
 

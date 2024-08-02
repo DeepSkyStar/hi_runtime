@@ -32,7 +32,7 @@
 
 //Chips & Systems Define Here.
 
-// #define _HI_NON_SYS (1)
+// #define _HI_NO_SYS (1)
 // #define _HI_FREERTOS (1)
 // #define _HI_WIN (1)
 // #define _HI_LINUX (1)
@@ -83,7 +83,7 @@ extern "C" {
 #endif
 
 typedef enum{
-    HI_OS_NON_SYS = 0,      //_HI_NON_SYS
+    HI_OS_NO_SYS = 0,      //_HI_NO_SYS
     HI_OS_FREERTOR = 1,     //_HI_FREERTOR
     HI_OS_WIN = 2,          //_HI_WIN
     HI_OS_LINUX = 3,        //_HI_LINUX
