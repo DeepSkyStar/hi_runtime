@@ -717,7 +717,7 @@ void __hi_map_dfs(hi_map_t *map, hi_iter_t iter, hi_map_foreach_f func)
 {
 	if (iter == HI_ITER_NULL) return;
 
-	if (func(map, HI_MAP_NODE(map, iter)->key, HI_MAP_NODE(map, iter)->data).res != HI_RESULT_OK)
+	if (HI_RESULT_TYPE(func(map, HI_MAP_NODE(map, iter)->key, HI_MAP_NODE(map, iter)->data)) != HI_RESULT_OK)
 	{
 		return;
 	}

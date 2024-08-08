@@ -25,34 +25,34 @@ void* hi_runloop_main(hi_runloop_t *runloop)
 {
     // hi_isr_queue_init(&runloop->events);
     // hi_mutex_lock(&(runloop->_state.thread_mutex));
-    HI_LOGD("start runloop");
+    HI_LOGD("runloop run start");
     runloop->_state.is_running = 1;
     runloop->_state.start_time = hi_get_time();
     runloop->_state.running_time = 0;
     runloop->_state.exp_time = 0;
     runloop->_state.period = 0;
 
+    HI_LOGD("runloop init func start");
     if (runloop->init_func) {
         runloop->init_func(runloop);
     }
 
     if (runloop->loop_func == NULL)
     {
-        HI_LOGE("runloop has no loop func");
+        HI_LOGD("runloop has no loop func");
         if (runloop->end_func) {
             runloop->end_func(runloop);
         }
         // hi_isr_queue_deinit(&runloop->events);
         hi_thread_deinit();
     }
-
+    HI_LOGD("runloo loop func start");
     runloop->_state.running_time = hi_get_time() - runloop->_state.start_time;
     while (runloop->_state.is_running)
     {
         //the loop func.
         runloop->loop_func(runloop);
         runloop->_state.period++;
-        
         runloop->_state.running_time = hi_get_time() - runloop->_state.start_time;
         if (runloop->interval > 0 && runloop->_state.is_running)
         {
@@ -64,7 +64,7 @@ void* hi_runloop_main(hi_runloop_t *runloop)
             }
         }
     }
-
+    HI_LOGD("runloo loop func finished");
     runloop->_state.running_time = hi_get_time() - runloop->_state.start_time;
     if (runloop->end_func) {
         runloop->end_func(runloop);
@@ -89,16 +89,18 @@ inline void hi_runloop_start(hi_runloop_t *runloop)
     if (runloop->_state.is_running) {
         return;
     }
+    // HI_LOGD("start runloop %d before lock %d", (int)runloop , (int)runloop->_state.thread_mutex.mutex);
     hi_mutex_lock(&(runloop->_state.thread_mutex));
-    // HI_LOGD("start runloop after lock");
+    // HI_LOGD("start runloop %d after lock %d", (int)runloop , (int)runloop->_state.thread_mutex.mutex);
     hi_thread_init(&(runloop->thread));
-    // HI_LOGD("start runloop after thread");
 }
 
 inline void hi_runloop_wait(hi_runloop_t *runloop)
 {
     // hi_thread_join(&(runloop->thread));
+    // HI_LOGD("wait runloop %d before lock %d", runloop , runloop->_state.thread_mutex.mutex);
     hi_mutex_lock(&(runloop->_state.thread_mutex));
+    // HI_LOGD("wait runloop %d after lock %d", runloop , runloop->_state.thread_mutex.mutex);
     hi_mutex_unlock(&(runloop->_state.thread_mutex));
 }
 

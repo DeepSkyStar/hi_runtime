@@ -501,7 +501,7 @@ int main(int argc, char *argv[])
     printf("This system is: %d\n\n", hi_get_os());
 
     // test_obj();
-    // test_mem();
+    test_mem();
     // test_sync_queue();
     // test_queue();
     // test_map();

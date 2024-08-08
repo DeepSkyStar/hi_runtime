@@ -19,7 +19,9 @@
  *  limitations under the License.
  */
 #include "hi_thread.h"
+#include "hi_osal.h"
 #include "hi_memory.h"
+#include "hi_log.h"
 
 #if _HI_ESP32
 #include "freertos/FreeRTOS.h"
@@ -245,11 +247,5 @@ inline void hi_thread_deinit(void)
 
 inline void hi_sleep(hi_time_t ms)
 {
-#if _HI_PTHREAD
-    usleep((uint64_t)ms*(uint64_t)1000);
-#elif _HI_FREERTOS
-    vTaskDelay(ms / portTICK_PERIOD_MS);
-#else
-    return;
-#endif
+    hi_osal->thread.sleep_imp(ms);
 }

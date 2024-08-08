@@ -28,23 +28,29 @@ extern "C" {
 
 #include "hi_sys.h"
 
+typedef size_t hi_size_t;
+typedef hi_size_t hi_iter_t;
+
 #define HI_MAX_SIZE ((hi_size_t)-1)
 #define HI_ITER_NULL HI_MAX_SIZE
 #define HI_SAFE_ITER(__iter__) ((__iter__)&(~(hi_iter_t)1))
 #define HI_ITER_INVALID(__iter__) (__iter__)^=1
 #define HI_ITER_IS_INVALID(__iter__) ((__iter__)&1)
 
-#define HI_OFFSET_OF(__type__, __member__) ((size_t) &((__type__ *)0)->__member__)
+#define HI_OFFSET_OF(__type__, __member__) ((hi_size_t) &((__type__ *)0)->__member__)
 #define HI_CONTAINER_OF(ptr, type, member) ({           \
 const typeof( ((type *)0)->member ) *__mptr = (ptr);    \
 (type *)( (char *)__mptr - HI_OFFSET_OF(type, member) );})
 
-typedef size_t hi_size_t;
-typedef hi_size_t hi_iter_t;
 
 #pragma pack(1)
 
 /************************* Error ****************************/
+#define HI_RESULT_TYPE_BITS (2)
+#define HI_RESULT_TYPE_MASK (0x03)
+#define HI_RESULT_REASON_MASK (0xFC)
+
+typedef uint8_t hi_result_t;
 
 typedef enum{
     HI_RESULT_OK = 0,
@@ -55,26 +61,25 @@ typedef enum{
 
 typedef enum{
     HI_FAILED_REASON_NONE = 0, //means ok/unknown.
-    HI_FAILED_REASON_DISCONNECTED = 1,  //sending data when disconnected.
-    HI_FAILED_REASON_NOT_SUPPORT = 2,  //protocol not support this operation.
-    HI_FAILED_REASON_WRONG_PARAM = 3,  //wrong param format.
-    HI_FAILED_REASON_NOT_EXIST = 4,    //not exist api or obj. 
-    HI_FAILED_REASON_NO_PERMISSION = 5,    //no permission. before authrozied.
-    HI_FAILED_REASON_OUT_OF_MEMORY = 6,    //out of memory. when performan some api.
-    HI_FAILED_REASON_OUT_OF_STORAGE = 7,   //out of storage. when saving data.
-    HI_FAILED_REASON_OUT_OF_INDEX = 8,   //out of index. when listing data.
-    HI_FAILED_REASON_OUT_OF_MTU = 9,       //out of mtu, should modify code.
-    HI_FAILED_REASON_NULL_PTR = 10, //null pointer
-    HI_FAILED_REASON_SYSTEM = 11, //system failure
-    HI_FAILED_REASON_HARDWARE = 12, //hardware failure
+    HI_FAILED_REASON_DISCONNECTED = (1 << HI_RESULT_TYPE_BITS),  //sending data when disconnected.
+    HI_FAILED_REASON_NOT_SUPPORT = (2 << HI_RESULT_TYPE_BITS),  //protocol not support this operation.
+    HI_FAILED_REASON_WRONG_PARAM = (3 << HI_RESULT_TYPE_BITS),  //wrong param format.
+    HI_FAILED_REASON_NOT_EXIST = (4 << HI_RESULT_TYPE_BITS),    //not exist api or obj. 
+    HI_FAILED_REASON_NO_PERMISSION = (5 << HI_RESULT_TYPE_BITS),    //no permission. before authrozied.
+    HI_FAILED_REASON_OUT_OF_MEMORY = (6 << HI_RESULT_TYPE_BITS),    //out of memory. when performan some api.
+    HI_FAILED_REASON_OUT_OF_STORAGE = (7 << HI_RESULT_TYPE_BITS),   //out of storage. when saving data.
+    HI_FAILED_REASON_OUT_OF_INDEX = (8 << HI_RESULT_TYPE_BITS),   //out of index. when listing data.
+    HI_FAILED_REASON_OUT_OF_MTU = (9 << HI_RESULT_TYPE_BITS),       //out of mtu, should modify code.
+    HI_FAILED_REASON_NULL_PTR = (10 << HI_RESULT_TYPE_BITS), //null pointer
+    HI_FAILED_REASON_SYSTEM = (11 << HI_RESULT_TYPE_BITS), //system failure
+    HI_FAILED_REASON_HARDWARE = (12 << HI_RESULT_TYPE_BITS), //hardware failure
 }hi_failed_reason_e;
 
-typedef struct{
-    uint8_t res:2; //See: hi_result_e
-    uint8_t reason:6;   //See: hi_failed_reason_e
-}hi_result_t;
+#define HI_RESULT_TYPE(__result__) ((__result__)&HI_RESULT_TYPE_MASK)
+#define HI_RESULT_REASON(__result__) ((__result__)&HI_RESULT_REASON_MASK)
 
-#define HI_RESULT_MAKE(__res__, __reason__) (hi_result_t){__res__, __reason__}
+//hi_result_t
+#define HI_RESULT_MAKE(__type__, __reason__) (((__type__)&HI_RESULT_TYPE_MASK)|((__reason__)&HI_RESULT_REASON_MASK))
 #define HI_RESULT_MAKE_OK HI_RESULT_MAKE(HI_RESULT_OK, 0)
 #define HI_RESULT_MAKE_FAILED(__reason__) HI_RESULT_MAKE(HI_RESULT_FAILED, __reason__)
 #define HI_RESULT_MAKE_TIMEOUT HI_RESULT_MAKE(HI_RESULT_TIMEOUT, 0)
@@ -145,6 +150,8 @@ typedef struct{
 }hi_value_result_t;
 
 #define HI_VALUE(__value__) ((hi_value_t *)(__value__))
+
+//hi_value_t
 #define HI_VALUE_ITER(__value__) (hi_value_t){.iter = __value__}
 #define HI_VALUE_STR(__value__) (hi_value_t){.str = __value__}
 #define HI_VALUE_BYTE(__value__) (hi_value_t){.byte = __value__}
@@ -172,7 +179,8 @@ typedef struct
     hi_size_t size;
 }hi_data_t;
 
-#define HI_DATA_NULL ((hi_data_t){.size = 0, .data = HI_VALUE_NULL})
+//hi_data_t
+#define HI_DATA_NULL {.size = 0, .data = HI_VALUE_NULL}
 #define HI_IS_DATA_NULL(__data__) (__data__.size == 0 || HI_IS_VALUE_NULL(__value__))
 
 typedef char* hi_str_t;

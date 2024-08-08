@@ -37,7 +37,6 @@
 
 hi_time_t __default_hi_get_time(void)
 {
-    return hi_osal->time.get_time_imp();
 #if _HI_PTHREAD
     struct timeval tv;
     gettimeofday(&tv, NULL);
