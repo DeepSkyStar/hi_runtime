@@ -43,7 +43,7 @@ const typeof( ((type *)0)->member ) *__mptr = (ptr);    \
 (type *)( (char *)__mptr - HI_OFFSET_OF(type, member) );})
 
 
-#pragma pack(1)
+#pragma pack(push, 1)
 
 /************************* Error ****************************/
 #define HI_RESULT_TYPE_BITS (2)
@@ -85,7 +85,7 @@ typedef enum{
 #define HI_RESULT_MAKE_TIMEOUT HI_RESULT_MAKE(HI_RESULT_TIMEOUT, 0)
 #define HI_RESULT_MAKE_CANCEL HI_RESULT_MAKE(HI_RESULT_CANCELLED, 0)
 
-#pragma pack()
+#pragma pack(pop)
 
 /************************* Value ****************************/
 
