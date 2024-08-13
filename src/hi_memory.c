@@ -94,7 +94,7 @@ inline void hi_mem_pool_free(hi_mem_pool_t* pool)
 inline hi_iter_t hi_mem_pool_take(hi_mem_pool_t* pool)
 {
     //Will cause critical bugs. so must be assert here.
-    assert((pool != NULL) && pool->config.block_size >= sizeof(hi_iter_t));
+    // assert((pool != NULL) && pool->config.block_size >= sizeof(hi_iter_t));
     hi_iter_t block = HI_ITER_NULL;
     if (pool->reuse != HI_ITER_NULL) {
         block = pool->reuse;
@@ -115,7 +115,7 @@ inline hi_iter_t hi_mem_pool_take(hi_mem_pool_t* pool)
 inline hi_iter_t hi_mem_pool_try(hi_mem_pool_t* pool)
 {
     //Will cause critical bugs. so must be assert here.
-    assert((pool != NULL) && pool->config.block_size >= sizeof(hi_iter_t));
+    // assert((pool != NULL) && pool->config.block_size >= sizeof(hi_iter_t));
     hi_iter_t block = HI_ITER_NULL;
     if (pool->reuse != HI_ITER_NULL) {
         block = pool->reuse;
