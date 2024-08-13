@@ -59,22 +59,23 @@ void __default_hi_sleep(hi_time_t ms)
 #endif
 }
 
-hi_osal_t __default_osal = {
-    .mem = {
-        .memset_imp = memset,
-        .memcpy_imp = memcpy,
-        .memmove_imp = memmove,
-        .malloc_imp = malloc,
-        .realloc_imp = realloc,
-        .free_imp = free,
-    },
-    .time = {
-        .get_time_imp = __default_hi_get_time,
-    },
-    .thread = {
-        .sleep_imp = __default_hi_sleep,
-    }
-};
-
-hi_osal_t *hi_osal = &__default_osal;
-
+hi_osal_t* hi_osal(void)
+{
+    static hi_osal_t __shared_osal = {
+        .mem = {
+            .memset_imp = memset,
+            .memcpy_imp = memcpy,
+            .memmove_imp = memmove,
+            .malloc_imp = malloc,
+            .realloc_imp = realloc,
+            .free_imp = free,
+        },
+        .time = {
+            .get_time_imp = __default_hi_get_time,
+        },
+        .thread = {
+            .sleep_imp = __default_hi_sleep,
+        }
+    };
+    return &__shared_osal;
+}

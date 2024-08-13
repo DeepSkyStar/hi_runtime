@@ -18,8 +18,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-#include "hi_thread.h"
 #include "hi_osal.h"
+#include "hi_thread.h"
 #include "hi_memory.h"
 #include "hi_log.h"
 

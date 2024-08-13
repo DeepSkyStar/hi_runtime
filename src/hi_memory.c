@@ -19,9 +19,9 @@
  *  limitations under the License.
  */
 
+#include "hi_osal.h"
 #include "hi_log.h"
 #include "hi_memory.h"
-#include "hi_osal.h"
 
 inline void* hi_memset(void* src, int value, hi_size_t size)
 {

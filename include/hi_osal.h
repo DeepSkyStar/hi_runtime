@@ -29,6 +29,12 @@ typedef struct
 
 typedef struct
 {
+    int	(*printf_imp)(const char * __restrict, ...)
+}hi_osal_io_t;
+
+typedef struct
+{
+    hi_osal_io_t io;
     hi_osal_memory_t mem;
     hi_osal_time_t time;
     hi_osal_thread_t thread;
@@ -38,7 +44,7 @@ typedef struct
  * @brief Used to define own hi_osal.
  * 
  */
-extern hi_osal_t *hi_osal;
+extern hi_osal_t* hi_osal(void);
 
 #ifdef __cplusplus
 }

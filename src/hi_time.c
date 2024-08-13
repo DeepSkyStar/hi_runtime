@@ -19,8 +19,8 @@
  *  limitations under the License.
  */
 
-#include "hi_time.h"
 #include "hi_osal.h"
+#include "hi_time.h"
 
 inline hi_time_t hi_get_time(void)
 {
