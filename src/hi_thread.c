@@ -241,7 +241,7 @@ inline void hi_thread_deinit(void)
 #elif _HI_FREERTOS
     vTaskDelete(NULL);
 #else
-    return -1;
+    return;
 #endif
 }
 
