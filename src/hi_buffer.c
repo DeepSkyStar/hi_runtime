@@ -24,7 +24,7 @@ inline hi_size_t hi_buffer_add(hi_buffer_t *buffer, const uint8_t *data, hi_size
     size = buffer->cur_size + size > buffer->max_size?buffer->max_size - buffer->cur_size:size;
     if (size > 0)
     {
-        hi_memcpy(hi_buffer_begin(buffer), data, size);
+        hi_memcpy(hi_buffer_last(buffer), data, size);
         buffer->cur_size = buffer->cur_size + size;
     }
     return size;
