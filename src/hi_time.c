@@ -24,5 +24,5 @@
 
 inline hi_time_t hi_get_time(void)
 {
-    return hi_osal->time.get_time_imp();
+    return hi_osal()->time.get_time_imp();
 }

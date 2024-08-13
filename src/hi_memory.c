@@ -25,32 +25,32 @@
 
 inline void* hi_memset(void* src, int value, hi_size_t size)
 {
-    return hi_osal->mem.memset_imp(src, value, size);
+    return hi_osal()->mem.memset_imp(src, value, size);
 }
 
 inline void* hi_memcpy(void* dst, const void* src, hi_size_t size)
 {
-    return hi_osal->mem.memcpy_imp(dst, src, size);
+    return hi_osal()->mem.memcpy_imp(dst, src, size);
 }
 
 inline void* hi_memmove(void* dst, const void* src, hi_size_t size)
 {
-    return hi_osal->mem.memmove_imp(dst, src, size);
+    return hi_osal()->mem.memmove_imp(dst, src, size);
 }
 
 inline void* hi_malloc(hi_size_t size)
 {
-    return hi_osal->mem.malloc_imp(size);
+    return hi_osal()->mem.malloc_imp(size);
 }
 
 inline void* hi_realloc(void* ptr, hi_size_t size)
 {
-    return hi_osal->mem.realloc_imp(ptr, size);
+    return hi_osal()->mem.realloc_imp(ptr, size);
 }
 
 inline void hi_free(void* ptr)
 {
-    hi_osal->mem.free_imp(ptr);
+    hi_osal()->mem.free_imp(ptr);
 }
 
 inline hi_mem_pool_t* hi_mem_pool_new(hi_mem_pool_config_t config)

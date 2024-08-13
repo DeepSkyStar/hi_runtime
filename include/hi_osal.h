@@ -29,7 +29,7 @@ typedef struct
 
 typedef struct
 {
-    int	(*printf_imp)(const char * __restrict, ...)
+    int	(*printf_imp)(const char * __restrict, ...);
 }hi_osal_io_t;
 
 typedef struct

@@ -247,5 +247,5 @@ inline void hi_thread_deinit(void)
 
 inline void hi_sleep(hi_time_t ms)
 {
-    hi_osal->thread.sleep_imp(ms);
+    hi_osal()->thread.sleep_imp(ms);
 }
