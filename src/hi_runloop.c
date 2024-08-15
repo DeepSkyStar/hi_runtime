@@ -57,10 +57,18 @@ void* hi_runloop_main(hi_runloop_t *runloop)
         if (runloop->interval > 0 && runloop->_state.is_running)
         {
             runloop->_state.exp_time = runloop->_state.exp_time + runloop->interval;
+            // HI_LOGI("exp time is:%llu runtime is :%llu", runloop->_state.exp_time, runloop->_state.running_time);
             if (runloop->_state.exp_time - runloop->_state.running_time <= runloop->interval)
             {
                 hi_sleep(runloop->_state.exp_time - runloop->_state.running_time);
-                runloop->_state.running_time = runloop->_state.exp_time;
+            }
+            else if (runloop->_state.exp_time > runloop->_state.running_time)
+            {
+                hi_sleep(runloop->_state.exp_time - runloop->_state.running_time);
+            }
+            else
+            {
+                runloop->_state.exp_time = runloop->_state.running_time;
             }
         }
     }

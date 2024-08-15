@@ -191,7 +191,7 @@ typedef char* hi_str_t;
  * 
  * @return hi_precision_time_t 
  */
-#if _HI_SUPPORT_64BIT
+#if _HI_SUPPORT_64BIT && _HI_SUPPORT_64BIT_TIME
 typedef uint64_t hi_time_t;
 #define HI_TIME_MAX (UINT64_MAX)
 #else

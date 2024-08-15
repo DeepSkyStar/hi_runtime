@@ -53,6 +53,10 @@
 #define _HI_SUPPORT_64BIT (1)
 #endif
 
+#ifndef _HI_SUPPORT_64BIT_TIME
+#define _HI_SUPPORT_64BIT_TIME (1)
+#endif
+
 #ifndef _HI_ALIGN_MEM_POOL
 #define _HI_ALIGN_MEM_POOL (0)
 #endif
