@@ -103,7 +103,7 @@ typedef enum
     HI_VALUE_TYPE_INT32     = 9,
     HI_VALUE_TYPE_FLOAT32   = 10,
 
-#if _HI_SUPPORT_64BIT
+#ifndef _HI_NO_SUPPORT_64BIT
     HI_VALUE_TYPE_UINT64    = 11,
     HI_VALUE_TYPE_INT64     = 12,
     HI_VALUE_TYPE_FLOAT64   = 13,
@@ -130,7 +130,7 @@ typedef union
     float float32;
     float *float32_list;
 
-#if _HI_SUPPORT_64BIT
+#ifndef _HI_NO_SUPPORT_64BIT
     uint64_t uint64;
     uint64_t *uint64_list;
     int64_t int64;
@@ -157,7 +157,7 @@ typedef struct{
 #define HI_VALUE_BYTE(__value__) (hi_value_t){.byte = __value__}
 #define HI_VALUE_FLOAT(__value__) (hi_value_t){.float32 = __value__}
 
-#if _HI_SUPPORT_64BIT
+#ifndef _HI_NO_SUPPORT_64BIT
 
 #define HI_VALUE_INT(__value__) (hi_value_t){.int64 = __value__}
 #define HI_VALUE_UINT(__value__) (hi_value_t){.uint64 = __value__}
@@ -191,12 +191,12 @@ typedef char* hi_str_t;
  * 
  * @return hi_precision_time_t 
  */
-#if _HI_SUPPORT_64BIT && _HI_SUPPORT_64BIT_TIME
-typedef uint64_t hi_time_t;
-#define HI_TIME_MAX (UINT64_MAX)
-#else
+#if _HI_NO_SUPPORT_64BIT || _HI_NO_SUPPORT_64BIT_TIME
 typedef uint32_t hi_time_t;
 #define HI_TIME_MAX (UINT32_MAX)
+#else
+typedef uint64_t hi_time_t;
+#define HI_TIME_MAX (UINT64_MAX)
 #endif
 
 #ifdef __cplusplus
