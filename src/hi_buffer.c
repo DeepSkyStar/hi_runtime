@@ -1,7 +1,7 @@
 #include "hi_buffer.h"
 #include "hi_memory.h"
 
-inline hi_buffer_t* hi_buffer_new(hi_size_t size)
+hi_buffer_t* hi_buffer_new(hi_size_t size)
 {
     hi_buffer_t *buffer = hi_malloc(sizeof(hi_buffer_t));
     buffer->is_dynamic = 1;
@@ -17,7 +17,7 @@ inline void hi_buffer_init(hi_buffer_t *buffer)
     hi_mutex_init(&(buffer->mutex));
 }
 
-inline hi_size_t hi_buffer_add(hi_buffer_t *buffer, const uint8_t *data, hi_size_t size)
+hi_size_t hi_buffer_add(hi_buffer_t *buffer, const uint8_t *data, hi_size_t size)
 {
     //TODO: currently for fast test, so just add simple protect.
     if (size > buffer->max_size - buffer->cur_size) return 0;
@@ -40,7 +40,7 @@ inline void hi_buffer_unlock(hi_buffer_t *buffer)
     hi_mutex_unlock(&(buffer->mutex));
 }
 
-inline void hi_buffer_set_data(hi_buffer_t *buffer, const uint8_t *data, hi_size_t size)
+void hi_buffer_set_data(hi_buffer_t *buffer, const uint8_t *data, hi_size_t size)
 {
     //TODO: should be optimize.
     size = size < buffer->max_size ? size : buffer->max_size;
@@ -76,7 +76,7 @@ inline hi_size_t hi_buffer_remain(hi_buffer_t *buffer)
     return buffer->max_size - buffer->cur_size;
 }
 
-inline void hi_buffer_clear_begin(hi_buffer_t *buffer)
+void hi_buffer_clear_begin(hi_buffer_t *buffer)
 {
     //TODO: should be optimize.
     if (hi_buffer_length(buffer) > 0)
@@ -92,7 +92,7 @@ inline void hi_buffer_deinit(hi_buffer_t *buffer)
     hi_mutex_deinit(&(buffer->mutex));
 }
 
-inline void hi_buffer_free(hi_buffer_t *buffer)
+void hi_buffer_free(hi_buffer_t *buffer)
 {
     hi_buffer_deinit(buffer);
     if (buffer->is_dynamic)

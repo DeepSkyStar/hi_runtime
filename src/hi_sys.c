@@ -20,13 +20,17 @@
  */
 
 #include "hi_sys.h"
+#include "hi_memory.h"
+#include "hi_osal.h"
+#include <stdarg.h>
+
 #if _HI_PTHREAD
 #include <execinfo.h>
 #include <stdio.h>
 #include <stdlib.h>
 #endif
 
-inline hi_sys_t hi_get_os(void)
+hi_sys_t hi_get_os(void)
 {
 #if _HI_NO_SYS
     return HI_OS_NO_SYS;
@@ -67,6 +71,6 @@ void hi_print_stack(void)
         printf("%s\n", strings[i]);
     }
 
-    free(strings);
+    hi_free(strings);
 #endif
 }

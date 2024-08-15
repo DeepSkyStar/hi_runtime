@@ -22,7 +22,7 @@
 #include "hi_list.h"
 #include "hi_log.h"
 
-inline hi_list_t* hi_list_new(hi_size_t data_size, hi_size_t max_size)
+hi_list_t* hi_list_new(hi_size_t data_size, hi_size_t max_size)
 {
     hi_list_t *list = hi_malloc(sizeof(hi_list_t));
     hi_mem_pool_t *pool = hi_mem_pool_new((hi_mem_pool_config_t){
@@ -35,7 +35,7 @@ inline hi_list_t* hi_list_new(hi_size_t data_size, hi_size_t max_size)
     return list;
 }
 
-inline void hi_list_init(hi_list_t *list, hi_mem_pool_t *pool)
+void hi_list_init(hi_list_t *list, hi_mem_pool_t *pool)
 {
     if (list->pool != NULL)
     {
@@ -44,20 +44,20 @@ inline void hi_list_init(hi_list_t *list, hi_mem_pool_t *pool)
     list->pool = pool;
 }
 
-inline void hi_list_deinit(hi_list_t *list)
+void hi_list_deinit(hi_list_t *list)
 {
     hi_list_del_all(list);
     hi_mem_pool_free(list->pool);
     list->pool = NULL;
 }
 
-inline void hi_list_free(hi_list_t *list)
+void hi_list_free(hi_list_t *list)
 {
     hi_list_deinit(list);
     hi_free(list);
 }
 
-inline hi_iter_t hi_list_add_value(hi_list_t *list, hi_value_t value)
+hi_iter_t hi_list_add_value(hi_list_t *list, hi_value_t value)
 {
     hi_iter_t iter = hi_mem_pool_take(list->pool);
     if (iter == HI_ITER_NULL) return iter;
@@ -65,7 +65,7 @@ inline hi_iter_t hi_list_add_value(hi_list_t *list, hi_value_t value)
     return iter;
 }
 
-inline hi_iter_t hi_list_add(hi_list_t *list, const void* data, hi_size_t size)
+hi_iter_t hi_list_add(hi_list_t *list, const void* data, hi_size_t size)
 {
     if (list->pool == NULL || list->pool->config.block_size < size) {
         HI_LOGE("the size bigger than list pool block size!");
@@ -92,7 +92,7 @@ inline void hi_list_del_all(hi_list_t *list)
     hi_mem_pool_bring_all(list->pool);
 }
 
-inline hi_iter_t hi_list_begin(hi_list_t *list)
+hi_iter_t hi_list_begin(hi_list_t *list)
 {
     for (hi_iter_t iter = 0; iter < list->pool->cur;iter += list->pool->config.block_size)
     {
@@ -104,7 +104,7 @@ inline hi_iter_t hi_list_begin(hi_list_t *list)
     return HI_ITER_NULL;
 }
 
-inline hi_iter_t hi_list_next(hi_list_t *list, hi_iter_t index)
+hi_iter_t hi_list_next(hi_list_t *list, hi_iter_t index)
 {
     index += list->pool->config.block_size;
     while (index < list->pool->cur)

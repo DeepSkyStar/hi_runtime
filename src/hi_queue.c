@@ -20,7 +20,7 @@
  */
 #include "hi_queue.h"
 
-inline hi_queue_t* hi_queue_new(hi_size_t data_size, hi_size_t max_size)
+hi_queue_t* hi_queue_new(hi_size_t data_size, hi_size_t max_size)
 {
     hi_queue_t *queue = hi_malloc(sizeof(hi_queue_t));
     queue->pool = hi_mem_pool_new((hi_mem_pool_config_t){
@@ -32,21 +32,21 @@ inline hi_queue_t* hi_queue_new(hi_size_t data_size, hi_size_t max_size)
     return queue;
 }
 
-inline void hi_queue_init(hi_queue_t *queue)
+void hi_queue_init(hi_queue_t *queue)
 {
     queue->first = HI_ITER_NULL;
     queue->last = HI_ITER_NULL;
     queue->usage = 0;
 }
 
-inline void hi_queue_deinit(hi_queue_t *queue)
+void hi_queue_deinit(hi_queue_t *queue)
 {
     hi_queue_del_all(queue);
     hi_mem_pool_free(queue->pool);
     queue->pool = NULL;
 }
 
-inline void hi_queue_free(hi_queue_t *queue)
+void hi_queue_free(hi_queue_t *queue)
 {
     hi_queue_deinit(queue);
     hi_free(queue);
@@ -58,7 +58,7 @@ inline hi_iter_t hi_queue_try_add(hi_queue_t *queue)
     return hi_mem_pool_try(queue->pool);
 }
 
-inline hi_iter_t hi_queue_add_first(hi_queue_t *queue, const void* data, hi_size_t size)
+hi_iter_t hi_queue_add_first(hi_queue_t *queue, const void* data, hi_size_t size)
 {
     if (queue == NULL || queue->pool == NULL) return HI_ITER_NULL;
     if (queue->pool->config.block_size < size){
@@ -93,7 +93,7 @@ inline hi_iter_t hi_queue_add_first_value(hi_queue_t *queue, hi_value_t value)
     return hi_queue_add_first(queue, &value, sizeof(value));
 }
 
-inline hi_iter_t hi_queue_add_last(hi_queue_t *queue, const void* data, hi_size_t size)
+hi_iter_t hi_queue_add_last(hi_queue_t *queue, const void* data, hi_size_t size)
 {
     if (queue == NULL || queue->pool == NULL) return HI_ITER_NULL;
     if (queue->pool->config.block_size < size){
@@ -128,7 +128,7 @@ inline hi_iter_t hi_queue_add_last_value(hi_queue_t *queue, hi_value_t value)
     return hi_queue_add_last(queue, &value, sizeof(value));
 }
 
-inline hi_iter_t hi_queue_insert_next(hi_queue_t *queue, hi_iter_t iter, const void *data, hi_size_t size)
+hi_iter_t hi_queue_insert_next(hi_queue_t *queue, hi_iter_t iter, const void *data, hi_size_t size)
 {
     if (queue == NULL || queue->pool == NULL) return HI_ITER_NULL;
     if (queue->pool->config.block_size < size){
@@ -163,7 +163,7 @@ inline hi_iter_t hi_queue_insert_next_value(hi_queue_t *queue, hi_iter_t iter, h
     return hi_queue_insert_next(queue, iter, &value, sizeof(value));
 }
 
-inline hi_iter_t hi_queue_insert_prev(hi_queue_t *queue, hi_iter_t iter, const void *data, hi_size_t size)
+hi_iter_t hi_queue_insert_prev(hi_queue_t *queue, hi_iter_t iter, const void *data, hi_size_t size)
 {
     if (queue == NULL || queue->pool == NULL) return HI_ITER_NULL;
     if (queue->pool->config.block_size < size){
@@ -252,7 +252,7 @@ inline void hi_queue_del_last(hi_queue_t *queue)
     hi_queue_del(queue, queue->last);
 }
 
-inline void hi_queue_del(hi_queue_t *queue, hi_iter_t iter)
+void hi_queue_del(hi_queue_t *queue, hi_iter_t iter)
 {
     hi_queue_node_t *node = hi_queue_get_node(queue, iter);
     if (node == NULL && queue->usage > 0) return;
@@ -267,7 +267,7 @@ inline void hi_queue_del(hi_queue_t *queue, hi_iter_t iter)
     hi_mem_pool_bring(queue->pool, iter);
 }
 
-inline void hi_queue_del_all(hi_queue_t *queue)
+void hi_queue_del_all(hi_queue_t *queue)
 {
     if (queue == NULL) return ;
     queue->first = HI_ITER_NULL;
@@ -312,7 +312,7 @@ hi_sync_queue_t* hi_sync_queue_new(hi_size_t data_size, hi_size_t max_size)
     return queue;
 }
 
-inline void hi_sync_queue_init(hi_sync_queue_t *queue)
+void hi_sync_queue_init(hi_sync_queue_t *queue)
 {
     hi_mutex_init(&(queue->mutex));
     hi_mutex_lock(&(queue->mutex));
@@ -320,7 +320,7 @@ inline void hi_sync_queue_init(hi_sync_queue_t *queue)
     hi_mutex_unlock(&(queue->mutex));
 }
 
-inline void hi_sync_queue_deinit(hi_sync_queue_t *queue)
+void hi_sync_queue_deinit(hi_sync_queue_t *queue)
 {
     hi_mutex_lock(&(queue->mutex));
     hi_queue_deinit(&(queue->unsafe));
@@ -328,13 +328,13 @@ inline void hi_sync_queue_deinit(hi_sync_queue_t *queue)
     hi_mutex_deinit(&(queue->mutex));
 }
 
-inline void hi_sync_queue_free(hi_sync_queue_t *queue)
+void hi_sync_queue_free(hi_sync_queue_t *queue)
 {
     hi_sync_queue_deinit(queue);
     hi_free(queue);
 }
 
-inline hi_iter_t hi_sync_queue_try_add(hi_sync_queue_t *queue)
+hi_iter_t hi_sync_queue_try_add(hi_sync_queue_t *queue)
 {
     hi_iter_t iter;
     hi_mutex_lock(&(queue->mutex));
@@ -343,7 +343,7 @@ inline hi_iter_t hi_sync_queue_try_add(hi_sync_queue_t *queue)
     return iter;
 }
 
-inline hi_iter_t hi_sync_queue_add_first(hi_sync_queue_t *queue, const void* data, hi_size_t size)
+hi_iter_t hi_sync_queue_add_first(hi_sync_queue_t *queue, const void* data, hi_size_t size)
 {
     hi_mutex_lock(&(queue->mutex));
     size = hi_queue_add_first(&(queue->unsafe), data, size);
@@ -351,7 +351,7 @@ inline hi_iter_t hi_sync_queue_add_first(hi_sync_queue_t *queue, const void* dat
     return size;
 }
 
-inline hi_iter_t hi_sync_queue_add_first_value(hi_sync_queue_t *queue, hi_value_t value)
+hi_iter_t hi_sync_queue_add_first_value(hi_sync_queue_t *queue, hi_value_t value)
 {
     hi_iter_t iter;
     hi_mutex_lock(&(queue->mutex));
@@ -360,7 +360,7 @@ inline hi_iter_t hi_sync_queue_add_first_value(hi_sync_queue_t *queue, hi_value_
     return iter;
 }
 
-inline hi_iter_t hi_sync_queue_add_last(hi_sync_queue_t *queue, const void* data, hi_size_t size)
+hi_iter_t hi_sync_queue_add_last(hi_sync_queue_t *queue, const void* data, hi_size_t size)
 {
     hi_mutex_lock(&(queue->mutex));
     size = hi_queue_add_last(&(queue->unsafe), data, size);
@@ -368,7 +368,7 @@ inline hi_iter_t hi_sync_queue_add_last(hi_sync_queue_t *queue, const void* data
     return size;
 }
 
-inline hi_iter_t hi_sync_queue_add_last_value(hi_sync_queue_t *queue, hi_value_t value)
+hi_iter_t hi_sync_queue_add_last_value(hi_sync_queue_t *queue, hi_value_t value)
 {
     hi_iter_t iter;
     hi_mutex_lock(&(queue->mutex));
@@ -377,7 +377,7 @@ inline hi_iter_t hi_sync_queue_add_last_value(hi_sync_queue_t *queue, hi_value_t
     return iter;
 }
 
-inline hi_iter_t hi_sync_queue_insert_next(hi_sync_queue_t *queue, hi_iter_t iter, const void *data, hi_size_t size)
+hi_iter_t hi_sync_queue_insert_next(hi_sync_queue_t *queue, hi_iter_t iter, const void *data, hi_size_t size)
 {
     hi_mutex_lock(&(queue->mutex));
     iter = hi_queue_insert_next(&(queue->unsafe), iter, data, size);
@@ -385,7 +385,7 @@ inline hi_iter_t hi_sync_queue_insert_next(hi_sync_queue_t *queue, hi_iter_t ite
     return iter;
 }
 
-inline hi_iter_t hi_sync_queue_insert_next_value(hi_sync_queue_t *queue, hi_iter_t iter, hi_value_t value)
+hi_iter_t hi_sync_queue_insert_next_value(hi_sync_queue_t *queue, hi_iter_t iter, hi_value_t value)
 {
     hi_mutex_lock(&(queue->mutex));
     iter = hi_queue_insert_next_value(&(queue->unsafe), iter, value);
@@ -393,7 +393,7 @@ inline hi_iter_t hi_sync_queue_insert_next_value(hi_sync_queue_t *queue, hi_iter
     return iter;
 }
 
-inline hi_iter_t hi_sync_queue_insert_prev(hi_sync_queue_t *queue, hi_iter_t iter, const void *data, hi_size_t size)
+hi_iter_t hi_sync_queue_insert_prev(hi_sync_queue_t *queue, hi_iter_t iter, const void *data, hi_size_t size)
 {
     hi_mutex_lock(&(queue->mutex));
     iter = hi_queue_insert_prev(&(queue->unsafe), iter, data, size);
@@ -401,7 +401,7 @@ inline hi_iter_t hi_sync_queue_insert_prev(hi_sync_queue_t *queue, hi_iter_t ite
     return iter;
 }
 
-inline hi_iter_t hi_sync_queue_insert_prev_value(hi_sync_queue_t *queue, hi_iter_t iter, hi_value_t value)
+hi_iter_t hi_sync_queue_insert_prev_value(hi_sync_queue_t *queue, hi_iter_t iter, hi_value_t value)
 {
     hi_mutex_lock(&(queue->mutex));
     iter = hi_queue_insert_prev_value(&(queue->unsafe), iter, value);
@@ -409,7 +409,7 @@ inline hi_iter_t hi_sync_queue_insert_prev_value(hi_sync_queue_t *queue, hi_iter
     return iter;
 }
 
-inline void* hi_sync_queue_get(hi_sync_queue_t *queue, hi_iter_t iter)
+void* hi_sync_queue_get(hi_sync_queue_t *queue, hi_iter_t iter)
 {
     void *data;
     hi_mutex_lock(&(queue->mutex));
@@ -418,7 +418,7 @@ inline void* hi_sync_queue_get(hi_sync_queue_t *queue, hi_iter_t iter)
     return data;
 }
 
-inline void* hi_sync_queue_get_first(hi_sync_queue_t *queue)
+void* hi_sync_queue_get_first(hi_sync_queue_t *queue)
 {
     void *data;
     hi_mutex_lock(&(queue->mutex));
@@ -427,7 +427,7 @@ inline void* hi_sync_queue_get_first(hi_sync_queue_t *queue)
     return data;
 }
 
-inline void* hi_sync_queue_get_last(hi_sync_queue_t *queue)
+void* hi_sync_queue_get_last(hi_sync_queue_t *queue)
 {
     void *data;
     hi_mutex_lock(&(queue->mutex));
@@ -436,7 +436,7 @@ inline void* hi_sync_queue_get_last(hi_sync_queue_t *queue)
     return data;
 }
 
-inline void hi_sync_queue_get_copy(hi_sync_queue_t *queue, hi_iter_t iter, void* data, hi_size_t size)
+void hi_sync_queue_get_copy(hi_sync_queue_t *queue, hi_iter_t iter, void* data, hi_size_t size)
 {
     if (iter == HI_ITER_NULL) return;
     hi_mutex_lock(&(queue->mutex));
@@ -448,7 +448,7 @@ inline void hi_sync_queue_get_copy(hi_sync_queue_t *queue, hi_iter_t iter, void*
     hi_mutex_unlock(&(queue->mutex));
 }
 
-inline void hi_sync_queue_get_first_copy(hi_sync_queue_t *queue, hi_iter_t iter, void* data, hi_size_t size)
+void hi_sync_queue_get_first_copy(hi_sync_queue_t *queue, hi_iter_t iter, void* data, hi_size_t size)
 {
     hi_mutex_lock(&(queue->mutex));
     void* source_data = hi_queue_get_first(&(queue->unsafe));
@@ -459,7 +459,7 @@ inline void hi_sync_queue_get_first_copy(hi_sync_queue_t *queue, hi_iter_t iter,
     hi_mutex_unlock(&(queue->mutex));
 }
 
-inline void hi_sync_queue_get_last_copy(hi_sync_queue_t *queue, hi_iter_t iter, void* data, hi_size_t size)
+void hi_sync_queue_get_last_copy(hi_sync_queue_t *queue, hi_iter_t iter, void* data, hi_size_t size)
 {
     hi_mutex_lock(&(queue->mutex));
     void* source_data = hi_queue_get_last(&(queue->unsafe));
@@ -470,7 +470,7 @@ inline void hi_sync_queue_get_last_copy(hi_sync_queue_t *queue, hi_iter_t iter, 
     hi_mutex_unlock(&(queue->mutex));
 }
 
-inline hi_queue_node_t* hi_sync_queue_get_node(hi_sync_queue_t *queue, hi_iter_t iter)
+hi_queue_node_t* hi_sync_queue_get_node(hi_sync_queue_t *queue, hi_iter_t iter)
 {
     hi_queue_node_t* node;
     hi_mutex_lock(&(queue->mutex));
@@ -479,7 +479,7 @@ inline hi_queue_node_t* hi_sync_queue_get_node(hi_sync_queue_t *queue, hi_iter_t
     return node;
 }
 
-inline hi_size_t hi_sync_queue_get_usage(hi_sync_queue_t *queue)
+hi_size_t hi_sync_queue_get_usage(hi_sync_queue_t *queue)
 {
     hi_size_t size;
     hi_mutex_lock(&(queue->mutex));
@@ -488,7 +488,7 @@ inline hi_size_t hi_sync_queue_get_usage(hi_sync_queue_t *queue)
     return size;
 }
 
-inline hi_size_t hi_sync_queue_get_data_size(hi_sync_queue_t *queue)
+hi_size_t hi_sync_queue_get_data_size(hi_sync_queue_t *queue)
 {
     hi_size_t size;
     hi_mutex_lock(&(queue->mutex));
@@ -497,7 +497,7 @@ inline hi_size_t hi_sync_queue_get_data_size(hi_sync_queue_t *queue)
     return size;
 }
 
-inline hi_size_t hi_sync_queue_get_max_size(hi_sync_queue_t *queue)
+hi_size_t hi_sync_queue_get_max_size(hi_sync_queue_t *queue)
 {
     hi_size_t size;
     hi_mutex_lock(&(queue->mutex));
@@ -506,28 +506,28 @@ inline hi_size_t hi_sync_queue_get_max_size(hi_sync_queue_t *queue)
     return size;
 }
 
-inline void hi_sync_queue_del_first(hi_sync_queue_t *queue)
+void hi_sync_queue_del_first(hi_sync_queue_t *queue)
 {
     hi_mutex_lock(&(queue->mutex));
     hi_queue_del_first(&(queue->unsafe));
     hi_mutex_unlock(&(queue->mutex));
 }
 
-inline void hi_sync_queue_del_last(hi_sync_queue_t *queue)
+void hi_sync_queue_del_last(hi_sync_queue_t *queue)
 {
     hi_mutex_lock(&(queue->mutex));
     hi_queue_del_last(&(queue->unsafe));
     hi_mutex_unlock(&(queue->mutex));
 }
 
-inline void hi_sync_queue_del(hi_sync_queue_t *queue, hi_iter_t iter)
+void hi_sync_queue_del(hi_sync_queue_t *queue, hi_iter_t iter)
 {
     hi_mutex_lock(&(queue->mutex));
     hi_queue_del(&(queue->unsafe), iter);
     hi_mutex_unlock(&(queue->mutex));
 }
 
-inline void hi_sync_queue_del_all(hi_sync_queue_t *queue)
+void hi_sync_queue_del_all(hi_sync_queue_t *queue)
 {
     hi_mutex_lock(&(queue->mutex));
     hi_queue_del_all(&(queue->unsafe));
@@ -544,7 +544,7 @@ inline hi_iter_t hi_sync_queue_end(hi_sync_queue_t *queue)
     return queue->unsafe.last;
 }
 
-inline hi_iter_t hi_sync_queue_next(hi_sync_queue_t *queue, hi_iter_t iter)
+hi_iter_t hi_sync_queue_next(hi_sync_queue_t *queue, hi_iter_t iter)
 {
     hi_mutex_lock(&(queue->mutex));
     iter = hi_queue_next(&(queue->unsafe), iter);
@@ -552,7 +552,7 @@ inline hi_iter_t hi_sync_queue_next(hi_sync_queue_t *queue, hi_iter_t iter)
     return iter;
 }
 
-inline hi_iter_t hi_sync_queue_prev(hi_sync_queue_t *queue, hi_iter_t iter)
+hi_iter_t hi_sync_queue_prev(hi_sync_queue_t *queue, hi_iter_t iter)
 {
     hi_mutex_lock(&(queue->mutex));
     iter = hi_queue_prev(&(queue->unsafe), iter);

@@ -47,7 +47,7 @@ inline hi_object_ref_t* hi_object_ref(hi_object *object)
     return (void*)object - sizeof(hi_object_ref_t);
 }
 
-inline void* hi_object_new(hi_class* class_inf)
+void* hi_object_new(hi_class* class_inf)
 {
     hi_object_ref_t *ref = hi_malloc(class_inf->size + sizeof(hi_object_ref_t));
     HI_SETZERO(ref->state);
@@ -62,7 +62,7 @@ inline void* hi_object_retain(hi_object *object)
     return object;
 }
 
-inline void* hi_object_release(hi_object *object)
+void* hi_object_release(hi_object *object)
 {
     if (hi_object_ref(object)->ref_cnt <= 0) {
         HI_LOGE("release <%zx> error, ref_cnt is 0.\n", (hi_size_t)object);
@@ -78,7 +78,7 @@ inline void* hi_object_release(hi_object *object)
 
 inline void* hi_object_copying(hi_object *src, hi_object *dist)
 {
-    memcpy(dist, src, src->_meta->size);
+    hi_memcpy(dist, src, src->_meta->size);
     return dist;
 }
 

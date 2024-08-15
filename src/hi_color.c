@@ -23,7 +23,7 @@
 #include "hi_color.h"
 #include "hi_math.h"
 
-inline void hi_color_init_rgb(hi_color_t *color, double r, double g, double b)
+void hi_color_init_rgb(hi_color_t *color, double r, double g, double b)
 {
 	color->space = HI_COLOR_SPACE_RGB;
 	color->value.rgb.r = r;
@@ -31,7 +31,7 @@ inline void hi_color_init_rgb(hi_color_t *color, double r, double g, double b)
 	color->value.rgb.b = b;
 }
 
-inline void hi_color_init_hsl(hi_color_t *color, double h, double s, double l)
+void hi_color_init_hsl(hi_color_t *color, double h, double s, double l)
 {
 	color->space = HI_COLOR_SPACE_HSL;
 	color->value.hsl.h = h;
@@ -39,7 +39,7 @@ inline void hi_color_init_hsl(hi_color_t *color, double h, double s, double l)
 	color->value.hsl.l = l;
 }
 
-inline hi_color_t hi_color_rgb2hsl(const hi_color_t *color)
+hi_color_t hi_color_rgb2hsl(const hi_color_t *color)
 {   
     hi_color_t output_color = {
         .space = HI_COLOR_SPACE_HSL,

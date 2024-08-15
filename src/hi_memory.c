@@ -53,7 +53,7 @@ inline void hi_free(void* ptr)
     hi_osal()->mem.free_imp(ptr);
 }
 
-inline hi_mem_pool_t* hi_mem_pool_new(hi_mem_pool_config_t config)
+hi_mem_pool_t* hi_mem_pool_new(hi_mem_pool_config_t config)
 {
     if (config.block_size < sizeof(hi_size_t)) {
         config.block_size = sizeof(hi_size_t);
@@ -75,7 +75,7 @@ inline hi_mem_pool_t* hi_mem_pool_new(hi_mem_pool_config_t config)
     return pool;
 }
 
-inline hi_mem_pool_t* hi_mem_pool_realloc(hi_mem_pool_t* pool, hi_size_t block_count)
+hi_mem_pool_t* hi_mem_pool_realloc(hi_mem_pool_t* pool, hi_size_t block_count)
 {
     pool = hi_realloc(pool, sizeof(hi_mem_pool_t) + pool->config.block_size * (block_count + (block_count >> 3) + 1));
     if (pool == NULL) return NULL;
@@ -91,7 +91,7 @@ inline void hi_mem_pool_free(hi_mem_pool_t* pool)
     hi_free(pool);
 }
 
-inline hi_iter_t hi_mem_pool_take(hi_mem_pool_t* pool)
+hi_iter_t hi_mem_pool_take(hi_mem_pool_t* pool)
 {
     //Will cause critical bugs. so must be assert here.
     // assert((pool != NULL) && pool->config.block_size >= sizeof(hi_iter_t));
@@ -112,7 +112,7 @@ inline hi_iter_t hi_mem_pool_take(hi_mem_pool_t* pool)
     return block;
 }
 
-inline hi_iter_t hi_mem_pool_try(hi_mem_pool_t* pool)
+hi_iter_t hi_mem_pool_try(hi_mem_pool_t* pool)
 {
     //Will cause critical bugs. so must be assert here.
     // assert((pool != NULL) && pool->config.block_size >= sizeof(hi_iter_t));
@@ -138,7 +138,7 @@ inline uint8_t hi_mem_block_check_full(hi_mem_pool_t* pool)
     return (pool == NULL) || pool->cur >= pool->config.block_size * pool->config.block_count;
 }
 
-inline void hi_mem_pool_bring(hi_mem_pool_t* pool, hi_iter_t block)
+void hi_mem_pool_bring(hi_mem_pool_t* pool, hi_iter_t block)
 {
     if (pool == NULL || block == HI_ITER_NULL || (pool->config.use_check && HI_MEM_POOL_IS_IN_USE(pool, block) == 0)) return ;
 

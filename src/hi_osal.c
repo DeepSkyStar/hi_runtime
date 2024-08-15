@@ -19,6 +19,9 @@
  *  limitations under the License.
  */
 #include "hi_osal.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #if _HI_ESP32
 #include "freertos/FreeRTOS.h"

@@ -22,12 +22,10 @@
 #ifndef HI_DEFINES_H_
 #define HI_DEFINES_H_
 
-
 #include <stdio.h>
 #include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
+// #include <stdlib.h>
+// #include <math.h>
 
 //Chips & Systems Define Here.
 

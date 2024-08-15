@@ -40,7 +40,7 @@
 #define _HI_MAP_SET_RED(__map__, __iter__) HI_MAP_NODE(__map__, __iter__)->parent = (HI_MAP_NODE(__map__, __iter__)->parent != HI_ITER_NULL ? _HI_MAP_RED_ITER(HI_MAP_NODE(__map__, __iter__)->parent) : HI_ITER_NULL)
 
 
-inline hi_map_t* hi_map_new(hi_size_t data_size, hi_size_t max_size)
+hi_map_t* hi_map_new(hi_size_t data_size, hi_size_t max_size)
 {
 	hi_map_t *map = hi_malloc(sizeof(hi_map_t));
 	map->pool = hi_mem_pool_new((hi_mem_pool_config_t){
@@ -52,7 +52,7 @@ inline hi_map_t* hi_map_new(hi_size_t data_size, hi_size_t max_size)
 	return map;
 }
 
-inline void hi_map_init(hi_map_t *map)
+void hi_map_init(hi_map_t *map)
 {
     map->root = HI_ITER_NULL;
 	map->usage = 0;
@@ -60,14 +60,14 @@ inline void hi_map_init(hi_map_t *map)
 	// map->pool->config.use_check = 0;
 }
 
-inline void hi_map_init_with_pool(hi_map_t *map, hi_mem_pool_t *pool)
+void hi_map_init_with_pool(hi_map_t *map, hi_mem_pool_t *pool)
 {
 	map->root = HI_ITER_NULL;
 	map->usage = 0;
 	map->pool = pool;
 }
 
-inline void hi_map_deinit(hi_map_t *map)
+void hi_map_deinit(hi_map_t *map)
 {
 	hi_map_del_all(map);
 	hi_mem_pool_free(map->pool);
@@ -75,7 +75,7 @@ inline void hi_map_deinit(hi_map_t *map)
 	map->root = HI_ITER_NULL;
 }
 
-inline void hi_map_free(hi_map_t *map)
+void hi_map_free(hi_map_t *map)
 {
 	hi_map_deinit(map);
 	hi_free(map);
@@ -348,7 +348,7 @@ hi_iter_t hi_map_set(hi_map_t *map, hi_map_key_t key, const void* data, hi_size_
     return HI_MAP_ITER(result);
 }
 
-inline void* hi_map_get(hi_map_t *map, hi_map_key_t key)
+void* hi_map_get(hi_map_t *map, hi_map_key_t key)
 {
 	hi_iter_t iter = hi_map_get_iter(map, key);
 	if (iter == HI_ITER_NULL) return NULL;
@@ -360,7 +360,7 @@ inline hi_map_node_t* hi_map_get_node(hi_map_t *map, hi_iter_t iter)
 	return HI_MAP_NODE(map, iter);
 }
 
-inline hi_iter_t hi_map_get_iter(hi_map_t *map, hi_map_key_t key)
+hi_iter_t hi_map_get_iter(hi_map_t *map, hi_map_key_t key)
 {
     if (map == NULL) return HI_ITER_NULL;
     if (map->pool == NULL) return HI_ITER_NULL;
@@ -403,7 +403,7 @@ hi_iter_t __hi_map_find_right_last(hi_map_t *map, hi_iter_t node)
 	return node;
 }
 
-inline void hi_map_del(hi_map_t *map, hi_map_key_t key)
+void hi_map_del(hi_map_t *map, hi_map_key_t key)
 {
 	// struct rb_node *node = NULL, *sibling, *tmp1, *tmp2;
 	if (map == NULL || map->root == HI_ITER_NULL || map->usage == 0) return;
@@ -666,7 +666,7 @@ inline void hi_map_del(hi_map_t *map, hi_map_key_t key)
 	}
 }
 
-inline void hi_map_del_all(hi_map_t *map)
+void hi_map_del_all(hi_map_t *map)
 {
 	map->root = HI_ITER_NULL;
 	map->usage = 0;
@@ -678,7 +678,7 @@ inline hi_iter_t hi_map_begin(hi_map_t *map)
 	return __hi_map_find_left_last(map, map->root);
 }
 
-inline hi_iter_t hi_map_next(hi_map_t *map, hi_iter_t node)
+hi_iter_t hi_map_next(hi_map_t *map, hi_iter_t node)
 {
     if (node == HI_ITER_NULL)
 	{
@@ -749,7 +749,7 @@ inline hi_size_t hi_map_depth(hi_map_t *map)
 
 /************************************************************* Sync Map ******************************************************************/
 
-inline hi_sync_map_t* hi_sync_map_new(hi_size_t data_size, hi_size_t max_size)
+hi_sync_map_t* hi_sync_map_new(hi_size_t data_size, hi_size_t max_size)
 {
 	hi_sync_map_t *map = hi_malloc(sizeof(hi_sync_map_t));
 	map->unsafe.pool = hi_mem_pool_new((hi_mem_pool_config_t){
@@ -761,7 +761,7 @@ inline hi_sync_map_t* hi_sync_map_new(hi_size_t data_size, hi_size_t max_size)
 	return map;
 }
 
-inline void hi_sync_map_init(hi_sync_map_t *map)
+void hi_sync_map_init(hi_sync_map_t *map)
 {
 	hi_mutex_init(&(map->mutex));
 	hi_mutex_lock(&(map->mutex));
@@ -769,7 +769,7 @@ inline void hi_sync_map_init(hi_sync_map_t *map)
 	hi_mutex_unlock(&(map->mutex));
 }
 
-inline void hi_sync_map_init_with_pool(hi_sync_map_t *map, hi_mem_pool_t *pool)
+void hi_sync_map_init_with_pool(hi_sync_map_t *map, hi_mem_pool_t *pool)
 {
 	hi_mutex_init(&(map->mutex));
 	hi_mutex_lock(&(map->mutex));
@@ -777,7 +777,7 @@ inline void hi_sync_map_init_with_pool(hi_sync_map_t *map, hi_mem_pool_t *pool)
 	hi_mutex_unlock(&(map->mutex));
 }
 
-inline void hi_sync_map_deinit(hi_sync_map_t *map)
+void hi_sync_map_deinit(hi_sync_map_t *map)
 {
 	hi_mutex_lock(&(map->mutex));
 	hi_map_deinit(&(map->unsafe));
@@ -785,7 +785,7 @@ inline void hi_sync_map_deinit(hi_sync_map_t *map)
 	hi_mutex_deinit(&(map->mutex));
 }
 
-inline void hi_sync_map_free(hi_sync_map_t *map)
+void hi_sync_map_free(hi_sync_map_t *map)
 {
 	hi_sync_map_deinit(map);
 	hi_free(map);

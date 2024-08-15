@@ -84,7 +84,7 @@ void hi_runloop_init(hi_runloop_t *runloop)
     runloop->thread.func = (hi_thread_func_f)hi_runloop_main;
 }
 
-inline void hi_runloop_start(hi_runloop_t *runloop)
+void hi_runloop_start(hi_runloop_t *runloop)
 {
     if (runloop->_state.is_running) {
         return;
@@ -95,7 +95,7 @@ inline void hi_runloop_start(hi_runloop_t *runloop)
     hi_thread_init(&(runloop->thread));
 }
 
-inline void hi_runloop_wait(hi_runloop_t *runloop)
+void hi_runloop_wait(hi_runloop_t *runloop)
 {
     // hi_thread_join(&(runloop->thread));
     // HI_LOGD("wait runloop %d before lock %d", runloop , runloop->_state.thread_mutex.mutex);
@@ -109,7 +109,7 @@ inline void hi_runloop_stop(hi_runloop_t *runloop)
     runloop->_state.is_running = 0;
 }
 
-inline void hi_runloop_deinit(hi_runloop_t *runloop)
+void hi_runloop_deinit(hi_runloop_t *runloop)
 {
     hi_runloop_stop(runloop);
     hi_runloop_wait(runloop);
