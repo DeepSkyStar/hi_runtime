@@ -71,7 +71,8 @@
 #include <unistd.h>
 #endif
 
-#if _HI_NO_DEBUG_LOG
+#ifndef DEBUG
+#define _HI_NO_DEBUG_LOG (1)
 #endif
 
 #ifdef __cplusplus
